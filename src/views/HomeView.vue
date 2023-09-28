@@ -1,24 +1,22 @@
 <template>
-  <div class="view col">
-    <div class="row">
-      <button
-        v-for="t in GameTypes"
-        :class="{ selected: t == gameType }"
-        @click="gameType = t"
-      >
-        {{ t }}
-      </button>
-    </div>
+  <div class="row">
     <button
-      v-for="player in playerStore.players"
-      :class="{ selected: players.has(player) }"
-      @click="togglePlayer(player)"
+      v-for="t in GameTypes"
+      :class="{ selected: t == gameType }"
+      @click="gameType = t"
     >
-      {{ player.name }}
+      {{ t }}
     </button>
-    <button @click="playerStore.addPlayer">+ Add Player</button>
-    <button :disabled="players.size == 0" @click="onPlay">Play</button>
   </div>
+  <button
+    v-for="player in playerStore.players"
+    :class="{ selected: players.has(player) }"
+    @click="togglePlayer(player)"
+  >
+    {{ player.name }}
+  </button>
+  <button @click="playerStore.addPlayer">+ Add Player</button>
+  <button :disabled="players.size == 0" @click="onPlay">Play</button>
 </template>
 
 <script lang="ts" setup>

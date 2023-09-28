@@ -1,77 +1,79 @@
 <template>
-  <div v-if="gameStore.currentGame" class="view col">
-    <button @click="quit">Quit</button>
-    <div class="grid-players" style="grid-template-columns: 1fr 1fr">
-      <button
-        v-for="playerId in gameStore.getPlayerIds"
-        :class="{ selected: gameStore.currentPlayerId == playerId }"
-      >
-        {{ playerStore.getPlayer(playerId)?.name ?? 'Unknown' }}
-        <br />
-        {{
-          (gameStore.currentGame.type ?? 0) -
-          getLegScore(
-            gameStore.getPlayerLeg(playerId),
-            gameStore.currentGame.type
-          )
-        }}
-        ({{
-          getAvgLegScore(
-            gameStore.getPlayerLeg(playerId),
-            gameStore.currentGame.type
-          ).toFixed(1)
-        }})
-      </button>
-    </div>
-    <div class="row">
-      <button
-        v-for="(segment, i) in gameStore.getCurrentVisit"
-        :class="{ outlined: i == gameStore.getNumberOfThrows }"
-      >
-        {{ multiplierToString(segment?.multiplier) }} - {{ segment?.sector }}
-      </button>
-    </div>
-    <div class="row" style="justify-content: space-between">
-      <button
-        v-for="i in [1, 2, 3]"
-        @click="selectedMultiplier = i"
-        :disabled="i == 3 && selectedSector == 25"
-        :class="{
-          selected: selectedMultiplier == i,
-        }"
-      >
-        {{ multiplierToString(i) }}
-      </button>
-    </div>
-    <div class="grid-sectors">
-      <button
-        v-for="(_, i) in Array(20)"
-        @click="selectSector(i + 1)"
-        :class="{
-          selected: selectedSector == i + 1,
-        }"
-      >
-        {{ i + 1 }}
-      </button>
-      <button
-        @click="selectSector(0)"
-        :class="{
-          selected: selectedSector == 0,
-        }"
-      >
-        0
-      </button>
-      <button
-        :disabled="selectedMultiplier == 3"
-        @click="selectSector(25)"
-        :class="{
-          selected: selectedSector == 25,
-        }"
-      >
-        25
-      </button>
-      <button @click="gameStore.undoScore">❌</button>
-    </div>
+  <button @click="quit">Quit</button>
+  <div
+    v-if="gameStore.currentGame"
+    class="grid-players"
+    style="grid-template-columns: 1fr 1fr"
+  >
+    <button
+      v-for="playerId in gameStore.getPlayerIds"
+      :class="{ selected: gameStore.currentPlayerId == playerId }"
+    >
+      {{ playerStore.getPlayer(playerId)?.name ?? 'Unknown' }}
+      <br />
+      {{
+        (gameStore.currentGame.type ?? 0) -
+        getLegScore(
+          gameStore.getPlayerLeg(playerId),
+          gameStore.currentGame.type
+        )
+      }}
+      ({{
+        getAvgLegScore(
+          gameStore.getPlayerLeg(playerId),
+          gameStore.currentGame.type
+        ).toFixed(1)
+      }})
+    </button>
+  </div>
+  <div class="row">
+    <button
+      v-for="(segment, i) in gameStore.getCurrentVisit"
+      :class="{ outlined: i == gameStore.getNumberOfThrows }"
+    >
+      {{ multiplierToString(segment?.multiplier) }} - {{ segment?.sector }}
+    </button>
+  </div>
+  <div class="row" style="justify-content: space-between">
+    <button
+      v-for="i in [1, 2, 3]"
+      @click="selectedMultiplier = i"
+      :disabled="i == 3 && selectedSector == 25"
+      :class="{
+        selected: selectedMultiplier == i,
+      }"
+    >
+      {{ multiplierToString(i) }}
+    </button>
+  </div>
+  <div class="grid-sectors">
+    <button
+      v-for="(_, i) in Array(20)"
+      @click="selectSector(i + 1)"
+      :class="{
+        selected: selectedSector == i + 1,
+      }"
+    >
+      {{ i + 1 }}
+    </button>
+    <button
+      @click="selectSector(0)"
+      :class="{
+        selected: selectedSector == 0,
+      }"
+    >
+      0
+    </button>
+    <button
+      :disabled="selectedMultiplier == 3"
+      @click="selectSector(25)"
+      :class="{
+        selected: selectedSector == 25,
+      }"
+    >
+      25
+    </button>
+    <button @click="gameStore.undoScore">❌</button>
   </div>
 </template>
 

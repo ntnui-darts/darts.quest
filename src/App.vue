@@ -1,5 +1,5 @@
 <template>
-  <div class="view-container">
+  <div class="view-container col">
     <router-view></router-view>
   </div>
 </template>
@@ -10,11 +10,8 @@ import { RouterView } from 'vue-router';
 
 <style scoped>
 .view-container {
-  display: flex;
-  flex-direction: column;
   margin: auto;
   max-width: 600px;
-  margin-bottom: 400px;
   padding: 1em;
 }
 </style>
