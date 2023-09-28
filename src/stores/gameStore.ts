@@ -44,10 +44,11 @@ export const useGameStore = defineStore('game', {
       this.currentGame = game;
       if (this.currentGame.legs.length == 0) throw Error();
       this.currentPlayerId = this.currentGame.legs[0].playerId;
+      this.addVisitIfNecessary();
     },
     saveScore(segment: Segment) {
       if (!this.currentPlayerId || !this.currentGame) throw Error();
-      this.prepareNewSegment();
+      this.addVisitIfNecessary();
       const visit = this.getCurrentVisit;
       if (!visit) throw Error();
       const index = visit.indexOf(null);
@@ -63,7 +64,7 @@ export const useGameStore = defineStore('game', {
         this.prevPlayer();
       }
       const visit = this.getCurrentVisit;
-      if (!visit) throw Error();
+      if (!visit) return;
       for (let i = visit.length - 1; i >= 0; i--) {
         if (visit.at(i) != null) {
           visit[i] = null;
@@ -71,7 +72,7 @@ export const useGameStore = defineStore('game', {
         }
       }
     },
-    prepareNewSegment() {
+    addVisitIfNecessary() {
       if (!this.currentGame) throw Error();
       const leg = this.getCurrentLeg;
       if (!leg) throw Error();
@@ -94,7 +95,7 @@ export const useGameStore = defineStore('game', {
       )?.playerId;
       if (nextPlayer) {
         this.currentPlayerId = nextPlayer;
-        this.prepareNewSegment();
+        this.addVisitIfNecessary();
       }
     },
     prevPlayer() {
