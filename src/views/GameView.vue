@@ -24,7 +24,10 @@
       </button>
     </div>
     <div class="row">
-      <button v-for="segment in gameStore.getCurrentVisit">
+      <button
+        v-for="(segment, i) in gameStore.getCurrentVisit"
+        :class="{ outlined: i == gameStore.getNumberOfThrows }"
+      >
         {{ multiplierToString(segment?.multiplier) }} - {{ segment?.sector }}
       </button>
     </div>
@@ -133,5 +136,9 @@ const submitScore = () => {
 
 button {
   flex: 1;
+}
+
+.outlined {
+  outline: 1px solid white;
 }
 </style>

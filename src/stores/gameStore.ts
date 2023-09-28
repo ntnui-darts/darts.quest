@@ -64,7 +64,10 @@ export const useGameStore = defineStore('game', {
         this.prevPlayer();
       }
       const visit = this.getCurrentVisit;
-      if (!visit) return;
+      if (!visit) {
+        this.addVisitIfNecessary();
+        return;
+      }
       for (let i = visit.length - 1; i >= 0; i--) {
         if (visit.at(i) != null) {
           visit[i] = null;
@@ -123,9 +126,12 @@ export const useGameStore = defineStore('game', {
   },
 
   getters: {
-    getCurrentVisit(state): Visit | null {
-      if (!state.currentPlayerId) throw Error();
+    getCurrentVisit(): Visit | null {
+      if (!this.currentPlayerId) throw Error();
       return this.getCurrentLeg?.visits.at(-1) ?? null;
+    },
+    getNumberOfThrows(): number | null {
+      return this.getCurrentVisit?.findIndex((s) => s == null) ?? null;
     },
     getCurrentLeg: (state) => {
       if (!state.currentGame || !state.currentPlayerId) throw Error();
