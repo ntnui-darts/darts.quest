@@ -101,7 +101,7 @@ const submitScore = () => {
 
 .grid {
   display: grid;
-  column-gap: 1em;
+  column-gap: 0.5em;
   row-gap: 1em;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
