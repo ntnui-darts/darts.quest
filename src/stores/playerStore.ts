@@ -56,11 +56,7 @@ export const getAvgLegScore = (player: Player, currentMax: number) => {
 };
 
 const getVisitScore = (visit: Visit) => {
-  return (
-    getSegmentScore(visit[0]) +
-    getSegmentScore(visit[1]) +
-    getSegmentScore(visit[2])
-  );
+  return visit.reduce((prev, current) => prev + getSegmentScore(current), 0);
 };
 
 const getSegmentScore = (segment: Segment | null) => {
@@ -107,7 +103,20 @@ export const usePlayerStore = defineStore('player', {
         this.nextPlayer();
       }
     },
-    undoScore() {},
+    undoScore() {
+      if (!this.currentPlayer) return;
+      if (this.getCurrentVisit.every((s) => s == null)) {
+        this.currentPlayer.legs.at(-1)?.visits.pop();
+        this.prevPlayer();
+      }
+      const visit = this.getCurrentVisit;
+      for (let i = visit.length - 1; i >= 0; i--) {
+        if (visit.at(i) != null) {
+          visit[i] = null;
+          return;
+        }
+      }
+    },
     newVisit() {
       if (!this.currentPlayer) return;
       const leg = this.currentPlayer.legs.at(-1);
@@ -127,6 +136,18 @@ export const usePlayerStore = defineStore('player', {
       if (nextPlayer) {
         this.currentPlayer = nextPlayer;
         this.newVisit();
+      }
+    },
+    prevPlayer() {
+      if (this.players.length == 0) return;
+      if (!this.currentPlayer) {
+        this.currentPlayer = this.players[0];
+        return;
+      }
+      const index = this.players.indexOf(this.currentPlayer);
+      const nextPlayer = this.players.at((index - 1) % this.players.length);
+      if (nextPlayer) {
+        this.currentPlayer = nextPlayer;
       }
     },
   },
