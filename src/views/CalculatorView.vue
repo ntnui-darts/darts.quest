@@ -13,7 +13,7 @@
         {{
           playerStore.currentMax - getLegScore(player, playerStore.currentMax)
         }}
-        (avg {{ getAvgLegScore(player, playerStore.currentMax) }})
+        (avg {{ getAvgLegScore(player, playerStore.currentMax).toFixed(1) }})
       </button>
       <button @click="playerStore.addPlayer">+ Add Player</button>
     </div>
