@@ -1,24 +1,30 @@
 <template>
-  <div class="view col">
-    <div class="row">
-      <p>Game: {{ playerStore.currentMax }}</p>
-    </div>
-    <div class="row">
+  <div v-if="gameStore.currentGame" class="view col">
+    <button @click="quit">Quit</button>
+    <div class="grid-players" style="grid-template-columns: 1fr 1fr">
       <button
-        v-for="player in playerStore.players"
-        :class="{ selected: playerStore.currentPlayer == player }"
+        v-for="playerId in gameStore.getPlayerIds"
+        :class="{ selected: gameStore.currentPlayerId == playerId }"
       >
-        {{ player.name }}
+        {{ playerStore.getPlayer(playerId)?.name ?? 'Unknown' }}
         <br />
         {{
-          playerStore.currentMax - getLegScore(player, playerStore.currentMax)
+          (gameStore.currentGame.type ?? 0) -
+          getLegScore(
+            gameStore.getPlayerLeg(playerId),
+            gameStore.currentGame.type
+          )
         }}
-        (avg {{ getAvgLegScore(player, playerStore.currentMax).toFixed(1) }})
+        ({{
+          getAvgLegScore(
+            gameStore.getPlayerLeg(playerId),
+            gameStore.currentGame.type
+          ).toFixed(1)
+        }})
       </button>
-      <button @click="playerStore.addPlayer">+ Add Player</button>
     </div>
     <div class="row">
-      <button v-for="segment in playerStore.getCurrentVisit">
+      <button v-for="segment in gameStore.getCurrentVisit">
         {{ multiplierToString(segment?.multiplier) }} - {{ segment?.sector }}
       </button>
     </div>
@@ -34,10 +40,10 @@
         {{ multiplierToString(i) }}
       </button>
     </div>
-    <div class="grid">
+    <div class="grid-sectors">
       <button
         v-for="(_, i) in Array(20)"
-        @click="selectedSector = i + 1"
+        @click="selectSector(i + 1)"
         :class="{
           selected: selectedSector == i + 1,
         }"
@@ -45,7 +51,7 @@
         {{ i + 1 }}
       </button>
       <button
-        @click="selectedSector = 0"
+        @click="selectSector(0)"
         :class="{
           selected: selectedSector == 0,
         }"
@@ -54,36 +60,54 @@
       </button>
       <button
         :disabled="selectedMultiplier == 3"
-        @click="selectedSector = 25"
+        @click="selectSector(25)"
         :class="{
           selected: selectedSector == 25,
         }"
       >
         25
       </button>
-      <button @click="playerStore.undoScore">❌</button>
-      <button @click="submitScore">✔️</button>
+      <button @click="gameStore.undoScore">❌</button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import {
-  usePlayerStore,
+  useGameStore,
   multiplierToString,
   getLegScore,
   getAvgLegScore,
-} from '../stores/playerStore';
+} from '../stores/gameStore';
+import { router } from '@/router';
+import { usePlayerStore } from '@/stores/playerStore';
 
+const gameStore = useGameStore();
 const playerStore = usePlayerStore();
 
 const selectedMultiplier = ref(1);
 const selectedSector = ref<number | null>(null);
 
+onMounted(() => {
+  if (!gameStore.currentGame) {
+    quit();
+  }
+});
+
+const quit = () => {
+  gameStore.$reset();
+  router.push('/');
+};
+
+const selectSector = (sector: number) => {
+  selectedSector.value = sector;
+  submitScore();
+};
+
 const submitScore = () => {
   if (selectedSector.value == null) return;
-  playerStore.saveScore({
+  gameStore.saveScore({
     multiplier: selectedMultiplier.value,
     sector: selectedSector.value,
   });
@@ -93,13 +117,14 @@ const submitScore = () => {
 </script>
 
 <style scoped>
-.view {
-  margin: auto;
-  max-width: 600px;
-  font-size: 1em;
+.grid-players {
+  display: grid;
+  column-gap: 1em;
+  row-gap: 1em;
+  grid-template-columns: 1fr 1fr;
 }
 
-.grid {
+.grid-sectors {
   display: grid;
   column-gap: 0.5em;
   row-gap: 1em;
@@ -108,15 +133,5 @@ const submitScore = () => {
 
 button {
   flex: 1;
-}
-
-button:disabled {
-  background-color: rgb(60, 60, 60);
-  color: #999999;
-}
-
-button.selected {
-  background-color: rgb(19, 221, 97);
-  color: black;
 }
 </style>

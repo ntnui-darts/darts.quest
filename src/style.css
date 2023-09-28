@@ -26,11 +26,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border-color: rgb(19, 221, 97);
 }
 
 .col {
@@ -43,4 +39,15 @@ button:focus-visible {
   display: flex;
   flex-direction: row;
   gap: 1em;
+}
+
+.view {
+  margin: auto;
+  max-width: 600px;
+  font-size: 1em;
+}
+
+button.selected {
+  background-color: rgb(19, 221, 97);
+  color: black;
 }
