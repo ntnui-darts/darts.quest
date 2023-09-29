@@ -12,6 +12,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  --c-green: rgb(19, 221, 97);
 }
 
 button {
@@ -28,7 +30,7 @@ button {
   flex: 1;
 }
 button:hover {
-  border-color: rgb(19, 221, 97);
+  border-color: var(--c-green);
 }
 
 .col {
@@ -52,7 +54,7 @@ button:hover {
 }
 
 button.selected {
-  background-color: rgb(19, 221, 97);
+  background-color: var(--c-green);
   color: black;
 }
 

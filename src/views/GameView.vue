@@ -137,6 +137,6 @@ button {
 }
 
 .outlined {
-  outline: 1px solid white;
+  outline: 1px solid var(--c-green);
 }
 </style>
