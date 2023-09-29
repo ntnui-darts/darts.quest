@@ -1,76 +1,95 @@
 <template>
   <button @click="quit">Quit</button>
-  <div
-    v-if="gameStore.currentGame"
-    class="grid-users"
-    style="grid-template-columns: 1fr 1fr"
-  >
-    <button
-      v-for="userId in gameStore.getUserIds"
-      :class="{ selected: gameStore.currentUserId == userId }"
-    >
-      {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
-      <br />
-      {{
-        (gameStore.currentGame.type ?? 0) -
-        getLegScore(gameStore.getUserLeg(userId), gameStore.currentGame.type)
-      }}
-      ({{
-        getAvgLegScore(
-          gameStore.getUserLeg(userId),
-          gameStore.currentGame.type
-        ).toFixed(1)
-      }})
-    </button>
+  <div v-if="gameStore.currentGame?.status == 'in progress'" class="col">
+    <div class="grid-users" style="grid-template-columns: 1fr 1fr">
+      <button
+        v-for="userId in gameStore.getUserIds"
+        :class="{ selected: gameStore.currentUserId == userId }"
+      >
+        {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
+        <br />
+        {{
+          (gameStore.currentGame.type ?? 0) -
+          getLegScore(gameStore.getUserLeg(userId), gameStore.currentGame.type)
+        }}
+        ({{
+          getAvgLegScore(
+            gameStore.getUserLeg(userId),
+            gameStore.currentGame.type
+          ).toFixed(1)
+        }})
+      </button>
+    </div>
+    <div class="row">
+      <button
+        v-for="(segment, i) in gameStore.getCurrentVisit"
+        :class="{ outlined: i == gameStore.getNumberOfThrows }"
+      >
+        {{ multiplierToString(segment?.multiplier) }} - {{ segment?.sector }}
+      </button>
+    </div>
+    <div class="row" style="justify-content: space-between">
+      <button
+        v-for="i in [1, 2, 3]"
+        @click="selectedMultiplier = i"
+        :disabled="i == 3 && selectedSector == 25"
+        :class="{
+          selected: selectedMultiplier == i,
+        }"
+      >
+        {{ multiplierToString(i) }}
+      </button>
+    </div>
+    <div class="grid-sectors">
+      <button
+        v-for="(_, i) in Array(20)"
+        @click="selectSector(i + 1)"
+        :class="{
+          selected: selectedSector == i + 1,
+        }"
+      >
+        {{ i + 1 }}
+      </button>
+      <button
+        @click="selectSector(0)"
+        :class="{
+          selected: selectedSector == 0,
+        }"
+      >
+        0
+      </button>
+      <button
+        :disabled="selectedMultiplier == 3"
+        @click="selectSector(25)"
+        :class="{
+          selected: selectedSector == 25,
+        }"
+      >
+        25
+      </button>
+      <button @click="gameStore.undoScore">❌</button>
+    </div>
   </div>
-  <div class="row">
-    <button
-      v-for="(segment, i) in gameStore.getCurrentVisit"
-      :class="{ outlined: i == gameStore.getNumberOfThrows }"
-    >
-      {{ multiplierToString(segment?.multiplier) }} - {{ segment?.sector }}
-    </button>
-  </div>
-  <div class="row" style="justify-content: space-between">
-    <button
-      v-for="i in [1, 2, 3]"
-      @click="selectedMultiplier = i"
-      :disabled="i == 3 && selectedSector == 25"
-      :class="{
-        selected: selectedMultiplier == i,
-      }"
-    >
-      {{ multiplierToString(i) }}
-    </button>
-  </div>
-  <div class="grid-sectors">
-    <button
-      v-for="(_, i) in Array(20)"
-      @click="selectSector(i + 1)"
-      :class="{
-        selected: selectedSector == i + 1,
-      }"
-    >
-      {{ i + 1 }}
-    </button>
-    <button
-      @click="selectSector(0)"
-      :class="{
-        selected: selectedSector == 0,
-      }"
-    >
-      0
-    </button>
-    <button
-      :disabled="selectedMultiplier == 3"
-      @click="selectSector(25)"
-      :class="{
-        selected: selectedSector == 25,
-      }"
-    >
-      25
-    </button>
-    <button @click="gameStore.undoScore">❌</button>
+  <div v-if="gameStore.currentGame?.status == 'complete'" class="col">
+    <h2>Results, {{ gameStore.currentGame.type }}</h2>
+    <ol>
+      <li v-for="id in gameStore.currentGame.result">
+        {{ usersStore.getUser(id)?.name ?? 'Unknown' }},
+        {{
+          gameStore.currentGame.legs.find((leg) => leg.userId == id)?.visits
+            .length
+        }}
+        turns,
+        {{
+          getAvgLegScore(
+            gameStore.currentGame.legs.find((leg) => leg.userId == id) ?? null,
+            gameStore.currentGame.type,
+            true
+          ).toFixed(1)
+        }}
+        average.
+      </li>
+    </ol>
   </div>
 </template>
 

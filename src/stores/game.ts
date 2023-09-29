@@ -29,10 +29,13 @@ type Leg = {
   userId: string;
 };
 
+type GameStatus = 'in progress' | 'complete';
 type Game = {
   id: string;
   legs: Leg[];
   type: GameType;
+  result: string[];
+  status: GameStatus;
 };
 
 export const useGameStore = defineStore('game', {
@@ -50,12 +53,20 @@ export const useGameStore = defineStore('game', {
     },
     saveScore(segment: Segment) {
       if (!this.currentUserId || !this.currentGame) throw Error();
+      if (this.currentGame.result.includes(this.currentUserId)) return;
       this.addVisitIfNecessary();
       const visit = this.getCurrentVisit;
       if (!visit) throw Error();
       const index = visit.indexOf(null);
       visit[index] = segment;
-      if (index == 2) {
+
+      if (
+        getLegScore(this.getCurrentLeg, this.currentGame.type) ==
+        this.currentGame.type
+      ) {
+        this.currentGame.result.push(this.currentUserId);
+        this.nextUser();
+      } else if (index == 2) {
         this.nextUser();
       }
     },
@@ -81,6 +92,9 @@ export const useGameStore = defineStore('game', {
       if (!this.currentGame) throw Error();
       const leg = this.getCurrentLeg;
       if (!leg) throw Error();
+      if (getLegScore(leg, this.currentGame.type) == this.currentGame.type) {
+        return;
+      }
       if (leg.visits.length == 0 || leg.visits.at(-1)?.[2] != null) {
         leg.visits.push([null, null, null]);
       }
@@ -89,6 +103,10 @@ export const useGameStore = defineStore('game', {
       if (!this.currentGame?.legs.length) throw Error();
       if (!this.currentUserId) {
         this.currentUserId = this.currentGame?.legs[0].userId ?? null;
+        return;
+      }
+      if (this.currentGame.result.length == this.currentGame.legs.length) {
+        this.currentGame.status = 'complete';
         return;
       }
       const index = this.currentGame.legs.findIndex(
@@ -101,6 +119,9 @@ export const useGameStore = defineStore('game', {
       if (nextUser) {
         this.currentUserId = nextUser;
         this.addVisitIfNecessary();
+      }
+      if (this.currentGame.result.includes(this.currentUserId)) {
+        this.nextUser();
       }
     },
     prevUser() {
@@ -127,14 +148,14 @@ export const useGameStore = defineStore('game', {
 
   getters: {
     getCurrentVisit(): Visit | null {
-      if (!this.currentUserId) throw Error();
+      if (!this.currentUserId) return null;
       return this.getCurrentLeg?.visits.at(-1) ?? null;
     },
     getNumberOfThrows(): number | null {
       return this.getCurrentVisit?.findIndex((s) => s == null) ?? null;
     },
     getCurrentLeg: (state) => {
-      if (!state.currentGame || !state.currentUserId) throw Error();
+      if (!state.currentGame || !state.currentUserId) return null;
       return (
         state.currentGame.legs.find(
           (leg) => leg.userId == state.currentUserId
@@ -170,10 +191,16 @@ export const getLegScore = (
   return score;
 };
 
-export const getAvgLegScore = (leg: Leg | null, gameType: GameType) => {
-  const count = leg?.visits.filter((visit) => !visit.includes(null)).length;
+export const getAvgLegScore = (
+  leg: Leg | null,
+  gameType: GameType,
+  includeUnfinished = false
+) => {
+  const count = includeUnfinished
+    ? leg?.visits.length
+    : leg?.visits.filter((visit) => !visit.includes(null)).length;
   if (!count) return 0;
-  return getLegScore(leg, gameType, false) / count;
+  return getLegScore(leg, gameType, includeUnfinished) / count;
 };
 
 const getVisitScore = (visit: Visit, includeUnfinished = true) => {

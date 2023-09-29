@@ -6,7 +6,6 @@
     My Profile
   </button>
   <br />
-  <h1>New Game</h1>
   <h2>Select Game Type</h2>
   <div class="row">
     <button
@@ -40,11 +39,11 @@ import { GameType, GameTypes, useGameStore } from '@/stores/game';
 import { useUsersStore, User } from '@/stores/users';
 import { ref } from 'vue';
 
-const selectedUsers = ref(new Set<User>());
-const gameType = ref<GameType>(501);
-
 const gameStore = useGameStore();
 const usersStore = useUsersStore();
+
+const selectedUsers = ref(new Set<User>());
+const gameType = ref<GameType>(501);
 
 const toggleUser = (user: User) => {
   if (selectedUsers.value.has(user)) {
@@ -65,6 +64,8 @@ const onPlay = () => {
       arrows: 'unknown',
     })),
     type: gameType.value,
+    result: [],
+    status: 'in progress',
   });
   router.push({ name: 'game' });
 };

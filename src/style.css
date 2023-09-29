@@ -32,6 +32,13 @@ button {
 button:hover {
   border-color: var(--c-green);
 }
+button.selected {
+  background-color: var(--c-green);
+  color: black;
+}
+button:disabled {
+  color: rgba(255, 255, 255, 0.4);
+}
 
 .col {
   display: flex;
@@ -51,11 +58,6 @@ button:hover {
 
 .center {
   justify-content: center;
-}
-
-button.selected {
-  background-color: var(--c-green);
-  color: black;
 }
 
 input {
