@@ -27,11 +27,12 @@ export const useAuthStore = defineStore('user', {
         password,
         options: { emailRedirectTo: signInRedirectUrl },
       });
-      useUsersStore().fetchUsers();
+      await useUsersStore().fetchUsers();
       await this.getSession();
     },
     async signIn(email: string, password: string) {
       await supabase.auth.signInWithPassword({ email, password });
+      await useUsersStore().fetchUsers();
       await this.getSession();
     },
     async signOut() {
@@ -47,7 +48,7 @@ export const useAuthStore = defineStore('user', {
         await supabase.from('users').insert({ name });
       } else {
         await supabase.from('users').update({ name }).eq('id', this.auth.id);
-        useUsersStore().fetchUsers();
+        await useUsersStore().fetchUsers();
       }
     },
   },
