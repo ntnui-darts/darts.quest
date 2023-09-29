@@ -5,7 +5,7 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
-  base: 'dartpp',
+  base: '/dartpp/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

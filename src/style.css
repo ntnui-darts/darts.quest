@@ -41,7 +41,19 @@ button:hover {
   gap: 1em;
 }
 
+.spaced {
+  justify-content: space-between;
+}
+
+.center {
+  justify-content: center;
+}
+
 button.selected {
   background-color: rgb(19, 221, 97);
   color: black;
+}
+
+input {
+  padding: 0.5em;
 }

@@ -9,7 +9,7 @@
       v-for="userId in gameStore.getUserIds"
       :class="{ selected: gameStore.currentUserId == userId }"
     >
-      {{ userStore.getUser(userId)?.name ?? 'Unknown' }}
+      <!-- {{ userStore.getUser(userId)?.name ?? 'Unknown' }} -->
       <br />
       {{
         (gameStore.currentGame.type ?? 0) -
@@ -83,10 +83,10 @@ import {
   getAvgLegScore,
 } from '../stores/gameStore';
 import { router } from '@/router';
-import { useUserStore } from '@/stores/userStore';
+// import { useUserStore } from '@/stores/userStore';
 
 const gameStore = useGameStore();
-const userStore = useUserStore();
+// const userStore = useUserStore();
 
 const selectedMultiplier = ref(1);
 const selectedSector = ref<number | null>(null);

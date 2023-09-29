@@ -1,5 +1,5 @@
 <template>
-  <div class="view-container col">
+  <div v-auto-animate class="view-container col">
     <router-view></router-view>
   </div>
 </template>

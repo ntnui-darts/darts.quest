@@ -23,12 +23,14 @@ export const GameTypes = {
 export type GameType = keyof typeof GameTypes;
 
 type Leg = {
+  id: string;
   visits: Visit[];
   arrows: string;
   userId: string;
 };
 
 type Game = {
+  id: string;
   legs: Leg[];
   type: GameType;
 };

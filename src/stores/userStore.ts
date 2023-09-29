@@ -1,25 +1,67 @@
-import { defineStore } from 'pinia';
-import { nanoid } from 'nanoid';
+import { acceptHMRUpdate, defineStore } from 'pinia';
+import { User } from '@supabase/supabase-js';
+import { supabase } from '@/supabase';
 
-export type User = {
-  name: string;
-  id: string;
-};
+const signInRedirectUrl = import.meta.env.DEV
+  ? 'http://127.0.0.1:5173/#/'
+  : 'https://ntnui-darts.github.io/dartpp/#/';
+
+supabase.auth.onAuthStateChange(() => {
+  useUserStore().getUser();
+});
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    users: [] as User[],
+    user: undefined as User | undefined,
+    name: '',
   }),
 
   actions: {
-    addUser() {
-      const name = prompt('Name');
-      if (name) {
-        this.users.push({ name, id: nanoid(12) });
+    async getUser() {
+      const response = await supabase.auth.getSession();
+      this.user = response.data.session?.user;
+      if (this.user) {
+        const name = await supabase
+          .from('names')
+          .select('name')
+          .eq('id', this.user.id);
+        if (name.data?.length == 1) {
+          this.name = name.data[0].name;
+        }
+      } else {
+        this.name = '';
       }
     },
-    getUser(userId: string) {
-      return this.users.find((user) => user.id == userId);
+    async signUp(email: string, password: string) {
+      await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: signInRedirectUrl },
+      });
+      await this.getUser();
+    },
+    async signIn(email: string, password: string) {
+      await supabase.auth.signInWithPassword({ email, password });
+      await this.getUser();
+    },
+    async signOut() {
+      await supabase.auth.signOut();
+    },
+    async setName(name: string) {
+      if (!this.user) throw Error();
+      const prevName = await supabase
+        .from('names')
+        .select('name')
+        .eq('id', this.user.id);
+      if (prevName.data?.length == 0) {
+        await supabase.from('names').insert({ name });
+      } else {
+        await supabase.from('names').update({ name });
+      }
     },
   },
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot));
+}
