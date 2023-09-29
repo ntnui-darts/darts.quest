@@ -24,6 +24,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  flex: 1;
 }
 button:hover {
   border-color: rgb(19, 221, 97);

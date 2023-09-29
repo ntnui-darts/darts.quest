@@ -1,18 +1,18 @@
 <template>
-  <button @click="router.push({ name: 'home' })">Back</button>
-  <p>{{ userStore.name }}</p>
-  <p>{{ userStore.user?.email }}</p>
-  <button @click="logout">Logout</button>
+  <button id="back" @click="router.push({ name: 'home' })">Back</button>
+  <p>{{ authStore.getName }}</p>
+  <p>{{ authStore.user?.email }}</p>
+  <button id="logout" @click="logout">Logout</button>
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from '@/stores/userStore';
+import { useAuthStore } from '@/stores/auth';
 import { router } from '@/router';
 
-const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const logout = async () => {
-  await userStore.signOut();
+  await authStore.signOut();
   router.push({ name: 'login' });
 };
 </script>

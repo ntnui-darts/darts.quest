@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "supabase": "supabase gen types typescript --project-id euetpcqmwfdwvbjdqufo --schema public > src/types/supabase.ts"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.0",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
+    "supabase": "^1.99.5",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vue-tsc": "^1.8.5"

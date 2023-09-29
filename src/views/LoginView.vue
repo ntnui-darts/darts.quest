@@ -29,10 +29,10 @@
 
 <script lang="ts" setup>
 import { router } from '@/router';
-import { useUserStore } from '@/stores/userStore';
+import { useAuthStore } from '@/stores/auth';
 import { onMounted, ref, watch } from 'vue';
 
-const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const name = ref('');
 const email = ref('');
@@ -70,12 +70,12 @@ const submit = async () => {
     }
   }
   try {
-    if (!userStore.user) {
+    if (!authStore.user) {
       if (signUp.value) {
-        await userStore.signUp(email.value, password.value);
-        await userStore.setName(name.value);
+        await authStore.signUp(email.value, password.value);
+        await authStore.setName(name.value);
       } else {
-        await userStore.signIn(email.value, password.value);
+        await authStore.signIn(email.value, password.value);
       }
     }
   } catch {
@@ -84,11 +84,11 @@ const submit = async () => {
 };
 
 onMounted(async () => {
-  await userStore.getUser();
+  await authStore.getSession();
 });
 
 watch(
-  () => userStore.user,
+  () => authStore.user,
   (user) => {
     if (user) {
       router.push({ name: 'home' });

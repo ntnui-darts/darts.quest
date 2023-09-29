@@ -1,36 +1,25 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { User } from '@supabase/supabase-js';
+import { User as AuthUser } from '@supabase/supabase-js';
 import { supabase } from '@/supabase';
+import { useUsersStore } from './users';
 
 const signInRedirectUrl = import.meta.env.DEV
   ? 'http://127.0.0.1:5173/#/'
   : 'https://ntnui-darts.github.io/dartpp/#/';
 
 supabase.auth.onAuthStateChange(() => {
-  useUserStore().getUser();
+  useAuthStore().getSession();
 });
 
-export const useUserStore = defineStore('user', {
+export const useAuthStore = defineStore('user', {
   state: () => ({
-    user: undefined as User | undefined,
-    name: '',
+    user: undefined as AuthUser | undefined,
   }),
 
   actions: {
-    async getUser() {
+    async getSession() {
       const response = await supabase.auth.getSession();
       this.user = response.data.session?.user;
-      if (this.user) {
-        const name = await supabase
-          .from('users')
-          .select('name')
-          .eq('id', this.user.id);
-        if (name.data?.length == 1) {
-          this.name = name.data[0].name;
-        }
-      } else {
-        this.name = '';
-      }
     },
     async signUp(email: string, password: string) {
       await supabase.auth.signUp({
@@ -38,11 +27,11 @@ export const useUserStore = defineStore('user', {
         password,
         options: { emailRedirectTo: signInRedirectUrl },
       });
-      await this.getUser();
+      await this.getSession();
     },
     async signIn(email: string, password: string) {
       await supabase.auth.signInWithPassword({ email, password });
-      await this.getUser();
+      await this.getSession();
     },
     async signOut() {
       await supabase.auth.signOut();
@@ -60,8 +49,14 @@ export const useUserStore = defineStore('user', {
       }
     },
   },
+
+  getters: {
+    getName: (state) => {
+      useUsersStore().getUser(state.user?.id)?.name;
+    },
+  },
 });
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));
 }

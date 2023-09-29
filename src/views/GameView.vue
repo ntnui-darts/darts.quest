@@ -9,7 +9,7 @@
       v-for="userId in gameStore.getUserIds"
       :class="{ selected: gameStore.currentUserId == userId }"
     >
-      <!-- {{ userStore.getUser(userId)?.name ?? 'Unknown' }} -->
+      {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
       <br />
       {{
         (gameStore.currentGame.type ?? 0) -
@@ -81,12 +81,12 @@ import {
   multiplierToString,
   getLegScore,
   getAvgLegScore,
-} from '../stores/gameStore';
+} from '../stores/game';
 import { router } from '@/router';
-// import { useUserStore } from '@/stores/userStore';
+import { useUsersStore } from '@/stores/users';
 
 const gameStore = useGameStore();
-// const userStore = useUserStore();
+const usersStore = useUsersStore();
 
 const selectedMultiplier = ref(1);
 const selectedSector = ref<number | null>(null);
@@ -98,7 +98,6 @@ onMounted(() => {
 });
 
 const quit = () => {
-  gameStore.$reset();
   router.push('/');
 };
 
@@ -141,4 +140,3 @@ button {
   outline: 1px solid white;
 }
 </style>
-@/stores/userStore
