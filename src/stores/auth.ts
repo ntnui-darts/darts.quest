@@ -27,6 +27,7 @@ export const useAuthStore = defineStore('user', {
         password,
         options: { emailRedirectTo: signInRedirectUrl },
       });
+      useUsersStore().fetchUsers();
       await this.getSession();
     },
     async signIn(email: string, password: string) {
