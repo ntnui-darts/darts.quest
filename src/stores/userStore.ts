@@ -22,7 +22,7 @@ export const useUserStore = defineStore('user', {
       this.user = response.data.session?.user;
       if (this.user) {
         const name = await supabase
-          .from('names')
+          .from('users')
           .select('name')
           .eq('id', this.user.id);
         if (name.data?.length == 1) {
@@ -50,13 +50,13 @@ export const useUserStore = defineStore('user', {
     async setName(name: string) {
       if (!this.user) throw Error();
       const prevName = await supabase
-        .from('names')
+        .from('users')
         .select('name')
         .eq('id', this.user.id);
       if (prevName.data?.length == 0) {
-        await supabase.from('names').insert({ name });
+        await supabase.from('users').insert({ name });
       } else {
-        await supabase.from('names').update({ name });
+        await supabase.from('users').update({ name });
       }
     },
   },
