@@ -13,13 +13,13 @@ supabase.auth.onAuthStateChange(() => {
 
 export const useAuthStore = defineStore('user', {
   state: () => ({
-    user: undefined as AuthUser | undefined,
+    auth: undefined as AuthUser | undefined,
   }),
 
   actions: {
     async getSession() {
       const response = await supabase.auth.getSession();
-      this.user = response.data.session?.user;
+      this.auth = response.data.session?.user;
     },
     async signUp(email: string, password: string) {
       await supabase.auth.signUp({
@@ -38,22 +38,17 @@ export const useAuthStore = defineStore('user', {
       await supabase.auth.signOut();
     },
     async setName(name: string) {
-      if (!this.user) throw Error();
+      if (!this.auth) throw Error();
       const prevName = await supabase
         .from('users')
         .select('name')
-        .eq('id', this.user.id);
+        .eq('id', this.auth.id);
       if (prevName.data?.length == 0) {
         await supabase.from('users').insert({ name });
       } else {
-        await supabase.from('users').update({ name });
+        await supabase.from('users').update({ name }).eq('id', this.auth.id);
+        useUsersStore().fetchUsers();
       }
-    },
-  },
-
-  getters: {
-    getName: (state) => {
-      useUsersStore().getUser(state.user?.id)?.name;
     },
   },
 });

@@ -70,7 +70,7 @@ const submit = async () => {
     }
   }
   try {
-    if (!authStore.user) {
+    if (!authStore.auth) {
       if (signUp.value) {
         await authStore.signUp(email.value, password.value);
         await authStore.setName(name.value);
@@ -88,9 +88,9 @@ onMounted(async () => {
 });
 
 watch(
-  () => authStore.user,
-  (user) => {
-    if (user) {
+  () => authStore.auth,
+  (auth) => {
+    if (auth) {
       router.push({ name: 'home' });
     }
   }

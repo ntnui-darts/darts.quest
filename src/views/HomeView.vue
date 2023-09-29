@@ -1,5 +1,8 @@
 <template>
-  <button v-if="authStore.user" @click="router.push({ name: 'user' })">
+  <button
+    v-if="usersStore.getCurrentUser"
+    @click="router.push({ name: 'user' })"
+  >
     My Profile
   </button>
   <br />
@@ -34,15 +37,13 @@
 <script lang="ts" setup>
 import { router } from '@/router';
 import { GameType, GameTypes, useGameStore } from '@/stores/game';
-import { useAuthStore } from '@/stores/auth';
 import { useUsersStore, User } from '@/stores/users';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
 const selectedUsers = ref(new Set<User>());
 const gameType = ref<GameType>(501);
 
 const gameStore = useGameStore();
-const authStore = useAuthStore();
 const usersStore = useUsersStore();
 
 const toggleUser = (user: User) => {
@@ -67,12 +68,4 @@ const onPlay = () => {
   });
   router.push({ name: 'game' });
 };
-
-onMounted(async () => {
-  await usersStore.fetchUsers();
-  await authStore.getSession();
-  if (!authStore.user) {
-    router.push({ name: 'login' });
-  }
-});
 </script>

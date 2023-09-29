@@ -6,6 +6,22 @@
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
+import { onMounted } from 'vue';
+import { useUsersStore } from './stores/users';
+import { useAuthStore } from './stores/auth';
+import { router } from './router';
+
+const usersStore = useUsersStore();
+const authStore = useAuthStore();
+
+onMounted(async () => {
+  await usersStore.fetchUsers();
+  if (!authStore.auth) {
+    router.push({ name: 'login' });
+  }
+});
+
+onMounted(async () => {});
 </script>
 
 <style scoped>
