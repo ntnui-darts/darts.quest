@@ -25,7 +25,7 @@ export type GameType = keyof typeof GameTypes;
 type Leg = {
   visits: Visit[];
   arrows: string;
-  playerId: string;
+  userId: string;
 };
 
 type Game = {
@@ -35,7 +35,7 @@ type Game = {
 
 export const useGameStore = defineStore('game', {
   state: () => ({
-    currentPlayerId: null as string | null,
+    currentUserId: null as string | null,
     currentGame: null as Game | null,
   }),
 
@@ -43,25 +43,25 @@ export const useGameStore = defineStore('game', {
     setCurrentGame(game: Game) {
       this.currentGame = game;
       if (this.currentGame.legs.length == 0) throw Error();
-      this.currentPlayerId = this.currentGame.legs[0].playerId;
+      this.currentUserId = this.currentGame.legs[0].userId;
       this.addVisitIfNecessary();
     },
     saveScore(segment: Segment) {
-      if (!this.currentPlayerId || !this.currentGame) throw Error();
+      if (!this.currentUserId || !this.currentGame) throw Error();
       this.addVisitIfNecessary();
       const visit = this.getCurrentVisit;
       if (!visit) throw Error();
       const index = visit.indexOf(null);
       visit[index] = segment;
       if (index == 2) {
-        this.nextPlayer();
+        this.nextUser();
       }
     },
     undoScore() {
-      if (!this.currentPlayerId) throw Error();
+      if (!this.currentUserId) throw Error();
       if (this.getCurrentVisit?.every((s) => s == null)) {
         this.getCurrentLeg?.visits.pop();
-        this.prevPlayer();
+        this.prevUser();
       }
       const visit = this.getCurrentVisit;
       if (!visit) {
@@ -83,66 +83,64 @@ export const useGameStore = defineStore('game', {
         leg.visits.push([null, null, null]);
       }
     },
-    nextPlayer() {
+    nextUser() {
       if (!this.currentGame?.legs.length) throw Error();
-      if (!this.currentPlayerId) {
-        this.currentPlayerId = this.currentGame?.legs[0].playerId ?? null;
+      if (!this.currentUserId) {
+        this.currentUserId = this.currentGame?.legs[0].userId ?? null;
         return;
       }
       const index = this.currentGame.legs.findIndex(
-        (leg) => leg.playerId == this.currentPlayerId
+        (leg) => leg.userId == this.currentUserId
       );
       if (index == -1) throw Error();
-      const nextPlayer = this.currentGame.legs.at(
+      const nextUser = this.currentGame.legs.at(
         (index + 1) % this.currentGame.legs.length
-      )?.playerId;
-      if (nextPlayer) {
-        this.currentPlayerId = nextPlayer;
+      )?.userId;
+      if (nextUser) {
+        this.currentUserId = nextUser;
         this.addVisitIfNecessary();
       }
     },
-    prevPlayer() {
+    prevUser() {
       if (!this.currentGame?.legs.length) throw Error();
-      if (!this.currentPlayerId) {
-        this.currentPlayerId = this.currentGame?.legs[0].playerId ?? null;
+      if (!this.currentUserId) {
+        this.currentUserId = this.currentGame?.legs[0].userId ?? null;
         return;
       }
       const index = this.currentGame.legs.findIndex(
-        (leg) => leg.playerId == this.currentPlayerId
+        (leg) => leg.userId == this.currentUserId
       );
-      const nextPlayer = this.currentGame.legs.at(
+      const nextUser = this.currentGame.legs.at(
         (index - 1) % this.currentGame.legs.length
-      )?.playerId;
-      if (nextPlayer) {
-        this.currentPlayerId = nextPlayer;
+      )?.userId;
+      if (nextUser) {
+        this.currentUserId = nextUser;
       }
     },
-    getPlayerLeg(playerId: string) {
+    getUserLeg(userId: string) {
       if (!this.currentGame) throw Error();
-      return (
-        this.currentGame?.legs.find((leg) => leg.playerId == playerId) ?? null
-      );
+      return this.currentGame?.legs.find((leg) => leg.userId == userId) ?? null;
     },
   },
 
   getters: {
     getCurrentVisit(): Visit | null {
-      if (!this.currentPlayerId) throw Error();
+      if (!this.currentUserId) throw Error();
       return this.getCurrentLeg?.visits.at(-1) ?? null;
     },
     getNumberOfThrows(): number | null {
       return this.getCurrentVisit?.findIndex((s) => s == null) ?? null;
     },
     getCurrentLeg: (state) => {
-      if (!state.currentGame || !state.currentPlayerId) throw Error();
+      if (!state.currentGame || !state.currentUserId) throw Error();
       return (
         state.currentGame.legs.find(
-          (leg) => leg.playerId == state.currentPlayerId
+          (leg) => leg.userId == state.currentUserId
         ) ?? null
       );
     },
-    getPlayerIds: (state) => {
-      return state.currentGame?.legs.map((l) => l.playerId) ?? [];
+    getUserIds: (state) => {
+      return state.currentGame?.legs.map((l) => l.userId) ?? [];
     },
   },
 });

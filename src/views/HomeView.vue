@@ -9,41 +9,41 @@
     </button>
   </div>
   <button
-    v-for="player in playerStore.players"
-    :class="{ selected: players.has(player) }"
-    @click="togglePlayer(player)"
+    v-for="user in userStore.users"
+    :class="{ selected: users.has(user) }"
+    @click="toggleUser(user)"
   >
-    {{ player.name }}
+    {{ user.name }}
   </button>
-  <button @click="playerStore.addPlayer">+ Add Player</button>
-  <button :disabled="players.size == 0" @click="onPlay">Play</button>
+  <button @click="userStore.addUser">+ Add user</button>
+  <button :disabled="users.size == 0" @click="onPlay">Play</button>
 </template>
 
 <script lang="ts" setup>
 import { router } from '@/router';
 import { useGameStore, GameType, GameTypes } from '@/stores/gameStore';
-import { usePlayerStore, Player } from '@/stores/playerStore';
+import { useUserStore, User } from '@/stores/userStore';
 import { ref } from 'vue';
 
-const players = ref(new Set<Player>());
+const users = ref(new Set<User>());
 const gameType = ref<GameType>(501);
 
 const gameStore = useGameStore();
-const playerStore = usePlayerStore();
+const userStore = useUserStore();
 
-const togglePlayer = (player: Player) => {
-  if (players.value.has(player)) {
-    players.value.delete(player);
+const toggleUser = (user: User) => {
+  if (users.value.has(user)) {
+    users.value.delete(user);
   } else {
-    players.value.add(player);
+    users.value.add(user);
   }
 };
 
 const onPlay = () => {
-  if (players.value.size == 0) return;
+  if (users.value.size == 0) return;
   gameStore.setCurrentGame({
-    legs: Array.from(players.value).map((player) => ({
-      playerId: player.id,
+    legs: Array.from(users.value).map((user) => ({
+      userId: user.id,
       visits: [],
       arrows: 'unknown',
     })),
@@ -52,3 +52,4 @@ const onPlay = () => {
   router.push({ name: 'game' });
 };
 </script>
+@/stores/userStore

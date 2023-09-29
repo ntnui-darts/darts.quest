@@ -2,25 +2,22 @@
   <button @click="quit">Quit</button>
   <div
     v-if="gameStore.currentGame"
-    class="grid-players"
+    class="grid-users"
     style="grid-template-columns: 1fr 1fr"
   >
     <button
-      v-for="playerId in gameStore.getPlayerIds"
-      :class="{ selected: gameStore.currentPlayerId == playerId }"
+      v-for="userId in gameStore.getUserIds"
+      :class="{ selected: gameStore.currentUserId == userId }"
     >
-      {{ playerStore.getPlayer(playerId)?.name ?? 'Unknown' }}
+      {{ userStore.getUser(userId)?.name ?? 'Unknown' }}
       <br />
       {{
         (gameStore.currentGame.type ?? 0) -
-        getLegScore(
-          gameStore.getPlayerLeg(playerId),
-          gameStore.currentGame.type
-        )
+        getLegScore(gameStore.getUserLeg(userId), gameStore.currentGame.type)
       }}
       ({{
         getAvgLegScore(
-          gameStore.getPlayerLeg(playerId),
+          gameStore.getUserLeg(userId),
           gameStore.currentGame.type
         ).toFixed(1)
       }})
@@ -86,10 +83,10 @@ import {
   getAvgLegScore,
 } from '../stores/gameStore';
 import { router } from '@/router';
-import { usePlayerStore } from '@/stores/playerStore';
+import { useUserStore } from '@/stores/userStore';
 
 const gameStore = useGameStore();
-const playerStore = usePlayerStore();
+const userStore = useUserStore();
 
 const selectedMultiplier = ref(1);
 const selectedSector = ref<number | null>(null);
@@ -122,7 +119,7 @@ const submitScore = () => {
 </script>
 
 <style scoped>
-.grid-players {
+.grid-users {
   display: grid;
   column-gap: 1em;
   row-gap: 1em;
@@ -144,3 +141,4 @@ button {
   outline: 1px solid white;
 }
 </style>
+@/stores/userStore
