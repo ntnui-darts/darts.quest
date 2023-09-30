@@ -23,8 +23,6 @@ onMounted(async () => {
     router.push({ name: 'login' });
   }
 });
-
-onMounted(async () => {});
 </script>
 
 <style scoped>
