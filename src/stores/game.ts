@@ -212,7 +212,7 @@ export const getLegScore = (
       }
     } else if (score + visitScore < GameTypes[gameType]) {
       const rest = GameTypes[gameType] - score - visitScore;
-      if (rest > finishType) {
+      if (rest >= finishType) {
         score += visitScore;
       }
     }
