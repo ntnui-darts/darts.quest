@@ -32,12 +32,13 @@ export type Leg = Omit<
   createdAt?: string;
 };
 
-type Game = {
-  id: string;
+type Game = Omit<
+  Database['public']['Tables']['games']['Row'],
+  'createdAt' | 'legs'
+> & {
+  createdAt?: string;
   legs: Leg[];
   type: GameType;
-  userId: string;
-  result: string[];
   finishType: 1 | 2 | 3;
 };
 
@@ -55,7 +56,8 @@ export const useGameStore = defineStore('game', {
       this.addVisitIfNecessary();
     },
     saveScore(segment: Segment) {
-      if (!this.currentUserId || !this.currentGame) throw Error();
+      if (!this.currentUserId || !this.currentGame || !this.getCurrentLeg)
+        throw Error();
       if (this.currentGame.result.includes(this.currentUserId)) return;
       this.addVisitIfNecessary();
       const visit = this.getCurrentVisit;
@@ -71,15 +73,16 @@ export const useGameStore = defineStore('game', {
         ) == GameTypes[this.currentGame.type]
       ) {
         this.currentGame.result.push(this.currentUserId);
+        this.getCurrentLeg.finish = true;
         this.nextUser();
       } else if (index == 2) {
         this.nextUser();
       }
     },
     undoScore() {
-      if (!this.currentUserId) throw Error();
+      if (!this.currentUserId || !this.getCurrentLeg) throw Error();
       if (this.getCurrentVisit?.every((s) => s == null)) {
-        this.getCurrentLeg?.visits.pop();
+        this.getCurrentLeg.visits.pop();
         this.prevUser();
       }
       const visit = this.getCurrentVisit;

@@ -69,13 +69,15 @@ const onPlay = () => {
   if (selectedUsers.value.size == 0) return;
   if (!usersStore.getCurrentUser) return;
   const gameId = nanoid();
+  const players = Array.from(selectedUsers.value);
   gameStore.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
     type: gameType.value,
     finishType: finishType.value,
     result: [],
-    legs: Array.from(selectedUsers.value).map(
+    players: players.map((player) => player.id),
+    legs: players.map(
       (user) =>
         ({
           id: nanoid(),
@@ -87,6 +89,7 @@ const onPlay = () => {
           type: gameType.value,
           finishType: finishType.value,
           beers: null,
+          finish: false,
         } satisfies Leg)
     ),
   });

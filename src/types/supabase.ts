@@ -15,6 +15,7 @@ export interface Database {
           finishType: number
           id: string
           legs: string[]
+          players: string[]
           result: string[]
           type: string
           userId: string
@@ -24,6 +25,7 @@ export interface Database {
           finishType?: number
           id: string
           legs: string[]
+          players?: string[]
           result: string[]
           type: string
           userId?: string
@@ -33,6 +35,7 @@ export interface Database {
           finishType?: number
           id?: string
           legs?: string[]
+          players?: string[]
           result?: string[]
           type?: string
           userId?: string
@@ -52,6 +55,7 @@ export interface Database {
           beers: number | null
           confirmed: boolean
           createdAt: string
+          finish: boolean
           finishType: number
           gameId: string
           id: string
@@ -64,6 +68,7 @@ export interface Database {
           beers?: number | null
           confirmed?: boolean
           createdAt?: string
+          finish?: boolean
           finishType?: number
           gameId: string
           id: string
@@ -76,6 +81,7 @@ export interface Database {
           beers?: number | null
           confirmed?: boolean
           createdAt?: string
+          finish?: boolean
           finishType?: number
           gameId?: string
           id?: string
