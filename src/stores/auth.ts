@@ -21,12 +21,9 @@ export const useAuthStore = defineStore('user', {
       const response = await supabase.auth.getSession();
       this.auth = response.data.session?.user;
     },
-    async signUp(email: string, password: string) {
-      await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: signInRedirectUrl },
-      });
+    async signUp(name: string, email: string, password: string) {
+      await supabase.auth.signUp({ email, password });
+      await this.setName(name);
       await useUsersStore().fetchUsers();
       await this.getSession();
     },

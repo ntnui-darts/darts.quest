@@ -72,8 +72,7 @@ const submit = async () => {
   try {
     if (!authStore.auth) {
       if (signUp.value) {
-        await authStore.signUp(email.value, password.value);
-        await authStore.setName(name.value);
+        await authStore.signUp(name.value, email.value, password.value);
       } else {
         await authStore.signIn(email.value, password.value);
       }
