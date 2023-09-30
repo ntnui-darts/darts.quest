@@ -36,8 +36,21 @@ export const useStatsStore = defineStore('stats', {
     getNumberOfWins: (state) => {
       return state.games.filter(
         (game) =>
-          game.result[0] && game.result[0] == useUsersStore().getCurrentUser?.id
+          game.players.length > 1 &&
+          game.result.length > 0 &&
+          game.result[0] == useUsersStore().getCurrentUser?.id
       ).length;
+    },
+    getNumberOfLosses: (state) => {
+      return state.games.filter(
+        (game) =>
+          game.players.length > 1 &&
+          game.result.length > 0 &&
+          game.result[0] != useUsersStore().getCurrentUser?.id
+      ).length;
+    },
+    getNumberOfSoloGames: (state) => {
+      return state.games.filter((game) => game.players.length < 2).length;
     },
   },
 });

@@ -12,9 +12,11 @@
   <div>
     <h2>Stats</h2>
     <p>
-      {{ statsStore.getNumberOfWins }} wins of
-      {{ statsStore.games.length }} games.
+      {{ statsStore.getNumberOfWins }} wins. <br />
+      {{ statsStore.getNumberOfLosses }} losses. <br />
+      {{ statsStore.getNumberOfSoloGames }} solo games. <br />
     </p>
+    <h3>History</h3>
     <div v-for="leg in statsStore.legs">
       <p>
         {{ leg.createdAt ? new Date(leg.createdAt).toDateString() : null }}
