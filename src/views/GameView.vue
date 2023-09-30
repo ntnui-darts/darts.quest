@@ -11,7 +11,7 @@
         {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
         <br />
         {{
-          (gameStore.currentGame.type ?? 0) -
+          (GameTypes[gameStore.currentGame.type] ?? 0) -
           getLegScore(
             gameStore.getUserLeg(userId),
             gameStore.currentGame.type,
@@ -111,6 +111,7 @@ import {
   multiplierToString,
   getLegScore,
   getAvgLegScore,
+  GameTypes,
 } from '../stores/game';
 import { router } from '@/router';
 import { useUsersStore } from '@/stores/users';

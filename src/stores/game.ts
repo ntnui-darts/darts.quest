@@ -1,4 +1,5 @@
 import { supabase } from '@/supabase';
+import { Database } from '@/types/supabase';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 
 enum Multiplier {
@@ -16,22 +17,18 @@ type Segment = {
 type Visit = [Segment | null, Segment | null, Segment | null];
 
 export const GameTypes = {
-  301: 301,
-  501: 501,
-  701: 701,
+  '301': 301,
+  '501': 501,
+  '701': 701,
 } as const;
 
 export type GameType = keyof typeof GameTypes;
 
-type Leg = {
-  id: string;
+export type Leg = Omit<
+  Database['public']['Tables']['legs']['Row'],
+  'visits' | 'createdAt'
+> & {
   visits: Visit[];
-  arrows: string;
-  userId: string;
-  gameId: string;
-  confirmed: boolean;
-  type: GameType;
-  finishType: 1 | 2 | 3;
 };
 
 type Game = {
@@ -70,7 +67,7 @@ export const useGameStore = defineStore('game', {
           this.getCurrentLeg,
           this.currentGame.type,
           this.currentGame.finishType
-        ) == this.currentGame.type
+        ) == GameTypes[this.currentGame.type]
       ) {
         this.currentGame.result.push(this.currentUserId);
         this.nextUser();
@@ -102,7 +99,7 @@ export const useGameStore = defineStore('game', {
       if (!leg) throw Error();
       if (
         getLegScore(leg, this.currentGame.type, this.currentGame.finishType) ==
-        this.currentGame.type
+        GameTypes[this.currentGame.type]
       ) {
         return;
       }
@@ -208,11 +205,11 @@ export const getLegScore = (
   let score = 0;
   leg?.visits.forEach((v) => {
     const visitScore = getVisitScore(v, includeUnfinished);
-    if (score + visitScore == gameType) {
+    if (score + visitScore == GameTypes[gameType]) {
       if ((v.findLast((s) => s != null)?.multiplier ?? 0) >= finishType) {
         score += visitScore;
       }
-    } else if (score + visitScore < gameType) {
+    } else if (score + visitScore < GameTypes[gameType]) {
       score += visitScore;
     }
   });

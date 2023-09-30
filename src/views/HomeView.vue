@@ -9,11 +9,11 @@
   <h2>Select Game Type</h2>
   <div class="row">
     <button
-      v-for="t in GameTypes"
-      :class="{ selected: t == gameType }"
-      @click="gameType = t"
+      v-for="(_, k) in GameTypes"
+      :class="{ selected: k == gameType }"
+      @click="gameType = k"
     >
-      {{ t }}
+      {{ k }}
     </button>
   </div>
   <h4 style="margin: 0">Finish</h4>
@@ -45,7 +45,7 @@
 
 <script lang="ts" setup>
 import { router } from '@/router';
-import { GameType, GameTypes, useGameStore } from '@/stores/game';
+import { GameType, GameTypes, useGameStore, Leg } from '@/stores/game';
 import { useUsersStore, User } from '@/stores/users';
 import { nanoid } from 'nanoid';
 import { ref } from 'vue';
@@ -54,7 +54,7 @@ const gameStore = useGameStore();
 const usersStore = useUsersStore();
 
 const selectedUsers = ref(new Set<User>());
-const gameType = ref<GameType>(301);
+const gameType = ref<GameType>('301');
 const finishType = ref<1 | 2 | 3>(2);
 
 const toggleUser = (user: User) => {
@@ -75,16 +75,20 @@ const onPlay = () => {
     type: gameType.value,
     finishType: finishType.value,
     result: [],
-    legs: Array.from(selectedUsers.value).map((user) => ({
-      id: nanoid(),
-      userId: user.id,
-      visits: [],
-      arrows: 'unknown',
-      confirmed: false,
-      gameId: gameId,
-      type: gameType.value,
-      finishType: finishType.value,
-    })),
+    legs: Array.from(selectedUsers.value).map(
+      (user) =>
+        ({
+          id: nanoid(),
+          userId: user.id,
+          visits: [],
+          arrows: 'unknown',
+          confirmed: false,
+          gameId: gameId,
+          type: gameType.value,
+          finishType: finishType.value,
+          beers: null,
+        } satisfies Leg)
+    ),
   });
   router.push({ name: 'game' });
 };

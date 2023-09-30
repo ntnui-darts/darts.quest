@@ -7,7 +7,7 @@ supabase.auth.onAuthStateChange(() => {
   useAuthStore().getSession();
 });
 
-export const useAuthStore = defineStore('user', {
+export const useAuthStore = defineStore('auth', {
   state: () => ({
     auth: undefined as AuthUser | undefined,
   }),

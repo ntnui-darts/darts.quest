@@ -15,14 +15,16 @@ export interface Database {
           finishType: number
           id: string
           legs: string[]
+          result: string[]
           type: string
           userId: string
         }
         Insert: {
           createdAt?: string
           finishType?: number
-          id?: string
+          id: string
           legs: string[]
+          result: string[]
           type: string
           userId?: string
         }
@@ -31,6 +33,7 @@ export interface Database {
           finishType?: number
           id?: string
           legs?: string[]
+          result?: string[]
           type?: string
           userId?: string
         }
@@ -45,6 +48,8 @@ export interface Database {
       }
       legs: {
         Row: {
+          arrows: string | null
+          beers: number | null
           confirmed: boolean
           createdAt: string
           finishType: number
@@ -55,16 +60,20 @@ export interface Database {
           visits: Json
         }
         Insert: {
+          arrows?: string | null
+          beers?: number | null
           confirmed?: boolean
           createdAt?: string
           finishType?: number
           gameId: string
-          id?: string
+          id: string
           type: string
           userId: string
           visits?: Json
         }
         Update: {
+          arrows?: string | null
+          beers?: number | null
           confirmed?: boolean
           createdAt?: string
           finishType?: number
@@ -75,12 +84,6 @@ export interface Database {
           visits?: Json
         }
         Relationships: [
-          {
-            foreignKeyName: "legs_gameId_fkey"
-            columns: ["gameId"]
-            referencedRelation: "games"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "legs_userId_fkey"
             columns: ["userId"]
