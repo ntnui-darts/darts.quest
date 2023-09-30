@@ -3,10 +3,6 @@ import { User as AuthUser } from '@supabase/supabase-js';
 import { supabase } from '@/supabase';
 import { useUsersStore } from './users';
 
-const signInRedirectUrl = import.meta.env.DEV
-  ? 'http://127.0.0.1:5173/#/'
-  : 'https://ntnui-darts.github.io/dartpp/#/';
-
 supabase.auth.onAuthStateChange(() => {
   useAuthStore().getSession();
 });
