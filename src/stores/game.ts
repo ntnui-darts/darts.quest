@@ -29,6 +29,7 @@ export type Leg = Omit<
   'visits' | 'createdAt'
 > & {
   visits: Visit[];
+  createdAt?: string;
 };
 
 type Game = {

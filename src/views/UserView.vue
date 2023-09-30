@@ -9,17 +9,34 @@
   <p>{{ usersStore.getCurrentUser?.email }}</p>
   <button v-if="changed" id="save" @click="saveChanges">Save Changes</button>
   <button id="logout" @click="logout">Logout</button>
+  <div>
+    <h2>Stats</h2>
+    <div v-for="leg in statsStore.legs">
+      <p>
+        {{ leg.createdAt ? new Date(leg.createdAt).toDateString() : null }}
+        - {{ leg.type }}, {{ leg.visits.length }} turns - Confirmed:
+        {{ leg.confirmed }}
+      </p>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { useAuthStore } from '@/stores/auth';
 import { useUsersStore } from '@/stores/users';
 import { router } from '@/router';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useStatsStore } from '@/stores/stats';
 
 const authStore = useAuthStore();
 const usersStore = useUsersStore();
+const statsStore = useStatsStore();
+
 const changed = ref(false);
+
+onMounted(() => {
+  statsStore.getLegs();
+});
 
 const updateName = (e: Event) => {
   const el = e.target as HTMLInputElement;
