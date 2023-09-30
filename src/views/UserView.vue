@@ -35,7 +35,7 @@ const statsStore = useStatsStore();
 const changed = ref(false);
 
 onMounted(() => {
-  statsStore.getLegs();
+  statsStore.fetchLegs();
 });
 
 const updateName = (e: Event) => {

@@ -9,7 +9,7 @@ export const useStatsStore = defineStore('stats', {
   }),
 
   actions: {
-    async getLegs() {
+    async fetchLegs() {
       const id = useUsersStore().getCurrentUser?.id;
       if (!id) return;
       const legs = await supabase.from('legs').select('*').eq('userId', id);

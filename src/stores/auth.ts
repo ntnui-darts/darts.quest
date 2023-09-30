@@ -2,9 +2,12 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { User as AuthUser } from '@supabase/supabase-js';
 import { supabase } from '@/supabase';
 import { useUsersStore } from './users';
+import { useStatsStore } from './stats';
 
 supabase.auth.onAuthStateChange(() => {
   useAuthStore().getSession();
+  useUsersStore().fetchUsers();
+  useStatsStore().fetchLegs();
 });
 
 export const useAuthStore = defineStore('auth', {
