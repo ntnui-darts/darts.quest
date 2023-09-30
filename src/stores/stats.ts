@@ -25,7 +25,7 @@ export const useStatsStore = defineStore('stats', {
       const games = await supabase
         .from('games')
         .select('*')
-        .contains('players', id);
+        .contains('players', [id]);
       if (games.data) {
         this.games = games.data;
       }
