@@ -211,7 +211,10 @@ export const getLegScore = (
         score += visitScore;
       }
     } else if (score + visitScore < GameTypes[gameType]) {
-      score += visitScore;
+      const rest = GameTypes[gameType] - score - visitScore;
+      if (rest > finishType) {
+        score += visitScore;
+      }
     }
   });
   return score;
