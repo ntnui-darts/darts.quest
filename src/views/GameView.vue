@@ -1,9 +1,11 @@
 <template>
   <button @click="quit">Quit</button>
-  <div v-if="gameStore.currentGame?.status == 'in progress'" class="col">
+  <div v-if="gameStore.currentGame && !allPlayersFinished" class="col">
     <div class="grid-users" style="grid-template-columns: 1fr 1fr">
       <button
-        v-for="userId in gameStore.getUserIds"
+        v-for="userId in gameStore.getUserIds.filter(
+          (id) => !gameStore.currentGame?.result.includes(id)
+        )"
         :class="{ selected: gameStore.currentUserId == userId }"
       >
         {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
@@ -70,7 +72,7 @@
       <button @click="gameStore.undoScore">❌</button>
     </div>
   </div>
-  <div v-if="gameStore.currentGame?.status == 'complete'" class="col">
+  <div v-if="gameStore.currentGame && somePlayersFinished">
     <h2>Results, {{ gameStore.currentGame.type }}</h2>
     <ol>
       <li v-for="id in gameStore.currentGame.result">
@@ -90,11 +92,14 @@
         average.
       </li>
     </ol>
+    <div class="col">
+      <button>Save Game</button>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import {
   useGameStore,
   multiplierToString,
@@ -109,6 +114,16 @@ const usersStore = useUsersStore();
 
 const selectedMultiplier = ref(1);
 const selectedSector = ref<number | null>(null);
+
+const allPlayersFinished = computed(
+  () =>
+    (gameStore.currentGame?.legs.length ?? 0) ==
+    (gameStore.currentGame?.result.length ?? 0)
+);
+
+const somePlayersFinished = computed(
+  () => (gameStore.currentGame?.result.length ?? 0) > 0
+);
 
 onMounted(() => {
   if (!gameStore.currentGame) {
@@ -157,5 +172,10 @@ button {
 
 .outlined {
   outline: 1px solid var(--c-green);
+}
+
+li {
+  font-size: 14pt;
+  padding-bottom: 0.5em;
 }
 </style>

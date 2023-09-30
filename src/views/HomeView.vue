@@ -43,7 +43,7 @@ const gameStore = useGameStore();
 const usersStore = useUsersStore();
 
 const selectedUsers = ref(new Set<User>());
-const gameType = ref<GameType>(501);
+const gameType = ref<GameType>(301);
 
 const toggleUser = (user: User) => {
   if (selectedUsers.value.has(user)) {
@@ -65,7 +65,6 @@ const onPlay = () => {
     })),
     type: gameType.value,
     result: [],
-    status: 'in progress',
   });
   router.push({ name: 'game' });
 };

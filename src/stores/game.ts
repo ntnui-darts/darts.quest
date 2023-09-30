@@ -29,13 +29,11 @@ type Leg = {
   userId: string;
 };
 
-type GameStatus = 'in progress' | 'complete';
 type Game = {
   id: string;
   legs: Leg[];
   type: GameType;
   result: string[];
-  status: GameStatus;
 };
 
 export const useGameStore = defineStore('game', {
@@ -103,10 +101,6 @@ export const useGameStore = defineStore('game', {
       if (!this.currentGame?.legs.length) throw Error();
       if (!this.currentUserId) {
         this.currentUserId = this.currentGame?.legs[0].userId ?? null;
-        return;
-      }
-      if (this.currentGame.result.length == this.currentGame.legs.length) {
-        this.currentGame.status = 'complete';
         return;
       }
       const index = this.currentGame.legs.findIndex(
