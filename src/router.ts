@@ -5,6 +5,7 @@ const GameView = () => import('@/views/GameView.vue');
 const HomeView = () => import('@/views/HomeView.vue');
 const LoginView = () => import('@/views/LoginView.vue');
 const UserView = () => import('@/views/UserView.vue');
+const StatsView = () => import('@/views/StatsView.vue');
 
 const routes: Readonly<RouteRecordRaw[]> = [
   { path: '/', name: 'root', redirect: { name: 'home' } },
@@ -12,6 +13,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
   { path: '/game', name: 'game', component: GameView },
   { path: '/login', name: 'login', component: LoginView },
   { path: '/user', name: 'user', component: UserView },
+  { path: '/stats', name: 'stats', component: StatsView },
   { path: '/:pathMatch(.*)*', name: 'not-found', redirect: '/' },
 ];
 

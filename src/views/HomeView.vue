@@ -1,10 +1,8 @@
 <template>
-  <button
-    v-if="usersStore.getCurrentUser"
-    @click="router.push({ name: 'user' })"
-  >
-    My Profile
-  </button>
+  <div class="row">
+    <button @click="router.push({ name: 'user' })">My Profile</button>
+    <button @click="router.push({ name: 'stats' })">My Stats</button>
+  </div>
   <br />
   <h2>Select Game Type</h2>
   <div class="row">
