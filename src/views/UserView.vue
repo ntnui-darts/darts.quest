@@ -44,7 +44,7 @@ const statsStore = useStatsStore();
 const changed = ref(false);
 const chartElement = ref<HTMLCanvasElement | null>(null);
 
-const legOfType = (type: GameType, finishType: 1 | 2 | 3) => {
+const legsOfType = (type: GameType, finishType: 1 | 2 | 3) => {
   return statsStore.legs.filter(
     (leg) => leg.finish && leg.type == type && leg.finishType == finishType
   );
@@ -62,13 +62,16 @@ onMounted(async () => {
       [2, 'Double'],
       [3, 'Triple'],
     ] as const) {
-      datasets.push({
-        label: `${type} ${finishTypeText}`,
-        data: legOfType(type, finishType).map((leg) => ({
-          x: leg.createdAt,
-          y: leg.visits.length,
-        })),
-      });
+      const legs = legsOfType(type, finishType);
+      if (legs.length > 0) {
+        datasets.push({
+          label: `${type} ${finishTypeText}`,
+          data: legs.map((leg) => ({
+            x: leg.createdAt?.split('.')[0],
+            y: leg.visits.length,
+          })),
+        });
+      }
     }
   }
 
