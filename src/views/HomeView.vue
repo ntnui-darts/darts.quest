@@ -37,6 +37,7 @@
 import { router } from '@/router';
 import { GameType, GameTypes, useGameStore } from '@/stores/game';
 import { useUsersStore, User } from '@/stores/users';
+import { nanoid } from 'nanoid';
 import { ref } from 'vue';
 
 const gameStore = useGameStore();
@@ -55,13 +56,16 @@ const toggleUser = (user: User) => {
 
 const onPlay = () => {
   if (selectedUsers.value.size == 0) return;
+  const gameId = nanoid();
   gameStore.setCurrentGame({
-    id: '',
+    id: gameId,
     legs: Array.from(selectedUsers.value).map((user) => ({
-      id: '',
+      id: nanoid(),
       userId: user.id,
       visits: [],
       arrows: 'unknown',
+      confirmed: false,
+      gameId: gameId,
     })),
     type: gameType.value,
     result: [],

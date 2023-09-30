@@ -1,3 +1,4 @@
+import { supabase } from '@/supabase';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 
 enum Multiplier {
@@ -27,6 +28,8 @@ type Leg = {
   visits: Visit[];
   arrows: string;
   userId: string;
+  gameId: string;
+  confirmed: boolean;
 };
 
 type Game = {
@@ -137,6 +140,17 @@ export const useGameStore = defineStore('game', {
     getUserLeg(userId: string) {
       if (!this.currentGame) throw Error();
       return this.currentGame?.legs.find((leg) => leg.userId == userId) ?? null;
+    },
+    saveGame() {
+      if (!this.currentGame) throw Error();
+      this.currentGame.legs.forEach((leg) => {
+        supabase.from('legs').insert(leg);
+      });
+      supabase.from('games').insert({
+        ...this.currentGame,
+        legs: this.currentGame.legs.map((leg) => leg.id),
+        type: this.currentGame.type.toString(),
+      });
     },
   },
 

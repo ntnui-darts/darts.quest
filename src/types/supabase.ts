@@ -11,19 +11,19 @@ export interface Database {
     Tables: {
       games: {
         Row: {
-          created_at: string
+          createdAt: string
           id: string
           legs: string[]
           type: string
         }
         Insert: {
-          created_at?: string
+          createdAt?: string
           id?: string
           legs: string[]
           type: string
         }
         Update: {
-          created_at?: string
+          createdAt?: string
           id?: string
           legs?: string[]
           type?: string
@@ -32,36 +32,39 @@ export interface Database {
       }
       legs: {
         Row: {
-          created_at: string
-          game_id: string
+          confirmed: boolean
+          createdAt: string
+          gameId: string
           id: string
-          user_id: string
+          userId: string
           visits: Json
         }
         Insert: {
-          created_at?: string
-          game_id: string
+          confirmed?: boolean
+          createdAt?: string
+          gameId: string
           id?: string
-          user_id: string
+          userId: string
           visits?: Json
         }
         Update: {
-          created_at?: string
-          game_id?: string
+          confirmed?: boolean
+          createdAt?: string
+          gameId?: string
           id?: string
-          user_id?: string
+          userId?: string
           visits?: Json
         }
         Relationships: [
           {
-            foreignKeyName: "legs_game_id_fkey"
-            columns: ["game_id"]
+            foreignKeyName: "legs_gameId_fkey"
+            columns: ["gameId"]
             referencedRelation: "games"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "legs_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "legs_userId_fkey"
+            columns: ["userId"]
             referencedRelation: "users"
             referencedColumns: ["id"]
           }

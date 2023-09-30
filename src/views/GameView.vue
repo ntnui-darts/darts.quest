@@ -93,7 +93,7 @@
       </li>
     </ol>
     <div class="col">
-      <button>Save Game</button>
+      <button @click="saveGame">Save Game</button>
     </div>
   </div>
 </template>
@@ -148,6 +148,11 @@ const submitScore = () => {
   });
   selectedMultiplier.value = 1;
   selectedSector.value = null;
+};
+
+const saveGame = () => {
+  gameStore.saveGame();
+  quit();
 };
 </script>
 
