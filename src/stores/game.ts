@@ -210,7 +210,10 @@ export const getLegScore = (
   leg?.visits.forEach((v) => {
     const visitScore = getVisitScore(v, includeUnfinished);
     if (score + visitScore == GameTypes[gameType]) {
-      if ((v.findLast((s) => s != null)?.multiplier ?? 0) >= finishType) {
+      if (
+        finishType == 1 ||
+        (v.findLast((s) => s != null)?.multiplier ?? 0) == finishType
+      ) {
         score += visitScore;
       }
     } else if (score + visitScore < GameTypes[gameType]) {
