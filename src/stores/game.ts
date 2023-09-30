@@ -116,6 +116,9 @@ export const useGameStore = defineStore('game', {
         this.currentUserId = this.currentGame?.legs[0].userId ?? null;
         return;
       }
+      if (this.currentGame.result.length == this.currentGame.legs.length) {
+        return;
+      }
       const index = this.currentGame.legs.findIndex(
         (leg) => leg.userId == this.currentUserId
       );
