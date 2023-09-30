@@ -115,9 +115,11 @@ import {
 } from '../stores/game';
 import { router } from '@/router';
 import { useUsersStore } from '@/stores/users';
+import { useLoadingStore } from '@/stores/loading';
 
 const gameStore = useGameStore();
 const usersStore = useUsersStore();
+const loadingStore = useLoadingStore();
 
 const selectedMultiplier = ref(1);
 const selectedSector = ref<number | null>(null);
@@ -158,7 +160,10 @@ const submitScore = () => {
 };
 
 const saveGame = async () => {
+  if (loadingStore.loading) return;
+  loadingStore.loading = true;
   await gameStore.saveGame();
+  loadingStore.loading = false;
   quit();
 };
 </script>

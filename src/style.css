@@ -16,6 +16,11 @@
   --c-green: rgb(19, 221, 97);
 }
 
+body {
+  margin: 0;
+  position: relative;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
