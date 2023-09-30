@@ -1,11 +1,12 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { supabase } from '@/supabase';
-import { Leg } from './game';
+import { DbGame, Leg } from './game';
 import { useUsersStore } from './users';
 
 export const useStatsStore = defineStore('stats', {
   state: () => ({
     legs: [] as Leg[],
+    games: [] as DbGame[],
   }),
 
   actions: {
@@ -15,8 +16,28 @@ export const useStatsStore = defineStore('stats', {
       const legs = await supabase.from('legs').select('*').eq('userId', id);
       if (legs.data) {
         // @ts-ignore
-        this.legs = legs.data as Leg[];
+        this.legs = legs.data as Leg;
       }
+    },
+    async fetchGames() {
+      const id = useUsersStore().getCurrentUser?.id;
+      if (!id) return;
+      const games = await supabase
+        .from('games')
+        .select('*')
+        .contains('players', id);
+      if (games.data) {
+        this.games = games.data;
+      }
+    },
+  },
+
+  getters: {
+    getNumberOfWins: (state) => {
+      return state.games.filter(
+        (game) =>
+          game.result[0] && game.result[0] == useUsersStore().getCurrentUser?.id
+      ).length;
     },
   },
 });

@@ -11,10 +11,14 @@
   <button id="logout" @click="logout">Logout</button>
   <div>
     <h2>Stats</h2>
+    <p>
+      {{ statsStore.getNumberOfWins }} wins of
+      {{ statsStore.games.length }} games.
+    </p>
     <div v-for="leg in statsStore.legs">
       <p>
         {{ leg.createdAt ? new Date(leg.createdAt).toDateString() : null }}
-        - {{ leg.type }}, {{ leg.visits.length }} turns - Confirmed:
+        - {{ leg.type }}, {{ leg.visits?.length }} turns - Confirmed:
         {{ leg.confirmed }}
       </p>
     </div>
