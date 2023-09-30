@@ -16,6 +16,16 @@
       {{ t }}
     </button>
   </div>
+  <h4 style="margin: 0">Finish</h4>
+  <div class="row">
+    <button
+      v-for="t in ([1, 2, 3] as const)"
+      :class="{ selected: t == finishType }"
+      @click="finishType = t"
+    >
+      {{ ['Single', 'Double', 'Triple'][t - 1] }}
+    </button>
+  </div>
   <h2>Select Players</h2>
   <div v-auto-animate class="col">
     <button
@@ -45,6 +55,7 @@ const usersStore = useUsersStore();
 
 const selectedUsers = ref(new Set<User>());
 const gameType = ref<GameType>(301);
+const finishType = ref<1 | 2 | 3>(2);
 
 const toggleUser = (user: User) => {
   if (selectedUsers.value.has(user)) {
@@ -56,9 +67,14 @@ const toggleUser = (user: User) => {
 
 const onPlay = () => {
   if (selectedUsers.value.size == 0) return;
+  if (!usersStore.getCurrentUser) return;
   const gameId = nanoid();
   gameStore.setCurrentGame({
     id: gameId,
+    userId: usersStore.getCurrentUser.id,
+    type: gameType.value,
+    finishType: finishType.value,
+    result: [],
     legs: Array.from(selectedUsers.value).map((user) => ({
       id: nanoid(),
       userId: user.id,
@@ -66,9 +82,9 @@ const onPlay = () => {
       arrows: 'unknown',
       confirmed: false,
       gameId: gameId,
+      type: gameType.value,
+      finishType: finishType.value,
     })),
-    type: gameType.value,
-    result: [],
   });
   router.push({ name: 'game' });
 };

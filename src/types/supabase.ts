@@ -12,46 +12,65 @@ export interface Database {
       games: {
         Row: {
           createdAt: string
+          finishType: number
           id: string
           legs: string[]
           type: string
+          userId: string
         }
         Insert: {
           createdAt?: string
+          finishType?: number
           id?: string
           legs: string[]
           type: string
+          userId?: string
         }
         Update: {
           createdAt?: string
+          finishType?: number
           id?: string
           legs?: string[]
           type?: string
+          userId?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "games_userId_fkey"
+            columns: ["userId"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       legs: {
         Row: {
           confirmed: boolean
           createdAt: string
+          finishType: number
           gameId: string
           id: string
+          type: string
           userId: string
           visits: Json
         }
         Insert: {
           confirmed?: boolean
           createdAt?: string
+          finishType?: number
           gameId: string
           id?: string
+          type: string
           userId: string
           visits?: Json
         }
         Update: {
           confirmed?: boolean
           createdAt?: string
+          finishType?: number
           gameId?: string
           id?: string
+          type?: string
           userId?: string
           visits?: Json
         }

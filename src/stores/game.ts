@@ -30,13 +30,17 @@ type Leg = {
   userId: string;
   gameId: string;
   confirmed: boolean;
+  type: GameType;
+  finishType: 1 | 2 | 3;
 };
 
 type Game = {
   id: string;
   legs: Leg[];
   type: GameType;
+  userId: string;
   result: string[];
+  finishType: 1 | 2 | 3;
 };
 
 export const useGameStore = defineStore('game', {
@@ -62,8 +66,11 @@ export const useGameStore = defineStore('game', {
       visit[index] = segment;
 
       if (
-        getLegScore(this.getCurrentLeg, this.currentGame.type) ==
-        this.currentGame.type
+        getLegScore(
+          this.getCurrentLeg,
+          this.currentGame.type,
+          this.currentGame.finishType
+        ) == this.currentGame.type
       ) {
         this.currentGame.result.push(this.currentUserId);
         this.nextUser();
@@ -93,7 +100,10 @@ export const useGameStore = defineStore('game', {
       if (!this.currentGame) throw Error();
       const leg = this.getCurrentLeg;
       if (!leg) throw Error();
-      if (getLegScore(leg, this.currentGame.type) == this.currentGame.type) {
+      if (
+        getLegScore(leg, this.currentGame.type, this.currentGame.finishType) ==
+        this.currentGame.type
+      ) {
         return;
       }
       if (leg.visits.length == 0 || leg.visits.at(-1)?.[2] != null) {
@@ -141,12 +151,14 @@ export const useGameStore = defineStore('game', {
       if (!this.currentGame) throw Error();
       return this.currentGame?.legs.find((leg) => leg.userId == userId) ?? null;
     },
-    saveGame() {
+    async saveGame() {
       if (!this.currentGame) throw Error();
-      this.currentGame.legs.forEach((leg) => {
-        supabase.from('legs').insert(leg);
-      });
-      supabase.from('games').insert({
+      for (let leg of this.currentGame.legs) {
+        await supabase
+          .from('legs')
+          .insert({ ...leg, type: leg.type.toString() });
+      }
+      await supabase.from('games').insert({
         ...this.currentGame,
         legs: this.currentGame.legs.map((leg) => leg.id),
         type: this.currentGame.type.toString(),
@@ -187,12 +199,17 @@ export const multiplierToString = (m?: Multiplier) => {
 export const getLegScore = (
   leg: Leg | null,
   gameType: GameType,
+  finishType: 1 | 2 | 3,
   includeUnfinished = true
 ) => {
   let score = 0;
   leg?.visits.forEach((v) => {
     const visitScore = getVisitScore(v, includeUnfinished);
-    if (score + visitScore <= gameType) {
+    if (score + visitScore == gameType) {
+      if ((v.findLast((s) => s != null)?.multiplier ?? 0) >= finishType) {
+        score += visitScore;
+      }
+    } else if (score + visitScore < gameType) {
       score += visitScore;
     }
   });
@@ -202,13 +219,14 @@ export const getLegScore = (
 export const getAvgLegScore = (
   leg: Leg | null,
   gameType: GameType,
+  finishType: 1 | 2 | 3,
   includeUnfinished = false
 ) => {
   const count = includeUnfinished
     ? leg?.visits.length
     : leg?.visits.filter((visit) => !visit.includes(null)).length;
   if (!count) return 0;
-  return getLegScore(leg, gameType, includeUnfinished) / count;
+  return getLegScore(leg, gameType, finishType, includeUnfinished) / count;
 };
 
 const getVisitScore = (visit: Visit, includeUnfinished = true) => {

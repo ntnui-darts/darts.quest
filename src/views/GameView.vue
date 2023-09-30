@@ -12,12 +12,17 @@
         <br />
         {{
           (gameStore.currentGame.type ?? 0) -
-          getLegScore(gameStore.getUserLeg(userId), gameStore.currentGame.type)
+          getLegScore(
+            gameStore.getUserLeg(userId),
+            gameStore.currentGame.type,
+            gameStore.currentGame.finishType
+          )
         }}
         ({{
           getAvgLegScore(
             gameStore.getUserLeg(userId),
-            gameStore.currentGame.type
+            gameStore.currentGame.type,
+            gameStore.currentGame.finishType
           ).toFixed(1)
         }})
       </button>
@@ -86,6 +91,7 @@
           getAvgLegScore(
             gameStore.currentGame.legs.find((leg) => leg.userId == id) ?? null,
             gameStore.currentGame.type,
+            gameStore.currentGame.finishType,
             true
           ).toFixed(1)
         }}
@@ -150,8 +156,8 @@ const submitScore = () => {
   selectedSector.value = null;
 };
 
-const saveGame = () => {
-  gameStore.saveGame();
+const saveGame = async () => {
+  await gameStore.saveGame();
   quit();
 };
 </script>
