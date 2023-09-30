@@ -16,6 +16,7 @@
       {{ statsStore.getNumberOfLosses }} losses. <br />
       {{ statsStore.getNumberOfSoloGames }} solo games. <br />
     </p>
+    <canvas ref="chartElement"></canvas>
     <h3>History</h3>
     <div v-for="leg in statsStore.legs">
       <p>
@@ -33,15 +34,50 @@ import { useUsersStore } from '@/stores/users';
 import { router } from '@/router';
 import { onMounted, ref } from 'vue';
 import { useStatsStore } from '@/stores/stats';
+import { Chart } from 'chart.js';
+import { GameType } from '@/stores/game';
 
 const authStore = useAuthStore();
 const usersStore = useUsersStore();
 const statsStore = useStatsStore();
 
 const changed = ref(false);
+const chartElement = ref<HTMLCanvasElement | null>(null);
 
-onMounted(() => {
-  statsStore.fetchLegs();
+const legOfType = (type: GameType, finishType: 1 | 2 | 3) => {
+  return statsStore.legs.filter(
+    (leg) => leg.finish && leg.type == type && leg.finishType == finishType
+  );
+};
+
+onMounted(async () => {
+  await statsStore.fetchLegs();
+  await statsStore.fetchGames();
+  if (!chartElement.value) return;
+
+  const datasets = [];
+  for (const type of ['301', '501', '701'] as const) {
+    for (const [finishType, finishTypeText] of [
+      [1, 'Single'],
+      [2, 'Double'],
+      [3, 'Triple'],
+    ] as const) {
+      datasets.push({
+        label: `${type} ${finishTypeText}`,
+        data: legOfType(type, finishType).map((leg) => ({
+          x: leg.createdAt,
+          y: leg.visits.length,
+        })),
+      });
+    }
+  }
+
+  new Chart(chartElement.value, {
+    type: 'line',
+    data: {
+      datasets,
+    },
+  });
 });
 
 const updateName = (e: Event) => {
