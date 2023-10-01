@@ -7,25 +7,23 @@
       {{ statsStore.getNumberOfLosses }} losses. <br />
       {{ statsStore.getNumberOfSoloGames }} solo games. <br />
     </p>
-    <h3># of Turns</h3>
+    <h3>Number of Visits</h3>
     <canvas ref="chartElement"></canvas>
     <h3>History</h3>
-    <div v-for="leg in statsStore.legs">
-      <p>
-        {{ leg.createdAt ? new Date(leg.createdAt).toDateString() : null }}
-        - {{ leg.type }}, {{ leg.visits?.length }} turns - Confirmed:
-        {{ leg.confirmed }}
-      </p>
+    <div v-for="leg in statsStore.legs.toReversed()">
+      <LegStats :leg="leg"></LegStats>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import LegStats from '@/components/LegStats.vue';
 import { router } from '@/router';
 import { onMounted, ref } from 'vue';
 import { useStatsStore } from '@/stores/stats';
 import { Chart } from 'chart.js';
 import { GameType } from '@/stores/game';
+import 'chartjs-adapter-date-fns';
 
 const statsStore = useStatsStore();
 
@@ -54,7 +52,7 @@ onMounted(async () => {
         datasets.push({
           label: `${type} ${finishTypeText}`,
           data: legs.map((leg) => ({
-            x: leg.createdAt?.split('.')[0],
+            x: new Date(leg.createdAt),
             y: leg.visits.length,
           })),
         });
@@ -66,6 +64,13 @@ onMounted(async () => {
     type: 'line',
     data: {
       datasets,
+    },
+    options: {
+      scales: {
+        x: {
+          type: 'time',
+        },
+      },
     },
   });
 });

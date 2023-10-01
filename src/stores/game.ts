@@ -27,7 +27,7 @@ export type GameType = keyof typeof GameTypes;
 export type DbLeg = Database['public']['Tables']['legs']['Row'];
 export type Leg = Omit<DbLeg, 'visits' | 'createdAt'> & {
   visits: Visit[];
-  createdAt?: string;
+  createdAt: string;
 };
 
 export type DbGame = Database['public']['Tables']['games']['Row'];

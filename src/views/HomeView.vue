@@ -88,6 +88,7 @@ const onPlay = () => {
           finishType: finishType.value,
           beers: null,
           finish: false,
+          createdAt: new Date().toISOString(),
         } satisfies Leg)
     ),
   });
