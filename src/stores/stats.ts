@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { supabase } from '@/supabase';
 import { DbGame, Leg } from './game';
-import { useUsersStore } from './users';
+import { useAuthStore } from './auth';
 
 export const useStatsStore = defineStore('stats', {
   state: () => ({
@@ -11,7 +11,7 @@ export const useStatsStore = defineStore('stats', {
 
   actions: {
     async fetchLegs() {
-      const id = useUsersStore().getCurrentUser?.id;
+      const id = useAuthStore().auth?.id;
       if (!id) return;
       const legs = await supabase.from('legs').select('*').eq('userId', id);
       if (legs.data) {
@@ -20,7 +20,7 @@ export const useStatsStore = defineStore('stats', {
       }
     },
     async fetchGames() {
-      const id = useUsersStore().getCurrentUser?.id;
+      const id = useAuthStore().auth?.id;
       if (!id) return;
       const games = await supabase
         .from('games')
@@ -38,7 +38,7 @@ export const useStatsStore = defineStore('stats', {
         (game) =>
           game.players.length > 1 &&
           game.result.length > 0 &&
-          game.result[0] == useUsersStore().getCurrentUser?.id
+          game.result[0] == useAuthStore().auth?.id
       ).length;
     },
     getNumberOfLosses: (state) => {
@@ -46,7 +46,7 @@ export const useStatsStore = defineStore('stats', {
         (game) =>
           game.players.length > 1 &&
           game.result.length > 0 &&
-          game.result[0] != useUsersStore().getCurrentUser?.id
+          game.result[0] != useAuthStore().auth?.id
       ).length;
     },
     getNumberOfSoloGames: (state) => {

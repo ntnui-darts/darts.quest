@@ -8,17 +8,15 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 import { onMounted } from 'vue';
-import { useUsersStore } from './stores/users';
 import { useAuthStore } from './stores/auth';
 import { useLoadingStore } from './stores/loading';
 import { router } from './router';
 
-const usersStore = useUsersStore();
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
 
 onMounted(async () => {
-  await usersStore.fetchUsers();
+  await useAuthStore().getSession();
   if (!authStore.auth) {
     router.push({ name: 'login' });
   }

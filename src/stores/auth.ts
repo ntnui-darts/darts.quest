@@ -4,10 +4,14 @@ import { supabase } from '@/supabase';
 import { useUsersStore } from './users';
 import { useStatsStore } from './stats';
 
-supabase.auth.onAuthStateChange(() => {
-  useAuthStore().getSession();
-  useUsersStore().fetchUsers();
-  useStatsStore().fetchLegs();
+supabase.auth.onAuthStateChange(async (_, session) => {
+  const user = session?.user;
+  useAuthStore().auth = user;
+  if (user) {
+    useUsersStore().fetchUsers();
+    useStatsStore().fetchLegs();
+    useStatsStore().fetchGames();
+  }
 });
 
 export const useAuthStore = defineStore('auth', {
@@ -23,13 +27,9 @@ export const useAuthStore = defineStore('auth', {
     async signUp(name: string, email: string, password: string) {
       await supabase.auth.signUp({ email, password });
       await this.setName(name);
-      await useUsersStore().fetchUsers();
-      await this.getSession();
     },
     async signIn(email: string, password: string) {
       await supabase.auth.signInWithPassword({ email, password });
-      await useUsersStore().fetchUsers();
-      await this.getSession();
     },
     async signOut() {
       await supabase.auth.signOut();

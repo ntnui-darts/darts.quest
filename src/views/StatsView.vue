@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 import LegStats from '@/components/LegStats.vue';
 import { router } from '@/router';
-import { onMounted, ref } from 'vue';
+import { watch, ref } from 'vue';
 import { useStatsStore } from '@/stores/stats';
 import { Chart } from 'chart.js';
 import { GameType } from '@/stores/game';
@@ -28,6 +28,7 @@ import 'chartjs-adapter-date-fns';
 const statsStore = useStatsStore();
 
 const chartElement = ref<HTMLCanvasElement | null>(null);
+let chart: Chart<any> | null = null;
 
 const legsOfType = (type: GameType, finishType: 1 | 2 | 3) => {
   return statsStore.legs.filter(
@@ -35,11 +36,8 @@ const legsOfType = (type: GameType, finishType: 1 | 2 | 3) => {
   );
 };
 
-onMounted(async () => {
-  await statsStore.fetchLegs();
-  await statsStore.fetchGames();
-  if (!chartElement.value) return;
-
+const buildChart = async () => {
+  if (!chartElement.value || statsStore.legs.length == 0) return;
   const datasets = [];
   for (const type of ['301', '501', '701'] as const) {
     for (const [finishType, finishTypeText] of [
@@ -60,7 +58,8 @@ onMounted(async () => {
     }
   }
 
-  new Chart(chartElement.value, {
+  chart?.destroy();
+  chart = new Chart(chartElement.value, {
     type: 'line',
     data: {
       datasets,
@@ -73,5 +72,10 @@ onMounted(async () => {
       },
     },
   });
-});
+};
+
+watch(
+  () => statsStore.legs,
+  () => buildChart()
+);
 </script>

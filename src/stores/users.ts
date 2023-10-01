@@ -12,7 +12,6 @@ export const useUsersStore = defineStore('users', {
 
   actions: {
     async fetchUsers() {
-      await useAuthStore().getSession();
       const fetchedUsers = (await supabase.from('users').select('*')).data;
       if (fetchedUsers) {
         this.users = fetchedUsers;

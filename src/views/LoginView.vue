@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import { router } from '@/router';
 import { useAuthStore } from '@/stores/auth';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 const authStore = useAuthStore();
 
@@ -81,10 +81,6 @@ const submit = async () => {
     error.value = 'Oh no! Something went wrong :(';
   }
 };
-
-onMounted(async () => {
-  await authStore.getSession();
-});
 
 watch(
   () => authStore.auth,
