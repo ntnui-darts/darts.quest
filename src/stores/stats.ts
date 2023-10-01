@@ -15,8 +15,10 @@ export const useStatsStore = defineStore('stats', {
       if (!id) return;
       const legs = await supabase.from('legs').select('*').eq('userId', id);
       if (legs.data) {
-        // @ts-ignore
-        this.legs = legs.data as Leg;
+        this.legs = (legs.data as Leg[]).toSorted(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
       }
     },
     async fetchGames() {
@@ -27,7 +29,10 @@ export const useStatsStore = defineStore('stats', {
         .select('*')
         .contains('players', [id]);
       if (games.data) {
-        this.games = games.data;
+        this.games = games.data.toSorted(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
       }
     },
   },

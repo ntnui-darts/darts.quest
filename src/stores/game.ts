@@ -1,6 +1,7 @@
 import { supabase } from '@/supabase';
 import { Database } from '@/types/supabase';
 import { acceptHMRUpdate, defineStore } from 'pinia';
+import { useStatsStore } from './stats';
 
 enum Multiplier {
   None,
@@ -163,6 +164,8 @@ export const useGameStore = defineStore('game', {
         legs: this.currentGame.legs.map((leg) => leg.id),
         type: this.currentGame.type.toString(),
       });
+      useStatsStore().fetchLegs();
+      useStatsStore().fetchGames();
     },
   },
 
