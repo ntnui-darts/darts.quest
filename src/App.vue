@@ -1,4 +1,5 @@
 <template>
+  <modal-view></modal-view>
   <div v-auto-animate class="view-container col">
     <router-view></router-view>
   </div>
@@ -6,6 +7,7 @@
 </template>
 
 <script setup lang="ts">
+import ModalView from './components/ModalView.vue';
 import { RouterView } from 'vue-router';
 import { onMounted } from 'vue';
 import { useAuthStore } from './stores/auth';

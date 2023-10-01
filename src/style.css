@@ -1,19 +1,20 @@
 :root {
+  --c-green: rgb(19, 221, 97);
+  --c-background: #242424;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: var(--c-background);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-
-  --c-green: rgb(19, 221, 97);
 }
 
 body {
@@ -67,4 +68,19 @@ button:disabled {
 
 input {
   padding: 0.5em;
+}
+
+.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.clickthrough {
+  pointer-events: none !important;
+  touch-action: none !important;
+}
+
+.clickthrough > * {
+  pointer-events: all;
+  touch-action: all;
 }

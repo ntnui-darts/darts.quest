@@ -39,7 +39,7 @@ import DartboardChart from '@/components/DartboardChart.vue';
 import LegHistoryChart from '@/components/LegHistoryChart.vue';
 import { router } from '@/router';
 import { useStatsStore } from '@/stores/stats';
-import { getAvgVisitScore, getFirst9Avg } from '@/stores/game';
+import { getFirst9Avg } from '@/stores/game';
 
 const statsStore = useStatsStore();
 </script>
