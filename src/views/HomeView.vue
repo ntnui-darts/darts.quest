@@ -30,7 +30,7 @@
       v-for="user in usersStore.users"
       :key="user.id"
       :id="user.id"
-      :class="{ selected: selectedUsers.has(user) }"
+      :class="{ selected: selectedUsers.has(user.id) }"
       @click="toggleUser(user)"
     >
       {{ user.name }}
@@ -46,20 +46,30 @@ import { router } from '@/router';
 import { GameType, GameTypes, useGameStore, Leg } from '@/stores/game';
 import { useUsersStore, User } from '@/stores/users';
 import { nanoid } from 'nanoid';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const gameStore = useGameStore();
 const usersStore = useUsersStore();
 
-const selectedUsers = ref(new Set<User>());
+const selectedUsers = ref(new Set<string>());
 const gameType = ref<GameType>('301');
 const finishType = ref<1 | 2 | 3>(2);
 
+watch(
+  () => usersStore.getCurrentUser,
+  (user) => {
+    if (user) {
+      selectedUsers.value.add(user.id);
+    }
+  },
+  { immediate: true }
+);
+
 const toggleUser = (user: User) => {
-  if (selectedUsers.value.has(user)) {
-    selectedUsers.value.delete(user);
+  if (selectedUsers.value.has(user.id)) {
+    selectedUsers.value.delete(user.id);
   } else {
-    selectedUsers.value.add(user);
+    selectedUsers.value.add(user.id);
   }
 };
 
@@ -74,12 +84,12 @@ const onPlay = () => {
     type: gameType.value,
     finishType: finishType.value,
     result: [],
-    players: players.map((player) => player.id),
+    players,
     legs: players.map(
-      (user) =>
+      (userId) =>
         ({
           id: nanoid(),
-          userId: user.id,
+          userId,
           visits: [],
           arrows: 'unknown',
           confirmed: false,
