@@ -26,8 +26,9 @@ const modalStore = useModalStore();
 
 <style scoped>
 .overlay {
-  position: absolute;
-  width: 100%;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
 }
 
 .modal-wrapper {

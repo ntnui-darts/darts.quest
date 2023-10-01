@@ -7,6 +7,7 @@
           (id) => !gameStore.currentGame?.result.includes(id)
         )"
         :class="{ selected: gameStore.currentUserId == userId }"
+        @click="showChart(userId)"
       >
         {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
         <br />
@@ -117,6 +118,8 @@ import {
 import { router } from '@/router';
 import { useUsersStore } from '@/stores/users';
 import { useLoadingStore } from '@/stores/loading';
+import { useModalStore } from '@/stores/modal';
+import DartboardChart from '@/components/DartboardChart.vue';
 
 const gameStore = useGameStore();
 const usersStore = useUsersStore();
@@ -166,6 +169,12 @@ const saveGame = async () => {
   await gameStore.saveGame();
   loadingStore.loading = false;
   quit();
+};
+
+const showChart = (userId: string) => {
+  const leg = gameStore.getUserLeg(userId);
+  if (!leg) return;
+  useModalStore().push(DartboardChart, { visits: leg.visits }, {});
 };
 </script>
 
