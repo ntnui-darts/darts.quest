@@ -13,14 +13,14 @@
         {{
           (GameTypes[gameStore.currentGame.type] ?? 0) -
           getLegScore(
-            gameStore.getUserLeg(userId),
+            gameStore.getUserLeg(userId)?.visits ?? [],
             gameStore.currentGame.type,
             gameStore.currentGame.finishType
           )
         }}
         ({{
-          getAvgLegScore(
-            gameStore.getUserLeg(userId),
+          getAvgVisitScore(
+            gameStore.getUserLeg(userId)?.visits ?? [],
             gameStore.currentGame.type,
             gameStore.currentGame.finishType
           ).toFixed(1)
@@ -88,8 +88,9 @@
         }}
         turns,
         {{
-          getAvgLegScore(
-            gameStore.currentGame.legs.find((leg) => leg.userId == id) ?? null,
+          getAvgVisitScore(
+            gameStore.currentGame.legs.find((leg) => leg.userId == id)
+              ?.visits ?? [],
             gameStore.currentGame.type,
             gameStore.currentGame.finishType,
             true
@@ -110,7 +111,7 @@ import {
   useGameStore,
   multiplierToString,
   getLegScore,
-  getAvgLegScore,
+  getAvgVisitScore,
   GameTypes,
 } from '../stores/game';
 import { router } from '@/router';

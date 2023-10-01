@@ -64,7 +64,7 @@ export const useGameStore = defineStore('game', {
 
       if (
         getLegScore(
-          this.getCurrentLeg,
+          this.getCurrentLeg?.visits,
           this.currentGame.type,
           this.currentGame.finishType
         ) == GameTypes[this.currentGame.type]
@@ -99,8 +99,11 @@ export const useGameStore = defineStore('game', {
       const leg = this.getCurrentLeg;
       if (!leg) throw Error();
       if (
-        getLegScore(leg, this.currentGame.type, this.currentGame.finishType) ==
-        GameTypes[this.currentGame.type]
+        getLegScore(
+          leg.visits,
+          this.currentGame.type,
+          this.currentGame.finishType
+        ) == GameTypes[this.currentGame.type]
       ) {
         return;
       }
@@ -200,13 +203,13 @@ export const multiplierToString = (m?: Multiplier) => {
 };
 
 export const getLegScore = (
-  leg: Leg | null,
+  visits: Visit[],
   gameType: GameType,
   finishType: 1 | 2 | 3,
   includeUnfinished = true
 ) => {
   let score = 0;
-  leg?.visits.forEach((v) => {
+  visits?.forEach((v) => {
     const visitScore = getVisitScore(v, includeUnfinished);
     if (score + visitScore == GameTypes[gameType]) {
       if (
@@ -225,17 +228,28 @@ export const getLegScore = (
   return score;
 };
 
-export const getAvgLegScore = (
-  leg: Leg | null,
+export const getAvgVisitScore = (
+  visits: Visit[] | null,
   gameType: GameType,
   finishType: 1 | 2 | 3,
   includeUnfinished = false
 ) => {
+  if (!visits || visits.length == 0) return 0;
   const count = includeUnfinished
-    ? leg?.visits.length
-    : leg?.visits.filter((visit) => !visit.includes(null)).length;
+    ? visits.length
+    : visits.filter((visit) => !visit.includes(null)).length;
   if (!count) return 0;
-  return getLegScore(leg, gameType, finishType, includeUnfinished) / count;
+  return getLegScore(visits, gameType, finishType, includeUnfinished) / count;
+};
+
+export const getFirst9Avg = (
+  visits: Visit[] | null,
+  gameType: GameType,
+  finishType: 1 | 2 | 3
+) => {
+  if (!visits) return 0;
+  const first9 = visits.slice(0, 3);
+  return getAvgVisitScore(first9, gameType, finishType);
 };
 
 const getVisitScore = (visit: Visit, includeUnfinished = true) => {
