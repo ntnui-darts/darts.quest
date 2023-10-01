@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 import LegStats from '@/components/LegStats.vue';
 import { router } from '@/router';
-import { watch, ref } from 'vue';
+import { watch, ref, onUnmounted, onMounted } from 'vue';
 import { useStatsStore } from '@/stores/stats';
 import { Chart } from 'chart.js';
 import { GameType } from '@/stores/game';
@@ -74,8 +74,16 @@ const buildChart = async () => {
   });
 };
 
+onMounted(() => {
+  buildChart();
+});
+
 watch(
   () => statsStore.legs,
   () => buildChart()
 );
+
+onUnmounted(() => {
+  chart?.destroy();
+});
 </script>
