@@ -1,12 +1,21 @@
 <template>
   <button id="back" @click="router.push({ name: 'home' })">Back</button>
   <div>
-    <h2>Stats</h2>
-    <p>
-      {{ statsStore.getNumberOfWins }} wins. <br />
-      {{ statsStore.getNumberOfLosses }} losses. <br />
-      {{ statsStore.getNumberOfSoloGames }} solo games. <br />
-    </p>
+    <div class="row spaced">
+      <div>
+        <h2>Stats</h2>
+        <p>
+          {{ statsStore.getNumberOfWins }} wins. <br />
+          {{ statsStore.getNumberOfLosses }} losses. <br />
+          {{ statsStore.getNumberOfSoloGames }} solo games. <br />
+        </p>
+      </div>
+      <DartboardChart
+        :visits="statsStore.legs.map((leg) => leg.visits).flat()"
+        :width="400"
+        :height="400"
+      ></DartboardChart>
+    </div>
     <h3>Number of Visits</h3>
     <canvas ref="chartElement"></canvas>
     <h3>History</h3>
@@ -19,11 +28,12 @@
 <script lang="ts" setup>
 import LegStats from '@/components/LegStats.vue';
 import { router } from '@/router';
-import { watch, ref, onUnmounted, onMounted } from 'vue';
+import { watch, ref, onMounted } from 'vue';
 import { useStatsStore } from '@/stores/stats';
 import { Chart } from 'chart.js';
 import { GameType } from '@/stores/game';
 import 'chartjs-adapter-date-fns';
+import DartboardChart from '@/components/DartboardChart.vue';
 
 const statsStore = useStatsStore();
 
@@ -82,8 +92,4 @@ watch(
   () => statsStore.legs,
   () => buildChart()
 );
-
-onUnmounted(() => {
-  chart?.destroy();
-});
 </script>

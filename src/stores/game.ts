@@ -14,7 +14,7 @@ type Segment = {
   sector: number;
 };
 
-type Visit = [Segment | null, Segment | null, Segment | null];
+export type Visit = [Segment | null, Segment | null, Segment | null];
 
 export const GameTypes = {
   '301': 301,
