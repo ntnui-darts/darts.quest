@@ -20,11 +20,13 @@
     <LegHistoryChart
       :legs="statsStore.legs"
       :y="(leg) => leg.visits.length"
+      :group-by-type="true"
     ></LegHistoryChart>
     <h3>First 9 Average</h3>
     <LegHistoryChart
       :legs="statsStore.legs"
       :y="(leg, type, finishType) => getFirst9Avg(leg.visits, type, finishType)"
+      :group-by-type="false"
     ></LegHistoryChart>
     <h3>History</h3>
     <div v-for="leg in statsStore.legs.toReversed()">

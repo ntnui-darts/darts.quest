@@ -11,6 +11,7 @@ import { GameType, Leg } from '@/stores/game';
 const props = defineProps<{
   legs: Leg[];
   y: (leg: Leg, type: GameType, finishType: 1 | 2 | 3) => number;
+  groupByType: boolean;
 }>();
 
 const chartElement = ref<HTMLCanvasElement | null>(null);
@@ -22,8 +23,7 @@ const legsOfType = (type: GameType, finishType: 1 | 2 | 3) => {
   );
 };
 
-const buildChart = async () => {
-  if (!chartElement.value || props.legs.length == 0) return;
+const getDatasetsGroupedByType = () => {
   const datasets = [];
   for (const type of ['301', '501', '701'] as const) {
     for (const [finishType, finishTypeText] of [
@@ -43,6 +43,23 @@ const buildChart = async () => {
       }
     }
   }
+  return datasets;
+};
+
+const buildChart = async () => {
+  if (!chartElement.value || props.legs.length == 0) return;
+
+  const datasets = props.groupByType
+    ? getDatasetsGroupedByType()
+    : [
+        {
+          label: `All`,
+          data: props.legs.map((leg) => ({
+            x: new Date(leg.createdAt),
+            y: props.y(leg, leg.type, leg.finishType),
+          })),
+        },
+      ];
 
   chart?.destroy();
   chart = new Chart(chartElement.value, {

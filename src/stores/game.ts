@@ -26,13 +26,21 @@ export const GameTypes = {
 export type GameType = keyof typeof GameTypes;
 
 export type DbLeg = Database['public']['Tables']['legs']['Row'];
-export type Leg = Omit<DbLeg, 'visits' | 'createdAt'> & {
+export type Leg = Omit<
+  DbLeg,
+  'visits' | 'createdAt' | 'type' | 'finishType'
+> & {
   visits: Visit[];
   createdAt: string;
+  type: GameType;
+  finishType: 1 | 2 | 3;
 };
 
 export type DbGame = Database['public']['Tables']['games']['Row'];
-export type Game = Omit<DbGame, 'createdAt' | 'legs'> & {
+export type Game = Omit<
+  DbGame,
+  'createdAt' | 'legs' | 'type' | 'finishType'
+> & {
   createdAt?: string;
   legs: Leg[];
   type: GameType;
