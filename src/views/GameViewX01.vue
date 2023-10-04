@@ -109,19 +109,19 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
 import {
-  useGameStore,
+  useGameStoreX01,
   multiplierToString,
   getLegScore,
   getAvgVisitScore,
-  GameTypes,
-} from '../stores/game';
+  } from '../stores/game-x01';
 import { router } from '@/router';
 import { useUsersStore } from '@/stores/users';
 import { useLoadingStore } from '@/stores/loading';
 import { useModalStore } from '@/stores/modal';
 import DartboardChart from '@/components/DartboardChart.vue';
+import { GameTypes } from '@/stores/game';
 
-const gameStore = useGameStore();
+const gameStore = useGameStoreX01();
 const usersStore = useUsersStore();
 const loadingStore = useLoadingStore();
 
@@ -206,3 +206,4 @@ li {
   padding-bottom: 0.5em;
 }
 </style>
+../stores/game-x01

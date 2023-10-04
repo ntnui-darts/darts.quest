@@ -1,54 +1,10 @@
 import { supabase } from '@/supabase';
-import { Database } from '@/types/supabase';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { useStatsStore } from './stats';
+import { Game, GameType, GameTypes, Multiplier, Segment, Visit } from './game';
 
-export enum Multiplier {
-  None,
-  Single,
-  Double,
-  Triple,
-}
 
-export type Segment = {
-  multiplier: Multiplier;
-  sector: number;
-};
-
-export type Visit = [Segment | null, Segment | null, Segment | null];
-
-export const GameTypes = {
-  '301': 301,
-  '501': 501,
-  '701': 701,
-  'Round the Clock': 0
-} as const;
-
-export type GameType = keyof typeof GameTypes;
-
-export type DbLeg = Database['public']['Tables']['legs']['Row'];
-export type Leg = Omit<
-  DbLeg,
-  'visits' | 'createdAt' | 'type' | 'finishType'
-> & {
-  visits: Visit[];
-  createdAt: string;
-  type: GameType;
-  finishType: 1 | 2 | 3;
-};
-
-export type DbGame = Database['public']['Tables']['games']['Row'];
-export type Game = Omit<
-  DbGame,
-  'createdAt' | 'legs' | 'type' | 'finishType'
-> & {
-  createdAt?: string;
-  legs: Leg[];
-  type: GameType;
-  finishType: 1 | 2 | 3;
-};
-
-export const useGameStore = defineStore('game', {
+export const useGameStoreX01 = defineStore('gameX01', {
   state: () => ({
     currentUserId: null as string | null,
     currentGame: null as Game | null,
@@ -204,7 +160,7 @@ export const useGameStore = defineStore('game', {
 });
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useGameStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useGameStoreX01, import.meta.hot));
 }
 
 export const multiplierToString = (m?: Multiplier) => {

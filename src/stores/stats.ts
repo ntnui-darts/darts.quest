@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { supabase } from '@/supabase';
-import { DbGame, Leg } from './game';
+import { DbGame, Leg } from './game-x01';
 import { useAuthStore } from './auth';
 
 export const useStatsStore = defineStore('stats', {
