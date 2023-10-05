@@ -11,7 +11,7 @@
       >
         {{ usersStore.getUser(userId)?.name ?? "Unknown" }}
         <br />
-        {{ getLegScore(gameStore.getUserLeg(userId)?.visits ?? []) }}
+        {{ getLegScore(gameStore.getUserLeg(userId)?.visits ?? []) + 1 }}
       </button>
     </div>
     <div class="row">
