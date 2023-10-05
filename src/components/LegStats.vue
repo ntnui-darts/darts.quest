@@ -26,3 +26,4 @@ const showChart = () => {
   useModalStore().push(DartboardChart, { visits: props.leg.visits }, {});
 };
 </script>
+@/stores/game-x01

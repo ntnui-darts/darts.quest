@@ -57,3 +57,4 @@ const buildChart = () => {
   }
 };
 </script>
+@/stores/game-x01

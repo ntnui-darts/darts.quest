@@ -14,7 +14,7 @@
       {{ k }}
     </button>
   </div>
-  <h4 style="margin: 0">Finish</h4>
+  <h4 style="margin: 0">{{ gameType == 'Round the Clock' ? 'Mode' : 'Finish' }}</h4>
   <div class="row">
     <button
       v-for="t in ([1, 2, 3] as const)"
@@ -43,12 +43,15 @@
 
 <script lang="ts" setup>
 import { router } from '@/router';
-import { GameType, GameTypes, useGameStore, Leg } from '@/stores/game';
+import { GameType, GameTypes, Leg } from '@/stores/game';
+import { useGameStoreX01 } from '@/stores/game-x01';
+import { useGameStoreRoundDaClock } from '@/stores/game-round-da-clock';
 import { useUsersStore, User } from '@/stores/users';
 import { nanoid } from 'nanoid';
 import { ref, watch } from 'vue';
 
-const gameStore = useGameStore();
+const gameStoreX01 = useGameStoreX01();
+const gameStoreRoundDaClock = useGameStoreRoundDaClock();
 const usersStore = useUsersStore();
 
 const selectedUsers = ref(new Set<string>());
@@ -78,7 +81,8 @@ const onPlay = () => {
   if (!usersStore.getCurrentUser) return;
   const gameId = nanoid();
   const players = Array.from(selectedUsers.value);
-  gameStore.setCurrentGame({
+  const store = gameType.value == 'Round the Clock' ? gameStoreRoundDaClock : gameStoreX01
+  store.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
     type: gameType.value,
@@ -102,6 +106,7 @@ const onPlay = () => {
         } satisfies Leg)
     ),
   });
-  router.push({ name: 'game' });
+  router.push(gameType.value == 'Round the Clock' ? { name: 'game-round-da-clock' } : { name: 'game-x01' } );
 };
 </script>
+@/stores/game-x01

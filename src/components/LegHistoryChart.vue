@@ -86,3 +86,4 @@ watch(
   () => buildChart()
 );
 </script>
+@/stores/game-x01

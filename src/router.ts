@@ -1,7 +1,8 @@
 import { RouteRecordRaw, createRouter, createWebHashHistory } from 'vue-router';
 import { supabase } from './supabase';
 
-const GameView = () => import('@/views/GameView.vue');
+const GameViewX01 = () => import('@/views/GameViewX01.vue');
+const GameViewRoundDaClock = () => import('@/views/GameViewRoundDaClock.vue');
 const HomeView = () => import('@/views/HomeView.vue');
 const LoginView = () => import('@/views/LoginView.vue');
 const UserView = () => import('@/views/UserView.vue');
@@ -10,7 +11,8 @@ const StatsView = () => import('@/views/StatsView.vue');
 const routes: Readonly<RouteRecordRaw[]> = [
   { path: '/', name: 'root', redirect: { name: 'home' } },
   { path: '/home', name: 'home', component: HomeView },
-  { path: '/game', name: 'game', component: GameView },
+  { path: '/game-x01', name: 'game-x01', component: GameViewX01 },
+  { path: '/game-round-da-clock', name: 'game-round-da-clock', component: GameViewRoundDaClock },
   { path: '/login', name: 'login', component: LoginView },
   { path: '/user', name: 'user', component: UserView },
   { path: '/stats', name: 'stats', component: StatsView },

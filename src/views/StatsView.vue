@@ -45,3 +45,4 @@ import { getFirst9Avg } from '@/stores/game';
 
 const statsStore = useStatsStore();
 </script>
+@/stores/game-x01
