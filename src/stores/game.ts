@@ -1,7 +1,4 @@
-import { supabase } from "@/supabase";
 import { Database } from "@/types/supabase";
-import { acceptHMRUpdate, defineStore } from "pinia";
-import { useStatsStore } from "./stats";
 
 export enum Multiplier {
   None,

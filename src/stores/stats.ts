@@ -1,9 +1,9 @@
-import { acceptHMRUpdate, defineStore } from 'pinia';
-import { supabase } from '@/supabase';
-import { DbGame, Leg } from './game-x01';
-import { useAuthStore } from './auth';
+import { acceptHMRUpdate, defineStore } from "pinia";
+import { supabase } from "@/supabase";
+import { DbGame, Leg } from "./game";
+import { useAuthStore } from "./auth";
 
-export const useStatsStore = defineStore('stats', {
+export const useStatsStore = defineStore("stats", {
   state: () => ({
     legs: [] as Leg[],
     games: [] as DbGame[],
@@ -13,7 +13,7 @@ export const useStatsStore = defineStore('stats', {
     async fetchLegs() {
       const id = useAuthStore().auth?.id;
       if (!id) return;
-      const legs = await supabase.from('legs').select('*').eq('userId', id);
+      const legs = await supabase.from("legs").select("*").eq("userId", id);
       if (legs.data) {
         this.legs = (legs.data as Leg[]).toSorted(
           (a, b) =>
@@ -25,9 +25,9 @@ export const useStatsStore = defineStore('stats', {
       const id = useAuthStore().auth?.id;
       if (!id) return;
       const games = await supabase
-        .from('games')
-        .select('*')
-        .contains('players', [id]);
+        .from("games")
+        .select("*")
+        .contains("players", [id]);
       if (games.data) {
         this.games = games.data.toSorted(
           (a, b) =>

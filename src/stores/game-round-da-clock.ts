@@ -1,7 +1,7 @@
 import { supabase } from "@/supabase";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { useStatsStore } from "./stats";
-import { Game, GameType, GameTypes, Multiplier, Segment, Visit } from "./game";
+import { Game, GameTypes, Multiplier, Segment, Visit } from "./game";
 
 export const useGameStoreRoundDaClock = defineStore("gameRoundDaClock", {
   state: () => ({
@@ -27,11 +27,8 @@ export const useGameStoreRoundDaClock = defineStore("gameRoundDaClock", {
       visit[index] = segment;
 
       if (
-        getLegScore(
-          this.getCurrentLeg?.visits,
-          this.currentGame.type,
-          this.currentGame.finishType
-        ) == GameTypes[this.currentGame.type]
+        getLegScore(this.getCurrentLeg?.visits) ==
+        GameTypes[this.currentGame.type]
       ) {
         this.currentGame.result.push(this.currentUserId);
         this.getCurrentLeg.finish = true;
@@ -63,13 +60,7 @@ export const useGameStoreRoundDaClock = defineStore("gameRoundDaClock", {
       if (!this.currentGame) throw Error();
       const leg = this.getCurrentLeg;
       if (!leg) throw Error();
-      if (
-        getLegScore(
-          leg.visits,
-          this.currentGame.type,
-          this.currentGame.finishType
-        ) == GameTypes[this.currentGame.type]
-      ) {
+      if (getLegScore(leg.visits) == GameTypes[this.currentGame.type]) {
         return;
       }
       if (leg.visits.length == 0 || leg.visits.at(-1)?.[2] != null) {
@@ -182,12 +173,7 @@ const sumNumbers = (numbers: number[]) => {
   return numbers.reduce((prev, current) => prev + current, 0);
 };
 
-export const getLegScore = (
-  visits: Visit[],
-  gameType: GameType,
-  finishType: 1 | 2 | 3,
-  includeUnfinished = true
-) => {
+export const getLegScore = (visits: Visit[], includeUnfinished = true) => {
   return sumNumbers(visits.map((v) => getVisitScore(v, includeUnfinished)));
 };
 

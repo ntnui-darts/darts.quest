@@ -36,12 +36,12 @@
 </template>
 
 <script lang="ts" setup>
-import LegStats from '@/components/LegStats.vue';
-import DartboardChart from '@/components/DartboardChart.vue';
-import LegHistoryChart from '@/components/LegHistoryChart.vue';
-import { router } from '@/router';
-import { useStatsStore } from '@/stores/stats';
-import { getFirst9Avg } from '@/stores/game';
+import LegStats from "@/components/LegStats.vue";
+import DartboardChart from "@/components/DartboardChart.vue";
+import LegHistoryChart from "@/components/LegHistoryChart.vue";
+import { router } from "@/router";
+import { useStatsStore } from "@/stores/stats";
+import { getFirst9Avg } from "@/stores/game-x01";
 
 const statsStore = useStatsStore();
 </script>
