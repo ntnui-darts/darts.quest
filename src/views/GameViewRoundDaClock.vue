@@ -22,7 +22,7 @@
         {{ segment?.sector ?? "-" }}
       </button>
     </div>
-    <div class="grid-sectors">
+    <div class="row scoringbutton">
       <button
         @click="
           gameStore.saveScore({
@@ -41,10 +41,10 @@
           })
         "
       >
-        &#128504;
+        &#10003;
       </button>
-      <button @click="gameStore.undoScore">&#10226;</button>
     </div>
+    <button @click="gameStore.undoScore">&#10226;</button>
   </div>
   <div v-if="gameStore.currentGame && somePlayersFinished">
     <h2>Results, {{ gameStore.currentGame.type }}</h2>
@@ -141,5 +141,9 @@ button {
 li {
   font-size: 14pt;
   padding-bottom: 0.5em;
+}
+
+.scoringbutton {
+  height: 12em;
 }
 </style>
