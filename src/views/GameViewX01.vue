@@ -9,7 +9,7 @@
         :class="{ selected: gameStore.currentUserId == userId }"
         @click="showChart(userId)"
       >
-        {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
+        {{ usersStore.getUser(userId)?.name ?? "Unknown" }}
         <br />
         {{
           (GameTypes[gameStore.currentGame.type] ?? 0) -
@@ -75,14 +75,14 @@
       >
         25
       </button>
-      <button @click="gameStore.undoScore">❌</button>
+      <button @click="gameStore.undoScore">&#10226;</button>
     </div>
   </div>
   <div v-if="gameStore.currentGame && somePlayersFinished">
     <h2>Results, {{ gameStore.currentGame.type }}</h2>
     <ol>
       <li v-for="id in gameStore.currentGame.result">
-        {{ usersStore.getUser(id)?.name ?? 'Unknown' }},
+        {{ usersStore.getUser(id)?.name ?? "Unknown" }},
         {{
           gameStore.currentGame.legs.find((leg) => leg.userId == id)?.visits
             .length
@@ -107,19 +107,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed } from "vue";
 import {
   useGameStoreX01,
   multiplierToString,
   getLegScore,
   getAvgVisitScore,
-  } from '../stores/game-x01';
-import { router } from '@/router';
-import { useUsersStore } from '@/stores/users';
-import { useLoadingStore } from '@/stores/loading';
-import { useModalStore } from '@/stores/modal';
-import DartboardChart from '@/components/DartboardChart.vue';
-import { GameTypes } from '@/stores/game';
+} from "../stores/game-x01";
+import { router } from "@/router";
+import { useUsersStore } from "@/stores/users";
+import { useLoadingStore } from "@/stores/loading";
+import { useModalStore } from "@/stores/modal";
+import DartboardChart from "@/components/DartboardChart.vue";
+import { GameTypes } from "@/stores/game";
 
 const gameStore = useGameStoreX01();
 const usersStore = useUsersStore();
@@ -145,7 +145,7 @@ onMounted(() => {
 });
 
 const quit = () => {
-  router.push('/');
+  router.push("/");
 };
 
 const selectSector = (sector: number) => {

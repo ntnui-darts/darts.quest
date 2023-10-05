@@ -1,10 +1,9 @@
-import { supabase } from '@/supabase';
-import { acceptHMRUpdate, defineStore } from 'pinia';
-import { useStatsStore } from './stats';
-import { Game, GameType, GameTypes, Multiplier, Segment, Visit } from './game';
+import { supabase } from "@/supabase";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import { useStatsStore } from "./stats";
+import { Game, GameType, GameTypes, Multiplier, Segment, Visit } from "./game";
 
-
-export const useGameStoreRoundDaClock = defineStore('gameRoundDaClock', {
+export const useGameStoreRoundDaClock = defineStore("gameRoundDaClock", {
   state: () => ({
     currentUserId: null as string | null,
     currentGame: null as Game | null,
@@ -37,6 +36,7 @@ export const useGameStoreRoundDaClock = defineStore('gameRoundDaClock', {
         this.currentGame.result.push(this.currentUserId);
         this.getCurrentLeg.finish = true;
         this.nextUser();
+        console.log("test");
       } else if (index == 2) {
         this.nextUser();
       }
@@ -124,10 +124,10 @@ export const useGameStoreRoundDaClock = defineStore('gameRoundDaClock', {
       if (!this.currentGame) throw Error();
       for (let leg of this.currentGame.legs) {
         await supabase
-          .from('legs')
+          .from("legs")
           .insert({ ...leg, type: leg.type.toString() });
       }
-      await supabase.from('games').insert({
+      await supabase.from("games").insert({
         ...this.currentGame,
         legs: this.currentGame.legs.map((leg) => leg.id),
         type: this.currentGame.type.toString(),
@@ -145,6 +145,15 @@ export const useGameStoreRoundDaClock = defineStore('gameRoundDaClock', {
     getNumberOfThrows(): number | null {
       return this.getCurrentVisit?.findIndex((s) => s == null) ?? null;
     },
+    getCurrentSector(): number {
+      if (!this.getCurrentLeg) throw Error();
+      return Math.max(
+        1,
+        ...(
+          this.getCurrentLeg.visits.flat().filter((s) => !!s) as Segment[]
+        ).map((s) => s.sector + 1)
+      );
+    },
     getCurrentLeg: (state) => {
       if (!state.currentGame || !state.currentUserId) return null;
       return (
@@ -160,11 +169,17 @@ export const useGameStoreRoundDaClock = defineStore('gameRoundDaClock', {
 });
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useGameStoreRoundDaClock, import.meta.hot));
+  import.meta.hot.accept(
+    acceptHMRUpdate(useGameStoreRoundDaClock, import.meta.hot)
+  );
 }
 
 export const multiplierToString = (m?: Multiplier) => {
-  return m ? 'I'.repeat(m) : '-';
+  return m ? "I".repeat(m) : "-";
+};
+
+const sumNumbers = (numbers: number[]) => {
+  return numbers.reduce((prev, current) => prev + current, 0);
 };
 
 export const getLegScore = (
@@ -173,55 +188,10 @@ export const getLegScore = (
   finishType: 1 | 2 | 3,
   includeUnfinished = true
 ) => {
-  let score = 0;
-  visits?.forEach((v) => {
-    const visitScore = getVisitScore(v, includeUnfinished);
-    if (score + visitScore == GameTypes[gameType]) {
-      if (
-        finishType == 1 ||
-        (v.findLast((s) => s != null)?.multiplier ?? 0) == finishType
-      ) {
-        score += visitScore;
-      }
-    } else if (score + visitScore < GameTypes[gameType]) {
-      const rest = GameTypes[gameType] - score - visitScore;
-      if (rest >= finishType) {
-        score += visitScore;
-      }
-    }
-  });
-  return score;
-};
-
-export const getAvgVisitScore = (
-  visits: Visit[] | null,
-  gameType: GameType,
-  finishType: 1 | 2 | 3,
-  includeUnfinished = false
-) => {
-  if (!visits || visits.length == 0) return 0;
-  const count = includeUnfinished
-    ? visits.length
-    : visits.filter((visit) => !visit.includes(null)).length;
-  if (!count) return 0;
-  return getLegScore(visits, gameType, finishType, includeUnfinished) / count;
-};
-
-export const getFirst9Avg = (
-  visits: Visit[] | null,
-  gameType: GameType,
-  finishType: 1 | 2 | 3
-) => {
-  if (!visits) return 0;
-  const first9 = visits.slice(0, 3);
-  return getAvgVisitScore(first9, gameType, finishType);
+  return sumNumbers(visits.map((v) => getVisitScore(v, includeUnfinished)));
 };
 
 const getVisitScore = (visit: Visit, includeUnfinished = true) => {
   if (!includeUnfinished && visit.includes(null)) return 0;
-  return visit.reduce((prev, current) => prev + getSegmentScore(current), 0);
-};
-
-const getSegmentScore = (segment: Segment | null) => {
-  return segment ? segment.multiplier * segment.sector : 0;
+  return visit.filter((seg) => seg != null && seg.sector != 0).length;
 };

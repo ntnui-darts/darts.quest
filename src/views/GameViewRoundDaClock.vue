@@ -12,20 +12,12 @@
         {{ usersStore.getUser(userId)?.name ?? "Unknown" }}
         <br />
         {{
-          (GameTypes[gameStore.currentGame.type] ?? 0) -
           getLegScore(
             gameStore.getUserLeg(userId)?.visits ?? [],
             gameStore.currentGame.type,
             gameStore.currentGame.finishType
           )
         }}
-        ({{
-          getAvgVisitScore(
-            gameStore.getUserLeg(userId)?.visits ?? [],
-            gameStore.currentGame.type,
-            gameStore.currentGame.finishType
-          ).toFixed(1)
-        }})
       </button>
     </div>
     <div class="row">
@@ -33,49 +25,31 @@
         v-for="(segment, i) in gameStore.getCurrentVisit"
         :class="{ outlined: i == gameStore.getNumberOfThrows }"
       >
-        {{ multiplierToString(segment?.multiplier) }} - {{ segment?.sector }}
-      </button>
-    </div>
-    <div class="row" style="justify-content: space-between">
-      <button
-        v-for="i in [1, 2, 3]"
-        @click="selectedMultiplier = i"
-        :disabled="i == 3 && selectedSector == 25"
-        :class="{
-          selected: selectedMultiplier == i,
-        }"
-      >
-        {{ multiplierToString(i) }}
+        {{ segment?.sector ?? "-" }}
       </button>
     </div>
     <div class="grid-sectors">
       <button
-        v-for="(_, i) in Array(20)"
-        @click="selectSector(i + 1)"
-        :class="{
-          selected: selectedSector == i + 1,
-        }"
+        @click="
+          gameStore.saveScore({
+            multiplier: 1,
+            sector: 0,
+          })
+        "
       >
-        {{ i + 1 }}
+        &#10799;
       </button>
       <button
-        @click="selectSector(0)"
-        :class="{
-          selected: selectedSector == 0,
-        }"
+        @click="
+          gameStore.saveScore({
+            multiplier: 1,
+            sector: gameStore.getCurrentSector,
+          })
+        "
       >
-        0
+        &#128504;
       </button>
-      <button
-        :disabled="selectedMultiplier == 3"
-        @click="selectSector(25)"
-        :class="{
-          selected: selectedSector == 25,
-        }"
-      >
-        25
-      </button>
-      <button @click="gameStore.undoScore">❌</button>
+      <button @click="gameStore.undoScore">&#10226;</button>
     </div>
   </div>
   <div v-if="gameStore.currentGame && somePlayersFinished">
@@ -87,17 +61,7 @@
           gameStore.currentGame.legs.find((leg) => leg.userId == id)?.visits
             .length
         }}
-        turns,
-        {{
-          getAvgVisitScore(
-            gameStore.currentGame.legs.find((leg) => leg.userId == id)
-              ?.visits ?? [],
-            gameStore.currentGame.type,
-            gameStore.currentGame.finishType,
-            true
-          ).toFixed(1)
-        }}
-        average.
+        turns
       </li>
     </ol>
     <div class="col">
@@ -107,26 +71,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue";
-import {
-  multiplierToString,
-  getLegScore,
-  getAvgVisitScore,
-  GameTypes,
-} from "../stores/game";
+import { onMounted, computed } from "vue";
 import { router } from "@/router";
 import { useUsersStore } from "@/stores/users";
 import { useLoadingStore } from "@/stores/loading";
 import { useModalStore } from "@/stores/modal";
 import DartboardChart from "@/components/DartboardChart.vue";
-import { useGameStoreRoundDaClock } from "@/stores/game-round-da-clock";
+import {
+  useGameStoreRoundDaClock,
+  getLegScore,
+} from "@/stores/game-round-da-clock";
 
 const gameStore = useGameStoreRoundDaClock();
 const usersStore = useUsersStore();
 const loadingStore = useLoadingStore();
-
-const selectedMultiplier = ref(1);
-const selectedSector = ref<number | null>(null);
 
 const allPlayersFinished = computed(
   () =>
@@ -146,21 +104,6 @@ onMounted(() => {
 
 const quit = () => {
   router.push("/");
-};
-
-const selectSector = (sector: number) => {
-  selectedSector.value = sector;
-  submitScore();
-};
-
-const submitScore = () => {
-  if (selectedSector.value == null) return;
-  gameStore.saveScore({
-    multiplier: selectedMultiplier.value,
-    sector: selectedSector.value,
-  });
-  selectedMultiplier.value = 1;
-  selectedSector.value = null;
 };
 
 const saveGame = async () => {
