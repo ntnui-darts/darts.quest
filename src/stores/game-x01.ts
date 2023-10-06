@@ -39,6 +39,8 @@ export const useGameStoreX01 = defineStore('gameX01', {
       } else if (index == 2) {
         this.nextUser()
       }
+      localStorage.clear() //save to localstorage
+      localStorage.setItem('data', JSON.stringify(this.currentGame))
     },
     undoScore() {
       if (!this.currentUserId || !this.getCurrentLeg) throw Error()

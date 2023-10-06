@@ -33,10 +33,12 @@ export const useGameStoreRoundDaClock = defineStore('gameRoundDaClock', {
         this.currentGame.result.push(this.currentUserId)
         this.getCurrentLeg.finish = true
         this.nextUser()
-        console.log('test')
       } else if (index == 2) {
         this.nextUser()
       }
+
+      localStorage.clear() //save to localstorage
+      localStorage.setItem('data', JSON.stringify(this.currentGame))
     },
     undoScore() {
       if (!this.currentUserId || !this.getCurrentLeg) throw Error()
@@ -55,6 +57,8 @@ export const useGameStoreRoundDaClock = defineStore('gameRoundDaClock', {
           return
         }
       }
+      localStorage.clear() //save to localstorage
+      localStorage.setItem('data', JSON.stringify(this.currentGame))
     },
     addVisitIfNecessary() {
       if (!this.currentGame) throw Error()
