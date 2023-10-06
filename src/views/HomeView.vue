@@ -7,11 +7,11 @@
   <h2>Select Game Type</h2>
   <div class="row">
     <button
-      v-for="(_, k) in GameTypes"
-      :class="{ selected: k == gameType }"
-      @click="gameType = k"
+      v-for="(_, type) in GameTypes"
+      :class="{ selected: type == gameType }"
+      @click="selectGameType(type)"
     >
-      {{ k }}
+      {{ type }}
     </button>
   </div>
   <h4 style="margin: 0">
@@ -20,8 +20,8 @@
   <div class="row">
     <button
       v-for="t in ([1, 2, 3] as const)"
-      :class="{ selected: t == finishType }"
-      @click="finishType = t"
+      :class="{ selected: t == mode }"
+      @click="mode = t"
     >
       {{ ['Single', 'Double', 'Triple'][t - 1] }}
     </button>
@@ -58,7 +58,7 @@ const usersStore = useUsersStore()
 
 const selectedUsers = ref(new Set<string>())
 const gameType = ref<GameType>('301')
-const finishType = ref<1 | 2 | 3>(2)
+const mode = ref<1 | 2 | 3>(2)
 
 watch(
   () => usersStore.getCurrentUser,
@@ -78,6 +78,17 @@ const toggleUser = (user: User) => {
   }
 }
 
+const selectGameType = (type: GameType) => {
+  if (gameType.value == type) return
+  gameType.value = type
+  // Set default mode based on gameType
+  if (gameType.value == 'Round the Clock') {
+    mode.value = 1
+  } else {
+    mode.value = 2
+  }
+}
+
 const onPlay = () => {
   if (selectedUsers.value.size == 0) return
   if (!usersStore.getCurrentUser) return
@@ -89,7 +100,7 @@ const onPlay = () => {
     id: gameId,
     userId: usersStore.getCurrentUser.id,
     type: gameType.value,
-    finishType: finishType.value,
+    finishType: mode.value,
     result: [],
     players,
     legs: players.map(
@@ -102,7 +113,7 @@ const onPlay = () => {
           confirmed: false,
           gameId: gameId,
           type: gameType.value,
-          finishType: finishType.value,
+          finishType: mode.value,
           beers: null,
           finish: false,
           createdAt: new Date().toISOString(),
@@ -116,4 +127,3 @@ const onPlay = () => {
   )
 }
 </script>
-@/stores/game-x01
