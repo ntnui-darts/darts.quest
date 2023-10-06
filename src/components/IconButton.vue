@@ -13,16 +13,16 @@
 <script lang="ts" setup>
 withDefaults(
   defineProps<{
-    icon?: string;
-    size?: string;
-    hidden?: boolean;
-    class?: string | object;
-    color?: string;
+    icon?: string
+    size?: string
+    hidden?: boolean
+    class?: string | object
+    color?: string
   }>(),
   {
     icon: 'angle-left',
     color: 'var(--c-white)',
   }
-);
-const emit = defineEmits<{ (e: 'click'): void }>();
+)
+const emit = defineEmits<{ (e: 'click'): void }>()
 </script>

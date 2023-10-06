@@ -7,22 +7,22 @@
 </template>
 
 <script setup lang="ts">
-import ModalView from './components/ModalView.vue';
-import { RouterView } from 'vue-router';
-import { onMounted } from 'vue';
-import { useAuthStore } from './stores/auth';
-import { useLoadingStore } from './stores/loading';
-import { router } from './router';
+import ModalView from './components/ModalView.vue'
+import { RouterView } from 'vue-router'
+import { onMounted } from 'vue'
+import { useAuthStore } from './stores/auth'
+import { useLoadingStore } from './stores/loading'
+import { router } from './router'
 
-const authStore = useAuthStore();
-const loadingStore = useLoadingStore();
+const authStore = useAuthStore()
+const loadingStore = useLoadingStore()
 
 onMounted(async () => {
-  await useAuthStore().getSession();
+  await useAuthStore().getSession()
   if (!authStore.auth) {
-    router.push({ name: 'login' });
+    router.push({ name: 'login' })
   }
-});
+})
 </script>
 
 <style scoped>

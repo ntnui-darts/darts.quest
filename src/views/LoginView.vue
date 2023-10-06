@@ -28,30 +28,30 @@
 </template>
 
 <script lang="ts" setup>
-import { router } from '@/router';
-import { useAuthStore } from '@/stores/auth';
-import { ref, watch } from 'vue';
+import { router } from '@/router'
+import { useAuthStore } from '@/stores/auth'
+import { ref, watch } from 'vue'
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
 
-const name = ref('');
-const email = ref('');
-const password = ref('');
-const repeatedPassword = ref('');
-const error = ref('');
-const signUp = ref(false);
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const repeatedPassword = ref('')
+const error = ref('')
+const signUp = ref(false)
 
 const setSignUp = (value: boolean) => {
-  signUp.value = value;
-  error.value = '';
-};
+  signUp.value = value
+  error.value = ''
+}
 
 const submit = async () => {
-  error.value = '';
+  error.value = ''
   if (!signUp.value) {
     if (!email.value || !password.value) {
-      error.value = 'All fields are required!';
-      return;
+      error.value = 'All fields are required!'
+      return
     }
   }
   if (signUp.value) {
@@ -61,33 +61,33 @@ const submit = async () => {
       !password.value ||
       !repeatedPassword.value
     ) {
-      error.value = 'All fields are required!';
-      return;
+      error.value = 'All fields are required!'
+      return
     }
     if (signUp.value && password.value != repeatedPassword.value) {
-      error.value = "Passwords don't match!";
-      return;
+      error.value = "Passwords don't match!"
+      return
     }
   }
   try {
     if (!authStore.auth) {
       if (signUp.value) {
-        await authStore.signUp(name.value, email.value, password.value);
+        await authStore.signUp(name.value, email.value, password.value)
       } else {
-        await authStore.signIn(email.value, password.value);
+        await authStore.signIn(email.value, password.value)
       }
     }
   } catch {
-    error.value = 'Oh no! Something went wrong :(';
+    error.value = 'Oh no! Something went wrong :('
   }
-};
+}
 
 watch(
   () => authStore.auth,
   (auth) => {
     if (auth) {
-      router.push({ name: 'home' });
+      router.push({ name: 'home' })
     }
   }
-);
+)
 </script>

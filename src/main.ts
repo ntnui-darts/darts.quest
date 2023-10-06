@@ -1,13 +1,13 @@
-import { createApp } from 'vue';
-import './style.css';
-import App from './App.vue';
-import { createPinia } from 'pinia';
-import { router } from './router';
-import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
-import { Chart, registerables } from 'chart.js';
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+import { createPinia } from 'pinia'
+import { router } from './router'
+import { autoAnimatePlugin } from '@formkit/auto-animate/vue'
+import { Chart, registerables } from 'chart.js'
 
-Chart.register(...registerables);
+Chart.register(...registerables)
 
-const pinia = createPinia();
+const pinia = createPinia()
 
-createApp(App).use(autoAnimatePlugin).use(pinia).use(router).mount('#app');
+createApp(App).use(autoAnimatePlugin).use(pinia).use(router).mount('#app')

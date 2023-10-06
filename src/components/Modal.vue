@@ -12,14 +12,14 @@
 </template>
 
 <script lang="ts" setup>
-import IconButton from './IconButton.vue';
-import { useModalStore, DynamicComponent } from '@/stores/modal';
+import IconButton from './IconButton.vue'
+import { useModalStore, DynamicComponent } from '@/stores/modal'
 
-const modalStore = useModalStore();
+const modalStore = useModalStore()
 
 defineProps<{
-  component: DynamicComponent;
-}>();
+  component: DynamicComponent
+}>()
 </script>
 
 <style scoped>
