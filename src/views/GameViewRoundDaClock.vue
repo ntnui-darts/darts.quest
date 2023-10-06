@@ -97,6 +97,7 @@ onMounted(() => {
 })
 
 const quit = () => {
+  localStorage.clear()
   router.push('/')
 }
 

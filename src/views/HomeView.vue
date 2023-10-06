@@ -50,7 +50,9 @@ import { useGameStoreX01 } from '@/stores/game-x01'
 import { useGameStoreRoundDaClock } from '@/stores/game-round-da-clock'
 import { useUsersStore, User } from '@/stores/users'
 import { nanoid } from 'nanoid'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { useModalStore } from '@/stores/modal'
+import ReloadView from '@/components/ReloadView.vue'
 
 const gameStoreX01 = useGameStoreX01()
 const gameStoreRoundDaClock = useGameStoreRoundDaClock()
@@ -59,6 +61,12 @@ const usersStore = useUsersStore()
 const selectedUsers = ref(new Set<string>())
 const gameType = ref<GameType>('301')
 const mode = ref<1 | 2 | 3>(2)
+
+onMounted(() => {
+  if (localStorage.getItem('data')) {
+    useModalStore().push(ReloadView, {}, {})
+  }
+})
 
 watch(
   () => usersStore.getCurrentUser,
