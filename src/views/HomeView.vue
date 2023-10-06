@@ -44,58 +44,58 @@
 </template>
 
 <script lang="ts" setup>
-import { router } from '@/router';
-import { GameType, GameTypes, Leg } from '@/stores/game';
-import { useGameStoreX01 } from '@/stores/game-x01';
-import { useGameStoreRoundDaClock } from '@/stores/game-round-da-clock';
-import { useUsersStore, User } from '@/stores/users';
-import { nanoid } from 'nanoid';
-import { ref, watch } from 'vue';
+import { router } from '@/router'
+import { GameType, GameTypes, Leg } from '@/stores/game'
+import { useGameStoreX01 } from '@/stores/game-x01'
+import { useGameStoreRoundDaClock } from '@/stores/game-round-da-clock'
+import { useUsersStore, User } from '@/stores/users'
+import { nanoid } from 'nanoid'
+import { ref, watch } from 'vue'
 
-const gameStoreX01 = useGameStoreX01();
-const gameStoreRoundDaClock = useGameStoreRoundDaClock();
-const usersStore = useUsersStore();
+const gameStoreX01 = useGameStoreX01()
+const gameStoreRoundDaClock = useGameStoreRoundDaClock()
+const usersStore = useUsersStore()
 
-const selectedUsers = ref(new Set<string>());
-const gameType = ref<GameType>('301');
-const mode = ref<1 | 2 | 3>(2);
+const selectedUsers = ref(new Set<string>())
+const gameType = ref<GameType>('301')
+const mode = ref<1 | 2 | 3>(2)
 
 watch(
   () => usersStore.getCurrentUser,
   (user) => {
     if (user) {
-      selectedUsers.value.add(user.id);
+      selectedUsers.value.add(user.id)
     }
   },
   { immediate: true }
-);
+)
 
 const toggleUser = (user: User) => {
   if (selectedUsers.value.has(user.id)) {
-    selectedUsers.value.delete(user.id);
+    selectedUsers.value.delete(user.id)
   } else {
-    selectedUsers.value.add(user.id);
+    selectedUsers.value.add(user.id)
   }
-};
+}
 
 const selectGameType = (type: GameType) => {
-  if (gameType.value == type) return;
-  gameType.value = type;
+  if (gameType.value == type) return
+  gameType.value = type
   // Set default mode based on gameType
   if (gameType.value == 'Round the Clock') {
-    mode.value = 1;
+    mode.value = 1
   } else {
-    mode.value = 2;
+    mode.value = 2
   }
-};
+}
 
 const onPlay = () => {
-  if (selectedUsers.value.size == 0) return;
-  if (!usersStore.getCurrentUser) return;
-  const gameId = nanoid();
-  const players = Array.from(selectedUsers.value);
+  if (selectedUsers.value.size == 0) return
+  if (!usersStore.getCurrentUser) return
+  const gameId = nanoid()
+  const players = Array.from(selectedUsers.value)
   const store =
-    gameType.value == 'Round the Clock' ? gameStoreRoundDaClock : gameStoreX01;
+    gameType.value == 'Round the Clock' ? gameStoreRoundDaClock : gameStoreX01
   store.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
@@ -119,11 +119,11 @@ const onPlay = () => {
           createdAt: new Date().toISOString(),
         } satisfies Leg)
     ),
-  });
+  })
   router.push(
     gameType.value == 'Round the Clock'
       ? { name: 'game-round-da-clock' }
       : { name: 'game-x01' }
-  );
-};
+  )
+}
 </script>

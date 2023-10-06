@@ -14,16 +14,16 @@
 </template>
 
 <script lang="ts" setup>
-import { Leg } from '@/stores/game';
-import DartboardChart from './DartboardChart.vue';
-import { useModalStore } from '@/stores/modal';
+import { Leg } from '@/stores/game'
+import DartboardChart from './DartboardChart.vue'
+import { useModalStore } from '@/stores/modal'
 
 const props = defineProps<{
-  leg: Leg;
-}>();
+  leg: Leg
+}>()
 
 const showChart = () => {
-  useModalStore().push(DartboardChart, { visits: props.leg.visits }, {});
-};
+  useModalStore().push(DartboardChart, { visits: props.leg.visits }, {})
+}
 </script>
 @/stores/game-x01

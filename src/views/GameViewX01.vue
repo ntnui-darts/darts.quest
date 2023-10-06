@@ -9,7 +9,7 @@
         :class="{ selected: gameStore.currentUserId == userId }"
         @click="showChart(userId)"
       >
-        {{ usersStore.getUser(userId)?.name ?? "Unknown" }}
+        {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
         <br />
         {{
           (GameTypes[gameStore.currentGame.type] ?? 0) -
@@ -82,7 +82,7 @@
     <h2>Results, {{ gameStore.currentGame.type }}</h2>
     <ol>
       <li v-for="id in gameStore.currentGame.result">
-        {{ usersStore.getUser(id)?.name ?? "Unknown" }},
+        {{ usersStore.getUser(id)?.name ?? 'Unknown' }},
         {{
           gameStore.currentGame.legs.find((leg) => leg.userId == id)?.visits
             .length
@@ -107,75 +107,75 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed } from 'vue'
 import {
   useGameStoreX01,
   multiplierToString,
   getLegScore,
   getAvgVisitScore,
-} from "../stores/game-x01";
-import { router } from "@/router";
-import { useUsersStore } from "@/stores/users";
-import { useLoadingStore } from "@/stores/loading";
-import { useModalStore } from "@/stores/modal";
-import DartboardChart from "@/components/DartboardChart.vue";
-import { GameTypes } from "@/stores/game";
+} from '../stores/game-x01'
+import { router } from '@/router'
+import { useUsersStore } from '@/stores/users'
+import { useLoadingStore } from '@/stores/loading'
+import { useModalStore } from '@/stores/modal'
+import DartboardChart from '@/components/DartboardChart.vue'
+import { GameTypes } from '@/stores/game'
 
-const gameStore = useGameStoreX01();
-const usersStore = useUsersStore();
-const loadingStore = useLoadingStore();
+const gameStore = useGameStoreX01()
+const usersStore = useUsersStore()
+const loadingStore = useLoadingStore()
 
-const selectedMultiplier = ref(1);
-const selectedSector = ref<number | null>(null);
+const selectedMultiplier = ref(1)
+const selectedSector = ref<number | null>(null)
 
 const allPlayersFinished = computed(
   () =>
     (gameStore.currentGame?.legs.length ?? 0) ==
     (gameStore.currentGame?.result.length ?? 0)
-);
+)
 
 const somePlayersFinished = computed(
   () => (gameStore.currentGame?.result.length ?? 0) > 0
-);
+)
 
 onMounted(() => {
   if (!gameStore.currentGame) {
-    quit();
+    quit()
   }
-});
+})
 
 const quit = () => {
-  router.push("/");
-};
+  router.push('/')
+}
 
 const selectSector = (sector: number) => {
-  selectedSector.value = sector;
-  submitScore();
-};
+  selectedSector.value = sector
+  submitScore()
+}
 
 const submitScore = () => {
-  if (selectedSector.value == null) return;
+  if (selectedSector.value == null) return
   gameStore.saveScore({
     multiplier: selectedMultiplier.value,
     sector: selectedSector.value,
-  });
-  selectedMultiplier.value = 1;
-  selectedSector.value = null;
-};
+  })
+  selectedMultiplier.value = 1
+  selectedSector.value = null
+}
 
 const saveGame = async () => {
-  if (loadingStore.loading) return;
-  loadingStore.loading = true;
-  await gameStore.saveGame();
-  loadingStore.loading = false;
-  quit();
-};
+  if (loadingStore.loading) return
+  loadingStore.loading = true
+  await gameStore.saveGame()
+  loadingStore.loading = false
+  quit()
+}
 
 const showChart = (userId: string) => {
-  const leg = gameStore.getUserLeg(userId);
-  if (!leg) return;
-  useModalStore().push(DartboardChart, { visits: leg.visits }, {});
-};
+  const leg = gameStore.getUserLeg(userId)
+  if (!leg) return
+  useModalStore().push(DartboardChart, { visits: leg.visits }, {})
+}
 </script>
 
 <style scoped>

@@ -12,30 +12,30 @@
 </template>
 
 <script lang="ts" setup>
-import { useAuthStore } from '@/stores/auth';
-import { useUsersStore } from '@/stores/users';
-import { router } from '@/router';
-import { ref } from 'vue';
+import { useAuthStore } from '@/stores/auth'
+import { useUsersStore } from '@/stores/users'
+import { router } from '@/router'
+import { ref } from 'vue'
 
-const authStore = useAuthStore();
-const usersStore = useUsersStore();
+const authStore = useAuthStore()
+const usersStore = useUsersStore()
 
-const changed = ref(false);
+const changed = ref(false)
 const updateName = (e: Event) => {
-  const el = e.target as HTMLInputElement;
-  if (!usersStore.getCurrentUser) return;
-  usersStore.getCurrentUser.name = el.value;
-  changed.value = true;
-};
+  const el = e.target as HTMLInputElement
+  if (!usersStore.getCurrentUser) return
+  usersStore.getCurrentUser.name = el.value
+  changed.value = true
+}
 
 const saveChanges = () => {
-  if (!usersStore.getCurrentUser) return;
-  authStore.setName(usersStore.getCurrentUser.name);
-  changed.value = false;
-};
+  if (!usersStore.getCurrentUser) return
+  authStore.setName(usersStore.getCurrentUser.name)
+  changed.value = false
+}
 
 const logout = async () => {
-  await authStore.signOut();
-  router.push({ name: 'login' });
-};
+  await authStore.signOut()
+  router.push({ name: 'login' })
+}
 </script>

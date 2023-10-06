@@ -1,18 +1,18 @@
-import { acceptHMRUpdate, defineStore } from 'pinia';
-import { User as AuthUser } from '@supabase/supabase-js';
-import { supabase } from '@/supabase';
-import { useUsersStore } from './users';
-import { useStatsStore } from './stats';
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { User as AuthUser } from '@supabase/supabase-js'
+import { supabase } from '@/supabase'
+import { useUsersStore } from './users'
+import { useStatsStore } from './stats'
 
 supabase.auth.onAuthStateChange(async (_, session) => {
-  const user = session?.user;
-  useAuthStore().auth = user;
+  const user = session?.user
+  useAuthStore().auth = user
   if (user) {
-    useUsersStore().fetchUsers();
-    useStatsStore().fetchLegs();
-    useStatsStore().fetchGames();
+    useUsersStore().fetchUsers()
+    useStatsStore().fetchLegs()
+    useStatsStore().fetchGames()
   }
-});
+})
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -21,35 +21,35 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async getSession() {
-      const response = await supabase.auth.getSession();
-      this.auth = response.data.session?.user;
+      const response = await supabase.auth.getSession()
+      this.auth = response.data.session?.user
     },
     async signUp(name: string, email: string, password: string) {
-      await supabase.auth.signUp({ email, password });
-      await this.setName(name);
+      await supabase.auth.signUp({ email, password })
+      await this.setName(name)
     },
     async signIn(email: string, password: string) {
-      await supabase.auth.signInWithPassword({ email, password });
+      await supabase.auth.signInWithPassword({ email, password })
     },
     async signOut() {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut()
     },
     async setName(name: string) {
-      if (!this.auth) throw Error();
+      if (!this.auth) throw Error()
       const prevName = await supabase
         .from('users')
         .select('name')
-        .eq('id', this.auth.id);
+        .eq('id', this.auth.id)
       if (prevName.data?.length == 0) {
-        await supabase.from('users').insert({ name });
+        await supabase.from('users').insert({ name })
       } else {
-        await supabase.from('users').update({ name }).eq('id', this.auth.id);
-        await useUsersStore().fetchUsers();
+        await supabase.from('users').update({ name }).eq('id', this.auth.id)
+        await useUsersStore().fetchUsers()
       }
     },
   },
-});
+})
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot))
 }

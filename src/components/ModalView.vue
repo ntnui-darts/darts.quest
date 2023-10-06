@@ -18,10 +18,10 @@
 </template>
 
 <script lang="ts" setup>
-import Modal from '@/components/Modal.vue';
-import { useModalStore } from '@/stores/modal';
+import Modal from '@/components/Modal.vue'
+import { useModalStore } from '@/stores/modal'
 
-const modalStore = useModalStore();
+const modalStore = useModalStore()
 </script>
 
 <style scoped>
