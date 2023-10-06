@@ -39,7 +39,7 @@ export const useGameStoreX01 = defineStore('gameX01', {
       } else if (index == 2) {
         this.nextUser()
       }
-      localStorage.clear() //save to localstorage
+      localStorage.removeItem('data') //save to localstorage
       localStorage.setItem('data', JSON.stringify(this.currentGame))
     },
     undoScore() {
@@ -59,6 +59,8 @@ export const useGameStoreX01 = defineStore('gameX01', {
           return
         }
       }
+      localStorage.removeItem('data') //save to localstorage
+      localStorage.setItem('data', JSON.stringify(this.currentGame))
     },
     addVisitIfNecessary() {
       if (!this.currentGame) throw Error()
