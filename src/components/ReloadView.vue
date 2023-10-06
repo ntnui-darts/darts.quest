@@ -3,7 +3,7 @@
     There is a game loaded in your local storage. Would you like to reload it?
   </h4>
   <button @click="reloadGame()">Reload</button
-  ><button @click="clearLocalStorage()">Clear</button>
+  ><button @click="clearData()">Clear</button>
 </template>
 
 <script lang="ts" setup>
@@ -31,8 +31,9 @@ function reloadGame() {
   useModalStore().pop()
 }
 
-function clearLocalStorage() {
-  localStorage.clear()
+function clearData() {
+  localStorage.removeItem('data')
+  useModalStore().pop()
 }
 </script>
 
