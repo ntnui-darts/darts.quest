@@ -4,6 +4,13 @@
     <div class="row spaced">
       <div>
         <h2>Stats</h2>
+        <button
+          v-for="(_, type) in GameTypes"
+          :class="{ selected: type == gameType }"
+          @click=""
+        >
+          {{ type }}
+        </button>
         <p>
           {{ statsStore.getNumberOfWins }} wins. <br />
           {{ statsStore.getNumberOfLosses }} losses. <br />
@@ -42,7 +49,10 @@ import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { router } from '@/router'
 import { useStatsStore } from '@/stores/stats'
 import { getFirst9Avg } from '@/stores/game-x01'
+import { GameType, GameTypes } from '@/stores/game'
+import { ref } from 'vue'
 
 const statsStore = useStatsStore()
+const gameType = ref<GameType>('301')
 </script>
 @/stores/game-x01

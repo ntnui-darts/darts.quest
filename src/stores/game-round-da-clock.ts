@@ -184,3 +184,7 @@ const getVisitScore = (visit: Visit, includeUnfinished = true) => {
   if (!includeUnfinished && visit.includes(null)) return 0
   return visit.filter((seg) => seg != null && seg.sector != 0).length
 }
+
+export const getHitRate = (visits: Visit[] | null) => {
+  if (!visits) return
+}
