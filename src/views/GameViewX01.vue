@@ -75,7 +75,7 @@
       >
         25
       </button>
-      <button @click="gameStore.undoScore">&#10226;</button>
+      <button @click="gameStore.undoScore">&#9003;</button>
     </div>
   </div>
   <div v-if="gameStore.currentGame && somePlayersFinished">

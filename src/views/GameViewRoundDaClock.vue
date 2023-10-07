@@ -44,7 +44,7 @@
         &#10003;
       </button>
     </div>
-    <button @click="gameStore.undoScore">&#10226;</button>
+    <button @click="gameStore.undoScore">&#9003;</button>
   </div>
   <div v-if="gameStore.currentGame && somePlayersFinished">
     <h2>Results, {{ gameStore.currentGame.type }}</h2>
