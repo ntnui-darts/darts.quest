@@ -9,7 +9,7 @@ import {
   getTypeAttribute,
 } from '@/types/game'
 
-export type RtcController = GameController & { sequence: number[] }
+export type RtcController = GameController & { getSequence(): number[] }
 
 export const getRtcController = (game: Game): RtcController => {
   const gameStore = useGameStore()
@@ -19,7 +19,9 @@ export const getRtcController = (game: Game): RtcController => {
 
   return {
     game,
-    sequence,
+    getSequence() {
+      return sequence
+    },
     getCurrentLegScore() {
       return getRtcLegScore(game, getVisitsOfUser(game, gameStore.userId))
     },
@@ -30,7 +32,7 @@ export const getRtcController = (game: Game): RtcController => {
     },
     getUserDisplayText(userId) {
       const score = getRtcLegScore(game, getVisitsOfUser(game, userId))
-      return `${sequence.at(score)}`
+      return `${this.getSequence().at(score)}`
     },
     getSegmentText(segment) {
       return segment ? `${segment.sector}` : '-'

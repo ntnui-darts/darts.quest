@@ -9,6 +9,8 @@ export const getRtcRandomController = (game: Game): RtcController => {
 
   return {
     ...getRtcController(game),
-    sequence,
+    getSequence() {
+      return sequence
+    },
   }
 }
