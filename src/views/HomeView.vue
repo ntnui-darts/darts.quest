@@ -3,7 +3,6 @@
     <button @click="router.push({ name: 'user' })">My Profile</button>
     <button @click="router.push({ name: 'stats' })">My Stats</button>
   </div>
-  <br />
   <h2>Select Game Type</h2>
   <div class="row">
     <button
@@ -19,7 +18,6 @@
     @update="typeAttributes = $event"
   ></component>
   <PlayerSelection @update="players = $event"></PlayerSelection>
-  <br />
   <br />
   <button class="selected" :disabled="players.length == 0" @click="onPlay">
     Play

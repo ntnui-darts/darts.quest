@@ -3,7 +3,7 @@
   "name": "dartpp",
   "icons": [
     {
-      "src": "./icon.svg",
+      "src": "./dartpp/icon.svg",
       "type": "image/svg+xml",
       "sizes": "512x512"
     }
