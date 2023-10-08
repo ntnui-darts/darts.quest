@@ -21,7 +21,11 @@
   <PlayerSelection @update="players = $event"></PlayerSelection>
   <br />
   <br />
-  <button :disabled="players.length == 0" @click="onPlay">Play</button>
+  <button class="selected" :disabled="players.length == 0" @click="onPlay">
+    Play
+  </button>
+  <br />
+  <br />
 </template>
 
 <script lang="ts" setup>

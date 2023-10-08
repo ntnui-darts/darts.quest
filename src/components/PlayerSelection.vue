@@ -5,7 +5,6 @@
       v-for="user in selectedUsers"
       :key="user.id"
       :id="user.id"
-      :class="{ selected: true }"
       @click="toggleUser(user)"
     >
       {{ user.name }}
