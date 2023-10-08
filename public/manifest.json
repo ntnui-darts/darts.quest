@@ -1,0 +1,20 @@
+{
+  "short_name": "dartpp",
+  "name": "dartpp",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "id": "/dartpp/",
+  "start_url": "/dartpp/",
+  "background_color": "#242424",
+  "display": "standalone",
+  "scope": "/dartpp/",
+  "theme_color": "#242424",
+  "shortcuts": [],
+  "description": "NTNUI Darts App",
+  "screenshots": []
+}
