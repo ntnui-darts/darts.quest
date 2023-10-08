@@ -28,9 +28,13 @@ export const getRtcController = (game: Game): GameController => {
     getSegmentText(segment) {
       return segment ? `${segment.sector}` : '-'
     },
-    recordHit() {
+    recordHit(segment) {
+      console.log(getTypeAttribute<Boolean>(game, 'fast', false))
+      if (!segment) return
       gameStore.saveScore({
-        multiplier: getTypeAttribute<Multiplier>(game, 'mode', 1),
+        multiplier: getTypeAttribute<Boolean>(game, 'fast', false)
+          ? segment.multiplier
+          : getTypeAttribute<Multiplier>(game, 'mode', 1),
         sector: getCurrentSector(getVisitsOfUser(game, gameStore.userId)),
       })
     },
@@ -41,7 +45,7 @@ export const getRtcController = (game: Game): GameController => {
 }
 
 const getCurrentSector = (visits: Visit[]) => {
-  return Math.max(1, ...visits.flat().map((s) => (s ? s.sector + 1 : 0)))
+  return getRtcLegScore(visits) + 1
 }
 
 const sumNumbers = (numbers: number[]) => {
@@ -53,5 +57,11 @@ export const getRtcLegScore = (visits: Visit[]) => {
 }
 
 const getVisitScore = (visit: Visit) => {
-  return visit.filter((seg) => seg != null && seg.sector != 0).length
+  const gameStore = useGameStore()
+  const isFast = gameStore.game
+    ? getTypeAttribute<Boolean>(gameStore.game, 'fast', false)
+    : false
+  return sumNumbers(
+    visit.map((seg) => (seg ? (isFast ? seg.multiplier : 1) : 0))
+  )
 }

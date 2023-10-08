@@ -27,12 +27,27 @@
       Random order
     </button>
   </div>
+  <div class="row">
+    <button
+      :class="{ selected: fast }"
+      :disabled="mode!=1"
+      @click="
+        () => {
+          fast = !fast
+          update()
+        }
+      "
+    >
+      Fast
+    </button>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
 
 const random = ref(false)
+const fast = ref(false)
 const mode = ref<1 | 2 | 3>(1)
 
 const emit = defineEmits<{
@@ -40,6 +55,7 @@ const emit = defineEmits<{
 }>()
 
 const update = () => {
-  emit('update', [`mode:${mode.value}`, `random:${random.value}`])
+  fast.value &&= mode.value==1
+  emit('update', [`mode:${mode.value}`, `random:${random.value}`, `fast:${fast.value}`])
 }
 </script>
