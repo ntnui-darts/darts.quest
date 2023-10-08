@@ -53,7 +53,7 @@ const registerMiss = () => {
 
 const registerHit = () => {
   if (!gameStore.game) throw Error()
-  const sequence = (gameStore.getController() as RtcController).sequence
+  const sequence = (gameStore.getController() as RtcController).getSequence()
   const score = getRtcLegScore(gameStore.game, gameStore.getCurrentVisits)
   const sector = sequence.at(score)
   if (!sector) throw Error()
