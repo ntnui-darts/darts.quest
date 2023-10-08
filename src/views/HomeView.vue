@@ -14,23 +14,10 @@
       {{ displayName }}
     </button>
   </div>
-  <h4 style="margin: 0">
-    {{
-      // TODO: get from controller.
-      gameType == 'Round the Clock' || gameType == 'rtc-random'
-        ? 'Mode'
-        : 'Finish'
-    }}
-  </h4>
-  <div class="row">
-    <button
-      v-for="t in ([1, 2, 3] as const)"
-      :class="{ selected: t == mode }"
-      @click="mode = t"
-    >
-      {{ ['Single', 'Double', 'Triple'][t - 1] }}
-    </button>
-  </div>
+  <component
+    :is="getOptionsInput(gameType)"
+    @update="typeAttributes = $event"
+  ></component>
   <h2>Select Players</h2>
   <div v-auto-animate class="col">
     <button
@@ -49,21 +36,23 @@
 </template>
 
 <script lang="ts" setup>
+import ReloadView from '@/components/ReloadView.vue'
 import { router } from '@/router'
 import { GameType, Leg, GameDisplayNames } from '@/types/game'
 import { useUsersStore, User } from '@/stores/users'
 import { nanoid } from 'nanoid'
 import { onMounted, ref, watch } from 'vue'
 import { useModalStore } from '@/stores/modal'
-import ReloadView from '@/components/ReloadView.vue'
 import { useGameStore } from '@/stores/game'
+import X01OptionsInput from '@/components/X01OptionsInput.vue'
+import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
 
+const typeAttributes = ref<string[]>([])
 const selectedUsers = ref(new Set<string>())
 const gameType = ref<GameType>('301')
-const mode = ref<1 | 2 | 3>(2)
 
 onMounted(() => {
   if (localStorage.getItem('data')) {
@@ -81,6 +70,17 @@ watch(
   { immediate: true }
 )
 
+const getOptionsInput = (type: GameType) => {
+  switch (type) {
+    case '301':
+    case '501':
+    case '701':
+      return X01OptionsInput
+    case 'Round the Clock':
+      return RtcOptionsInput
+  }
+}
+
 const toggleUser = (user: User) => {
   if (selectedUsers.value.has(user.id)) {
     selectedUsers.value.delete(user.id)
@@ -92,13 +92,6 @@ const toggleUser = (user: User) => {
 const selectGameType = (type: GameType) => {
   if (gameType.value == type) return
   gameType.value = type
-  // Set default mode based on gameType
-  // TODO: get from controller.
-  if (gameType.value == 'Round the Clock' || gameType.value == 'rtc-random') {
-    mode.value = 1
-  } else {
-    mode.value = 2
-  }
 }
 
 const onPlay = () => {
@@ -106,16 +99,10 @@ const onPlay = () => {
   if (!usersStore.getCurrentUser) return
   const gameId = nanoid()
   const players = Array.from(selectedUsers.value)
-  const typeAttributes: string[] = [gameType.value]
-  if (gameType.value == 'Round the Clock') {
-    typeAttributes.push(`mode:${mode.value}`)
-  } else {
-    typeAttributes.push(`finish:${mode.value}`)
-  }
   gameStore.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
-    typeAttributes,
+    typeAttributes: typeAttributes.value,
     type: gameType.value,
     result: [],
     players,
@@ -128,7 +115,7 @@ const onPlay = () => {
           arrows: 'unknown',
           confirmed: false,
           gameId: gameId,
-          typeAttributes,
+          typeAttributes: typeAttributes.value,
           type: gameType.value,
           beers: null,
           finish: false,

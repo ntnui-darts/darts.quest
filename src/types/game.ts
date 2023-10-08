@@ -19,7 +19,6 @@ export const GamePoints = {
   '501': 501,
   '701': 701,
   'Round the Clock': 20,
-  'rtc-random': 20,
 } as const satisfies Record<GameType, number>
 
 export const GameDisplayNames = {
@@ -27,10 +26,9 @@ export const GameDisplayNames = {
   '501': '501',
   '701': '701',
   'Round the Clock': 'Round the Clock',
-  'rtc-random': 'RTC Random',
 } as const satisfies Record<GameType, string>
 
-export type GameType = '301' | '501' | '701' | 'Round the Clock' | 'rtc-random'
+export type GameType = '301' | '501' | '701' | 'Round the Clock'
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
 export type Leg = Omit<
@@ -86,6 +84,9 @@ export const getTypeAttribute = <T>(
     if (key == name) {
       if (typeof _default == 'number') {
         return parseFloat(value) as T
+      }
+      if (typeof _default == 'boolean') {
+        return value == 'true'
       }
       return value as T
     }

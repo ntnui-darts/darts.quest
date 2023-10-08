@@ -8,11 +8,12 @@ import {
   Visit,
   getLegOfUser,
   GameController,
+  getTypeAttribute,
 } from '@/types/game'
 import { getX01Controller } from '@/games/x01'
 import { getRtcController } from '@/games/rtc'
-import X01InputVue from '@/components/X01Input.vue'
-import RtcInputVue from '@/components/RtcInput.vue'
+import X01GameInputVue from '@/components/X01GameInput.vue'
+import RtcGameInputVue from '@/components/RtcGameInput.vue'
 import { getRtcRandomController } from '@/games/rtc-random'
 import { Component } from 'vue'
 
@@ -35,10 +36,12 @@ export const useGameStore = defineStore('game', {
             this._controller = getX01Controller(this.game)
             break
           case 'Round the Clock':
-            this._controller = getRtcController(this.game)
+            if (getTypeAttribute(this.game, 'random', false)) {
+              this._controller = getRtcRandomController(this.game)
+            } else {
+              this._controller = getRtcController(this.game)
+            }
             break
-          case 'rtc-random':
-            this._controller = getRtcRandomController(this.game)
         }
       }
       return this._controller
@@ -49,10 +52,9 @@ export const useGameStore = defineStore('game', {
         case '301':
         case '501':
         case '701':
-          return X01InputVue
+          return X01GameInputVue
         case 'Round the Clock':
-        case 'rtc-random':
-          return RtcInputVue
+          return RtcGameInputVue
       }
     },
     setCurrentGame(game: Game) {
