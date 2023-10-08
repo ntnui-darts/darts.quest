@@ -104,9 +104,16 @@ const onPlay = () => {
   const players = Array.from(selectedUsers.value)
   const store =
     gameType.value == 'Round the Clock' ? gameStoreRoundDaClock : gameStoreX01
+  const typeArray: string[] = [gameType.value]
+  if (gameType.value == 'Round the Clock') {
+    typeArray.push(`mode:${mode.value}`)
+  } else {
+    typeArray.push(`finish:${mode.value}`)
+  }
   store.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
+    typeArray,
     type: gameType.value,
     finishType: mode.value,
     result: [],
@@ -120,6 +127,7 @@ const onPlay = () => {
           arrows: 'unknown',
           confirmed: false,
           gameId: gameId,
+          typeArray: [],
           type: gameType.value,
           finishType: mode.value,
           beers: null,
