@@ -86,10 +86,10 @@ export const getTypeAttribute = <T>(
         return parseFloat(value) as T
       }
       if (typeof _default == 'boolean') {
-        return value == 'true'
+        return (value == 'true') as T
       }
       return value as T
     }
   }
-  return _default
+  return _default as T
 }
