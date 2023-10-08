@@ -1,17 +1,68 @@
 <template>
+  <div
+    v-if="
+      gameStore.game
+        ? getTypeAttribute < Boolean > (gameStore.game, 'fast', false)
+        : false
+    "
+    div
+    class="row"
+    style="justify-content: space-between"
+  >
+    <button
+      v-for="i in [1, 2, 3]"
+      @click="selectedMultiplier = i"
+      :class="{
+        selected: selectedMultiplier == i,
+      }"
+    >
+      {{ multiplierToString(i) }}
+    </button>
+  </div>
   <div class="row" style="height: 12em">
-    <button @click="emit('miss')">&#10008;</button>
-    <button @click="emit('hit')">&#10004;</button>
+    <button @click="registerMiss()">&#10008;</button>
+    <button @click="registerHit()">&#10004;</button>
   </div>
   <button @click="emit('undo')">&#x232B;</button>
 </template>
 
 <script lang="ts" setup>
+import { Multiplier, Segment, multiplierToString } from '@/types/game'
+import { ref } from 'vue'
+import { useGameStore } from '@/stores/game'
+import { getTypeAttribute } from '@/types/game'
+import { RtcController, getRtcLegScore } from '@/games/rtc'
+
+const gameStore = useGameStore()
+
 const emit = defineEmits<{
-  hit: []
+  hit: [segment: Segment]
   miss: []
   undo: []
 }>()
+
+const getDefaultMultiplier = () =>
+  gameStore.game ? getTypeAttribute<Multiplier>(gameStore.game, 'mode', 1) : 1
+
+const selectedMultiplier = ref(getDefaultMultiplier())
+
+const registerMiss = () => {
+  emit('miss')
+  selectedMultiplier.value = 1
+}
+
+const registerHit = () => {
+  if (!gameStore.game) throw Error()
+  const sequence = (gameStore.getController() as RtcController).sequence
+  const score = getRtcLegScore(gameStore.game, gameStore.getCurrentVisits)
+  const sector = sequence.at(score)
+  if (!sector) throw Error()
+  emit('hit', {
+    multiplier: selectedMultiplier.value,
+    sector,
+  })
+  selectedMultiplier.value = getDefaultMultiplier()
+}
 </script>
 
 <style scoped>
