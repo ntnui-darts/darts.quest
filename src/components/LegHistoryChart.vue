@@ -6,7 +6,7 @@
 import { watch, ref, onMounted } from 'vue'
 import { Chart } from 'chart.js'
 import 'chartjs-adapter-date-fns'
-import { GameType, Leg } from '@/stores/game'
+import { GameType, Leg } from '@/types/game'
 
 const props = defineProps<{
   legs: Leg[]

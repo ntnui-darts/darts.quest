@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Leg } from '@/stores/game'
+import { Leg } from '@/types/game'
 import DartboardChart from './DartboardChart.vue'
 import { useModalStore } from '@/stores/modal'
 
