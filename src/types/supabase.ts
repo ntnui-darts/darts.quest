@@ -17,7 +17,7 @@ export interface Database {
           players: string[]
           result: string[]
           type: string
-          typeArray: string[]
+          typeAttributes: string[]
           userId: string
         }
         Insert: {
@@ -27,7 +27,7 @@ export interface Database {
           players?: string[]
           result: string[]
           type: string
-          typeArray?: string[]
+          typeAttributes?: string[]
           userId?: string
         }
         Update: {
@@ -37,7 +37,7 @@ export interface Database {
           players?: string[]
           result?: string[]
           type?: string
-          typeArray?: string[]
+          typeAttributes?: string[]
           userId?: string
         }
         Relationships: [
@@ -59,7 +59,7 @@ export interface Database {
           gameId: string
           id: string
           type: string
-          typeArray: string[]
+          typeAttributes: string[]
           userId: string
           visits: Json
         }
@@ -72,7 +72,7 @@ export interface Database {
           gameId: string
           id: string
           type: string
-          typeArray?: string[]
+          typeAttributes?: string[]
           userId: string
           visits?: Json
         }
@@ -85,7 +85,7 @@ export interface Database {
           gameId?: string
           id?: string
           type?: string
-          typeArray?: string[]
+          typeAttributes?: string[]
           userId?: string
           visits?: Json
         }

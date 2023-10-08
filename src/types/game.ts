@@ -80,7 +80,7 @@ export const getTypeAttribute = <T>(
   name: string,
   _default: T
 ) => {
-  for (const attr of data.typeArray) {
+  for (const attr of data.typeAttributes) {
     if (!attr.includes(':')) continue
     const [key, value] = attr.split(':')
     if (key == name) {

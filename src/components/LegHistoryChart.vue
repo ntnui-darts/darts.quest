@@ -22,7 +22,7 @@ const legsOfType = (type: GameType, finishType: 1 | 2 | 3) => {
     (leg) =>
       leg.finish &&
       leg.type == type &&
-      leg.typeArray.includes(`finish:${finishType}`)
+      leg.typeAttributes.includes(`finish:${finishType}`)
   )
 }
 

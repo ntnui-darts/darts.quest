@@ -17,12 +17,12 @@ export const migrateTypeToArray = async () => {
   // if (!gamesResponse.data) throw Error()
   // const games = gamesResponse.data
   // games.forEach(async (game) => {
-  //   const typeArray = [
+  //   const typeAttributes = [
   //     game.type == 'Round the Clock'
   //       ? `mode:${game.finishType}`
   //       : `finish:${game.finishType}`,
   //   ]
-  //   await supabase.from('games').update({ typeArray }).eq('id', game.id)
+  //   await supabase.from('games').update({ typeAttributes }).eq('id', game.id)
   //   console.log(`Updated game ${game.id}`)
   // })
   // console.log('Completed migration of games')
@@ -31,12 +31,12 @@ export const migrateTypeToArray = async () => {
   // if (!legsResponse.data) throw Error()
   // const legs = legsResponse.data
   // legs.forEach(async (leg) => {
-  //   const typeArray = [
+  //   const typeAttributes = [
   //     leg.type == 'Round the Clock'
   //       ? `mode:${leg.finishType}`
   //       : `finish:${leg.finishType}`,
   //   ]
-  //   await supabase.from('legs').update({ typeArray }).eq('id', leg.id)
+  //   await supabase.from('legs').update({ typeAttributes }).eq('id', leg.id)
   //   console.log(`Updated leg ${leg.id}`)
   // })
   // console.log('Completed migration of legs')

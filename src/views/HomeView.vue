@@ -106,16 +106,16 @@ const onPlay = () => {
   if (!usersStore.getCurrentUser) return
   const gameId = nanoid()
   const players = Array.from(selectedUsers.value)
-  const typeArray: string[] = [gameType.value]
+  const typeAttributes: string[] = [gameType.value]
   if (gameType.value == 'Round the Clock') {
-    typeArray.push(`mode:${mode.value}`)
+    typeAttributes.push(`mode:${mode.value}`)
   } else {
-    typeArray.push(`finish:${mode.value}`)
+    typeAttributes.push(`finish:${mode.value}`)
   }
   gameStore.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
-    typeArray,
+    typeAttributes,
     type: gameType.value,
     result: [],
     players,
@@ -128,7 +128,7 @@ const onPlay = () => {
           arrows: 'unknown',
           confirmed: false,
           gameId: gameId,
-          typeArray: [],
+          typeAttributes,
           type: gameType.value,
           beers: null,
           finish: false,
