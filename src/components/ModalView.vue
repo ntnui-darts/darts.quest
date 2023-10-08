@@ -13,7 +13,10 @@
     class="overlay clickthrough modal-wrapper col center"
     style="height: 100%"
   >
-    <Modal :component="component"></Modal>
+    <Modal
+      v-show="component == modalStore.components.at(-1)"
+      :component="component"
+    ></Modal>
   </div>
 </template>
 
