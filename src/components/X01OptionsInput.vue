@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const finish = ref<1 | 2 | 3>(2)
 
@@ -28,4 +28,8 @@ const emit = defineEmits<{
 const update = () => {
   emit('update', [`finish:${finish.value}`])
 }
+
+onMounted(() => {
+  update()
+})
 </script>

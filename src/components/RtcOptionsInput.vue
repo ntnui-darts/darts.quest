@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const random = ref(false)
 const mode = ref<1 | 2 | 3>(1)
@@ -42,4 +42,8 @@ const emit = defineEmits<{
 const update = () => {
   emit('update', [`mode:${mode.value}`, `random:${random.value}`])
 }
+
+onMounted(() => {
+  update()
+})
 </script>
