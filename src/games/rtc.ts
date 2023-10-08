@@ -56,7 +56,10 @@ const sumNumbers = (numbers: number[]) => {
 }
 
 export const getRtcLegScore = (game: Game, visits: Visit[]) => {
-  return Math.max(GamePoints[game.type], sumNumbers(visits.map((v) => getVisitScore(game, v))))
+  return Math.min(
+    GamePoints[game.type],
+    sumNumbers(visits.map((v) => getVisitScore(game, v)))
+  )
 }
 
 const getVisitScore = (game: Game, visit: Visit) => {
