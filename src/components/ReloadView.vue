@@ -1,33 +1,24 @@
 <template>
   <h4>
-    There is a game loaded in your local storage. Would you like to reload it?
+    There is a game saved in your local storage. Would you like to load it?
   </h4>
-  <button @click="reloadGame()">Reload</button
+  <button @click="reloadGame()">Load</button
   ><button @click="clearData()">Clear</button>
 </template>
 
 <script lang="ts" setup>
 import { router } from '@/router'
-import { Game } from '@/stores/game'
-import { useGameStoreRoundDaClock } from '@/stores/game-round-da-clock'
-import { useGameStoreX01 } from '@/stores/game-x01'
+import { Game } from '@/types/game'
 import { useModalStore } from '@/stores/modal'
+import { useGameStore } from '@/stores/game'
 
 function reloadGame() {
   const gameJson = localStorage.getItem('data')
   if (!gameJson) return
   const game = JSON.parse(gameJson) as Game
 
-  const store =
-    game.type == 'Round the Clock'
-      ? useGameStoreRoundDaClock()
-      : useGameStoreX01()
-  store.setCurrentGame(game)
-  router.push(
-    game.type == 'Round the Clock'
-      ? { name: 'game-round-da-clock' }
-      : { name: 'game-x01' }
-  )
+  useGameStore().setCurrentGame(game)
+  router.push({ name: 'game' })
   useModalStore().pop()
 }
 

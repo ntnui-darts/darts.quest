@@ -7,15 +7,20 @@
   <h2>Select Game Type</h2>
   <div class="row">
     <button
-      v-for="(_, type) in GameTypes"
+      v-for="(displayName, type) in GameDisplayNames"
       :class="{ selected: type == gameType }"
       @click="selectGameType(type)"
     >
-      {{ type }}
+      {{ displayName }}
     </button>
   </div>
   <h4 style="margin: 0">
-    {{ gameType == 'Round the Clock' ? 'Mode' : 'Finish' }}
+    {{
+      // TODO: get from controller.
+      gameType == 'Round the Clock' || gameType == 'rtc-random'
+        ? 'Mode'
+        : 'Finish'
+    }}
   </h4>
   <div class="row">
     <button
@@ -45,17 +50,15 @@
 
 <script lang="ts" setup>
 import { router } from '@/router'
-import { GameType, GameTypes, Leg } from '@/stores/game'
-import { useGameStoreX01 } from '@/stores/game-x01'
-import { useGameStoreRoundDaClock } from '@/stores/game-round-da-clock'
+import { GameType, Leg, GameDisplayNames } from '@/types/game'
 import { useUsersStore, User } from '@/stores/users'
 import { nanoid } from 'nanoid'
 import { onMounted, ref, watch } from 'vue'
 import { useModalStore } from '@/stores/modal'
 import ReloadView from '@/components/ReloadView.vue'
+import { useGameStore } from '@/stores/game'
 
-const gameStoreX01 = useGameStoreX01()
-const gameStoreRoundDaClock = useGameStoreRoundDaClock()
+const gameStore = useGameStore()
 const usersStore = useUsersStore()
 
 const selectedUsers = ref(new Set<string>())
@@ -90,7 +93,8 @@ const selectGameType = (type: GameType) => {
   if (gameType.value == type) return
   gameType.value = type
   // Set default mode based on gameType
-  if (gameType.value == 'Round the Clock') {
+  // TODO: get from controller.
+  if (gameType.value == 'Round the Clock' || gameType.value == 'rtc-random') {
     mode.value = 1
   } else {
     mode.value = 2
@@ -102,9 +106,7 @@ const onPlay = () => {
   if (!usersStore.getCurrentUser) return
   const gameId = nanoid()
   const players = Array.from(selectedUsers.value)
-  const store =
-    gameType.value == 'Round the Clock' ? gameStoreRoundDaClock : gameStoreX01
-  store.setCurrentGame({
+  gameStore.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
     type: gameType.value,
@@ -128,10 +130,6 @@ const onPlay = () => {
         } satisfies Leg)
     ),
   })
-  router.push(
-    gameType.value == 'Round the Clock'
-      ? { name: 'game-round-da-clock' }
-      : { name: 'game-x01' }
-  )
+  router.push({ name: 'game' })
 }
 </script>
