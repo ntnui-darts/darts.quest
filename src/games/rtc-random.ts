@@ -4,35 +4,31 @@ import {
   GameController,
   Multiplier,
   getTypeAttribute,
+  getVisitsOfUser,
 } from '@/types/game'
-import { getRtcController } from './rtc'
+import { getRtcController, getRtcLegScore } from './rtc'
 
 export const getRtcRandomController = (game: Game): GameController => {
   const gameStore = useGameStore()
-  const _sequence = Array(20)
+  const sequence = Array(20)
     .fill(undefined)
     .map((_, i) => i + 1)
     .sort(() => Math.random() - 0.5)
-  const sequences: Record<string, number[]> = {}
-  game.players.forEach((player) => {
-    sequences[player] = [..._sequence]
-  })
+
   return {
     ...getRtcController(game),
     getUserDisplayText(userId) {
-      return `${sequences[userId].at(-1)}`
+      const score = getRtcLegScore(getVisitsOfUser(game, userId))
+      return `${sequence.at(score)}`
     },
     recordHit() {
-      if (!gameStore.userId) throw Error()
-      const sequence = sequences[gameStore.userId]
-      if (!sequence) throw Error()
-      const sector = sequence.at(-1)
+      const score = getRtcLegScore(gameStore.getCurrentVisits)
+      const sector = sequence.at(score)
       if (!sector) return
       gameStore.saveScore({
         multiplier: getTypeAttribute<Multiplier>(game, 'mode', 1),
         sector,
       })
-      sequence.pop()
     },
   }
 }

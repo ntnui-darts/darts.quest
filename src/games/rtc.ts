@@ -14,12 +14,12 @@ export const getRtcController = (game: Game): GameController => {
   return {
     game,
     getCurrentLegScore() {
-      return getLegScore(getVisitsOfUser(game, gameStore.userId))
+      return getRtcLegScore(getVisitsOfUser(game, gameStore.userId))
     },
     getUserResultText(userId) {
       const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
       const visits = game.legs.find((leg) => leg.userId == userId)?.visits
-      return `${name}, ${visits} visits`
+      return `${name}, ${visits?.length} visits`
     },
     getUserDisplayText(userId) {
       const currentSector = getCurrentSector(getVisitsOfUser(game, userId))
@@ -48,7 +48,7 @@ const sumNumbers = (numbers: number[]) => {
   return numbers.reduce((prev, current) => prev + current, 0)
 }
 
-const getLegScore = (visits: Visit[]) => {
+export const getRtcLegScore = (visits: Visit[]) => {
   return sumNumbers(visits.map(getVisitScore))
 }
 
