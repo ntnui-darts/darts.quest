@@ -1,6 +1,6 @@
 <template>
   <h2>Select Players</h2>
-  <div class="col">
+  <div class="col" v-auto-animate>
     <button
       v-for="user in selectedUsers"
       :key="user.id"
@@ -37,7 +37,12 @@ const searchForPlayer = () => {
   useModalStore().push(
     PlayerSearch,
     { selectedUsers: selectedUsers.value },
-    { update: (user) => console.log(user) }
+    {
+      select: (user) => {
+        selectedUsers.value.push(user)
+        useModalStore().pop()
+      },
+    }
   )
 }
 
@@ -48,7 +53,7 @@ const toggleUser = (user: UserCurrentInfo) => {
   } else {
     selectedUsers.value.splice(index, 1)
   }
-  emit('update', Array.from(selectedUsers.value))
+  emit('update', selectedUsers.value)
 }
 
 watch(
