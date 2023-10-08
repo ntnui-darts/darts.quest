@@ -41,6 +41,7 @@ const searchForPlayer = () => {
       select: (user) => {
         selectedUsers.value.push(user)
         useModalStore().pop()
+        emit('update', selectedUsers.value)
       },
     }
   )
@@ -61,6 +62,7 @@ watch(
   (user) => {
     if (user && !selectedUsers.value.find((u) => u.id == user.id)) {
       selectedUsers.value.push(user)
+      emit('update', selectedUsers.value)
     }
   },
   { immediate: true }
