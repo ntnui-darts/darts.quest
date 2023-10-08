@@ -64,6 +64,7 @@ const selectSector = (sector: number) => {
       sector: sector,
     })
   }
+  selectedMultiplier.value = 1
 }
 </script>
 

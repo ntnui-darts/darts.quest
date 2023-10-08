@@ -7,14 +7,24 @@ import {
   getVisitsOfUser,
   Multiplier,
   getTypeAttribute,
+  GamePoints,
 } from '@/types/game'
 
-export const getRtcController = (game: Game): GameController => {
+export type RtcController = GameController & { getSequence(): number[] }
+
+export const getRtcController = (game: Game): RtcController => {
   const gameStore = useGameStore()
+  const sequence = Array(20)
+    .fill(undefined)
+    .map((_, i) => i + 1)
+
   return {
     game,
+    getSequence() {
+      return sequence
+    },
     getCurrentLegScore() {
-      return getRtcLegScore(getVisitsOfUser(game, gameStore.userId))
+      return getRtcLegScore(game, getVisitsOfUser(game, gameStore.userId))
     },
     getUserResultText(userId) {
       const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
@@ -22,17 +32,14 @@ export const getRtcController = (game: Game): GameController => {
       return `${name}, ${visits?.length} visits`
     },
     getUserDisplayText(userId) {
-      const currentSector = getCurrentSector(getVisitsOfUser(game, userId))
-      return `${currentSector}`
+      const score = getRtcLegScore(game, getVisitsOfUser(game, userId))
+      return `${this.getSequence().at(score)}`
     },
     getSegmentText(segment) {
       return segment ? `${segment.sector}` : '-'
     },
-    recordHit() {
-      gameStore.saveScore({
-        multiplier: getTypeAttribute<Multiplier>(game, 'mode', 1),
-        sector: getCurrentSector(getVisitsOfUser(game, gameStore.userId)),
-      })
+    recordHit(segment) {
+      gameStore.saveScore(segment)
     },
     recordMiss() {
       gameStore.saveScore({ multiplier: Multiplier.None, sector: 0 })
@@ -40,18 +47,21 @@ export const getRtcController = (game: Game): GameController => {
   }
 }
 
-const getCurrentSector = (visits: Visit[]) => {
-  return Math.max(1, ...visits.flat().map((s) => (s ? s.sector + 1 : 0)))
+export const getCurrentSector = (game: Game, visits: Visit[]) => {
+  return getRtcLegScore(game, visits) + 1
 }
 
 const sumNumbers = (numbers: number[]) => {
   return numbers.reduce((prev, current) => prev + current, 0)
 }
 
-export const getRtcLegScore = (visits: Visit[]) => {
-  return sumNumbers(visits.map(getVisitScore))
+export const getRtcLegScore = (game: Game, visits: Visit[]) => {
+  return Math.max(GamePoints[game.type], sumNumbers(visits.map((v) => getVisitScore(game, v))))
 }
 
-const getVisitScore = (visit: Visit) => {
-  return visit.filter((seg) => seg != null && seg.sector != 0).length
+const getVisitScore = (game: Game, visit: Visit) => {
+  const isFast = getTypeAttribute<Boolean>(game, 'fast', false)
+  return sumNumbers(
+    visit.map((seg) => (seg ? (isFast ? seg.multiplier : 1) : 0))
+  )
 }
