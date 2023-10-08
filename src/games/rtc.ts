@@ -65,6 +65,8 @@ export const getRtcLegScore = (game: Game, visits: Visit[]) => {
 const getVisitScore = (game: Game, visit: Visit) => {
   const isFast = getTypeAttribute<Boolean>(game, 'fast', false)
   return sumNumbers(
-    visit.map((seg) => (seg ? (isFast ? seg.multiplier : 1) : 0))
+    visit.map((seg) =>
+      seg ? (isFast ? seg.multiplier : Math.min(1, seg.sector)) : 0
+    )
   )
 }
