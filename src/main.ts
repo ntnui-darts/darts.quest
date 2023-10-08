@@ -11,3 +11,6 @@ Chart.register(...registerables)
 const pinia = createPinia()
 
 createApp(App).use(autoAnimatePlugin).use(pinia).use(router).mount('#app')
+
+// Empty service worker to enable PWA
+navigator.serviceWorker.register('sw.js')
