@@ -19,9 +19,18 @@ export const GamePoints = {
   '501': 501,
   '701': 701,
   'Round the Clock': 20,
-} as const
+  'rtc-random': 20,
+} as const satisfies Record<GameType, number>
 
-export type GameType = keyof typeof GamePoints
+export const GameDisplayNames = {
+  '301': '301',
+  '501': '501',
+  '701': '701',
+  'Round the Clock': 'Round the Clock',
+  'rtc-random': 'RTC Random',
+} as const satisfies Record<GameType, string>
+
+export type GameType = '301' | '501' | '701' | 'Round the Clock' | 'rtc-random'
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
 export type Leg = Omit<
@@ -46,6 +55,7 @@ export type Game = Omit<
 }
 
 export interface GameController {
+  game: Game
   getCurrentLegScore(): number
   getUserResultText(userId: string): string
   getUserDisplayText(userId: string): string
@@ -62,6 +72,7 @@ export const getLegOfUser = (game: Game, userId: string) => {
   return game.legs.find((leg) => leg.userId == userId) ?? null
 }
 
-export const getVisitsOfUser = (game: Game, userId: string) => {
+export const getVisitsOfUser = (game: Game, userId?: string | null) => {
+  if (!userId) return []
   return getLegOfUser(game, userId)?.visits ?? []
 }

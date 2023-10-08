@@ -16,6 +16,6 @@ const emit = defineEmits<{
 
 <style scoped>
 button {
-  font-size: xx-large;
+  font-size: larger;
 }
 </style>

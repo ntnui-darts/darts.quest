@@ -8,14 +8,12 @@ import {
   Multiplier,
 } from '@/types/game'
 
-export const getRtcController = (
-  game: Game,
-  userId: string
-): GameController => {
+export const getRtcController = (game: Game): GameController => {
   const gameStore = useGameStore()
   return {
+    game,
     getCurrentLegScore() {
-      return getLegScore(getVisitsOfUser(game, userId))
+      return getLegScore(getVisitsOfUser(game, gameStore.userId))
     },
     getUserResultText(userId) {
       const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
@@ -32,7 +30,7 @@ export const getRtcController = (
     recordHit() {
       gameStore.saveScore({
         multiplier: game.finishType,
-        sector: getCurrentSector(getVisitsOfUser(game, userId)),
+        sector: getCurrentSector(getVisitsOfUser(game, gameStore.userId)),
       })
     },
     recordMiss() {
@@ -41,7 +39,7 @@ export const getRtcController = (
   }
 }
 
-export const getCurrentSector = (visits: Visit[]) => {
+const getCurrentSector = (visits: Visit[]) => {
   return Math.max(1, ...visits.flat().map((s) => (s ? s.sector + 1 : 0)))
 }
 
@@ -49,7 +47,7 @@ const sumNumbers = (numbers: number[]) => {
   return numbers.reduce((prev, current) => prev + current, 0)
 }
 
-export const getLegScore = (visits: Visit[]) => {
+const getLegScore = (visits: Visit[]) => {
   return sumNumbers(visits.map(getVisitScore))
 }
 

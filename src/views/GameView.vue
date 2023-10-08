@@ -23,7 +23,6 @@
       </button>
     </div>
     <component
-      v-if="gameStore.getInputComponent()"
       :is="gameStore.getInputComponent()"
       @hit="gameStore.getController().recordHit($event)"
       @miss="gameStore.getController().recordMiss"

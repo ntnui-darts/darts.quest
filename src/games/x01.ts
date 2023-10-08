@@ -12,15 +12,13 @@ import {
   Multiplier,
 } from '@/types/game'
 
-export const getX01Controller = (
-  game: Game,
-  userId: string
-): GameController => {
+export const getX01Controller = (game: Game): GameController => {
   const gameStore = useGameStore()
   return {
+    game,
     getCurrentLegScore() {
       return getLegScore(
-        getVisitsOfUser(game, userId),
+        getVisitsOfUser(game, gameStore.userId),
         game.type,
         game.finishType
       )
@@ -61,7 +59,7 @@ export const getX01Controller = (
   }
 }
 
-export const getLegScore = (
+const getLegScore = (
   visits: Visit[],
   gameType: GameType,
   finishType: 1 | 2 | 3,
@@ -87,7 +85,7 @@ export const getLegScore = (
   return score
 }
 
-export const getAvgVisitScore = (
+const getAvgVisitScore = (
   visits: Visit[] | null,
   gameType: GameType,
   finishType: 1 | 2 | 3,

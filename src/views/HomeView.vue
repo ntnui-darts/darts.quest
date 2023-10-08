@@ -7,15 +7,20 @@
   <h2>Select Game Type</h2>
   <div class="row">
     <button
-      v-for="(_, type) in GamePoints"
+      v-for="(displayName, type) in GameDisplayNames"
       :class="{ selected: type == gameType }"
       @click="selectGameType(type)"
     >
-      {{ type }}
+      {{ displayName }}
     </button>
   </div>
   <h4 style="margin: 0">
-    {{ gameType == 'Round the Clock' ? 'Mode' : 'Finish' }}
+    {{
+      // TODO: get from controller.
+      gameType == 'Round the Clock' || gameType == 'rtc-random'
+        ? 'Mode'
+        : 'Finish'
+    }}
   </h4>
   <div class="row">
     <button
@@ -45,7 +50,7 @@
 
 <script lang="ts" setup>
 import { router } from '@/router'
-import { GameType, Leg, GamePoints } from '@/types/game'
+import { GameType, Leg, GameDisplayNames } from '@/types/game'
 import { useUsersStore, User } from '@/stores/users'
 import { nanoid } from 'nanoid'
 import { onMounted, ref, watch } from 'vue'
@@ -88,7 +93,8 @@ const selectGameType = (type: GameType) => {
   if (gameType.value == type) return
   gameType.value = type
   // Set default mode based on gameType
-  if (gameType.value == 'Round the Clock') {
+  // TODO: get from controller.
+  if (gameType.value == 'Round the Clock' || gameType.value == 'rtc-random') {
     mode.value = 1
   } else {
     mode.value = 2

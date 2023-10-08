@@ -1,40 +1,58 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useStatsStore } from './stats'
 import { supabase } from '@/supabase'
-import { Game, Segment, GamePoints, Visit, getLegOfUser } from '@/types/game'
+import {
+  Game,
+  Segment,
+  GamePoints,
+  Visit,
+  getLegOfUser,
+  GameController,
+} from '@/types/game'
 import { getX01Controller } from '@/games/x01'
 import { getRtcController } from '@/games/rtc'
 import X01InputVue from '@/components/X01Input.vue'
 import RtcInputVue from '@/components/RtcInput.vue'
+import { getRtcRandomController } from '@/games/rtc-random'
+import { Component } from 'vue'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
     userId: null as string | null,
     game: null as Game | null,
+    // Don't access controller directly, use getController()
+    _controller: null as GameController | null,
   }),
 
   actions: {
-    getController() {
-      if (!this.game || !this.userId) throw Error()
-      switch (this.game.type) {
-        case '301':
-        case '501':
-        case '701':
-          return getX01Controller(this.game, this.userId)
-        case 'Round the Clock':
-          return getRtcController(this.game, this.userId)
+    getController(): GameController {
+      if (!this.game) throw Error()
+      if (this.game != this._controller?.game) {
+        switch (this.game.type) {
+          case '301':
+          case '501':
+          case '701':
+            this._controller = getX01Controller(this.game)
+            break
+          case 'Round the Clock':
+            this._controller = getRtcController(this.game)
+            break
+          case 'rtc-random':
+            this._controller = getRtcRandomController(this.game)
+        }
       }
+      return this._controller
     },
-    getInputComponent() {
-      switch (this.game?.type) {
+    getInputComponent(): Component {
+      if (!this.game) throw Error()
+      switch (this.game.type) {
         case '301':
         case '501':
         case '701':
           return X01InputVue
         case 'Round the Clock':
+        case 'rtc-random':
           return RtcInputVue
-        default:
-          return null
       }
     },
     setCurrentGame(game: Game) {
