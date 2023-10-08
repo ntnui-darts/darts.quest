@@ -30,7 +30,7 @@
   <div class="row">
     <button
       :class="{ selected: fast }"
-      :disabled="mode!=1"
+      :disabled="mode != 1"
       @click="
         () => {
           fast = !fast
@@ -55,7 +55,13 @@ const emit = defineEmits<{
 }>()
 
 const update = () => {
-  fast.value &&= mode.value==1
-  emit('update', [`mode:${mode.value}`, `random:${random.value}`, `fast:${fast.value}`])
+  if (mode.value != 1) {
+    fast.value = false
+  }
+  emit('update', [
+    `mode:${mode.value}`,
+    `random:${random.value}`,
+    `fast:${fast.value}`,
+  ])
 }
 </script>

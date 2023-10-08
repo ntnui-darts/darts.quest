@@ -56,7 +56,7 @@ export interface GameController {
   getUserResultText(userId: string): string
   getUserDisplayText(userId: string): string
   getSegmentText(segment?: Segment | null): string
-  recordHit(segment?: Segment): void
+  recordHit(segment: Segment): void
   recordMiss(): void
 }
 

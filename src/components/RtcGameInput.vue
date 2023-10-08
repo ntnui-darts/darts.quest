@@ -27,14 +27,24 @@
 </template>
 
 <script lang="ts" setup>
-import { Segment, multiplierToString } from '@/types/game'
+import { Multiplier, Segment, multiplierToString } from '@/types/game'
 import { ref } from 'vue'
 import { useGameStore } from '@/stores/game'
 import { getTypeAttribute } from '@/types/game'
+import { RtcController, getRtcLegScore } from '@/games/rtc'
 
 const gameStore = useGameStore()
 
-const selectedMultiplier = ref(1)
+const emit = defineEmits<{
+  hit: [segment: Segment]
+  miss: []
+  undo: []
+}>()
+
+const getDefaultMultiplier = () =>
+  gameStore.game ? getTypeAttribute<Multiplier>(gameStore.game, 'mode', 1) : 1
+
+const selectedMultiplier = ref(getDefaultMultiplier())
 
 const registerMiss = () => {
   emit('miss')
@@ -42,18 +52,17 @@ const registerMiss = () => {
 }
 
 const registerHit = () => {
+  if (!gameStore.game) throw Error()
+  const sequence = (gameStore.getController() as RtcController).sequence
+  const score = getRtcLegScore(gameStore.game, gameStore.getCurrentVisits)
+  const sector = sequence.at(score)
+  if (!sector) throw Error()
   emit('hit', {
     multiplier: selectedMultiplier.value,
-    sector: -1, //probably bad
+    sector,
   })
-  selectedMultiplier.value = 1
+  selectedMultiplier.value = getDefaultMultiplier()
 }
-
-const emit = defineEmits<{
-  hit: [segment: Segment]
-  miss: []
-  undo: []
-}>()
 </script>
 
 <style scoped>
