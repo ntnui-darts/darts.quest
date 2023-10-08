@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue'
 import { Chart } from 'chart.js'
-import { Visit } from '@/stores/game'
+import { Visit } from '@/types/game'
 
 const props = defineProps<{
   visits: Visit[]

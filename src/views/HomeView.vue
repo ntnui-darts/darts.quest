@@ -7,7 +7,7 @@
   <h2>Select Game Type</h2>
   <div class="row">
     <button
-      v-for="(_, type) in GameTypes"
+      v-for="(_, type) in GamePoints"
       :class="{ selected: type == gameType }"
       @click="selectGameType(type)"
     >
@@ -45,17 +45,15 @@
 
 <script lang="ts" setup>
 import { router } from '@/router'
-import { GameType, GameTypes, Leg } from '@/stores/game'
-import { useGameStoreX01 } from '@/stores/game-x01'
-import { useGameStoreRoundDaClock } from '@/stores/game-round-da-clock'
+import { GameType, Leg, GamePoints } from '@/types/game'
 import { useUsersStore, User } from '@/stores/users'
 import { nanoid } from 'nanoid'
 import { onMounted, ref, watch } from 'vue'
 import { useModalStore } from '@/stores/modal'
 import ReloadView from '@/components/ReloadView.vue'
+import { useGameStore } from '@/stores/game'
 
-const gameStoreX01 = useGameStoreX01()
-const gameStoreRoundDaClock = useGameStoreRoundDaClock()
+const gameStore = useGameStore()
 const usersStore = useUsersStore()
 
 const selectedUsers = ref(new Set<string>())
@@ -102,9 +100,7 @@ const onPlay = () => {
   if (!usersStore.getCurrentUser) return
   const gameId = nanoid()
   const players = Array.from(selectedUsers.value)
-  const store =
-    gameType.value == 'Round the Clock' ? gameStoreRoundDaClock : gameStoreX01
-  store.setCurrentGame({
+  gameStore.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
     type: gameType.value,
@@ -128,10 +124,6 @@ const onPlay = () => {
         } satisfies Leg)
     ),
   })
-  router.push(
-    gameType.value == 'Round the Clock'
-      ? { name: 'game-round-da-clock' }
-      : { name: 'game-x01' }
-  )
+  router.push({ name: 'game' })
 }
 </script>

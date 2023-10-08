@@ -1,17 +1,17 @@
 <template>
   <button @click="quit">Quit</button>
-  <div v-if="gameStore.currentGame && !allPlayersFinished" class="col">
+  <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div class="grid-users" style="grid-template-columns: 1fr 1fr">
       <button
         v-for="userId in gameStore.getUserIds.filter(
-          (id) => !gameStore.currentGame?.result.includes(id)
+          (id) => !gameStore.game?.result.includes(id)
         )"
-        :class="{ selected: gameStore.currentUserId == userId }"
+        :class="{ selected: gameStore.userId == userId }"
         @click="showChart(userId)"
       >
         {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
         <br />
-        {{ getLegScore(gameStore.getUserLeg(userId)?.visits ?? []) + 1 }}
+        {{ gameStore.getController().getUserDisplayText(userId) }}
       </button>
     </div>
     <div class="row">
@@ -19,43 +19,22 @@
         v-for="(segment, i) in gameStore.getCurrentVisit"
         :class="{ outlined: i == gameStore.getNumberOfThrows }"
       >
-        {{ segment?.sector ?? '-' }}
+        {{ gameStore.getController().getSegmentText(segment) }}
       </button>
     </div>
-    <div class="row scoringbutton">
-      <button
-        @click="
-          gameStore.saveScore({
-            multiplier: 1,
-            sector: 0,
-          })
-        "
-      >
-        &#10799;
-      </button>
-      <button
-        @click="
-          gameStore.saveScore({
-            multiplier: 1,
-            sector: gameStore.getCurrentSector,
-          })
-        "
-      >
-        &#10003;
-      </button>
-    </div>
-    <button @click="gameStore.undoScore">&#10226;</button>
+    <component
+      v-if="gameStore.getInputComponent()"
+      :is="gameStore.getInputComponent()"
+      @hit="gameStore.getController().recordHit($event)"
+      @miss="gameStore.getController().recordMiss"
+      @undo="gameStore.undoScore"
+    ></component>
   </div>
-  <div v-if="gameStore.currentGame && somePlayersFinished">
-    <h2>Results, {{ gameStore.currentGame.type }}</h2>
+  <div v-if="gameStore.game && somePlayersFinished">
+    <h2>Results, {{ gameStore.game.type }}</h2>
     <ol>
-      <li v-for="id in gameStore.currentGame.result">
-        {{ usersStore.getUser(id)?.name ?? 'Unknown' }},
-        {{
-          gameStore.currentGame.legs.find((leg) => leg.userId == id)?.visits
-            .length
-        }}
-        turns
+      <li v-for="id in gameStore.game.result">
+        {{ gameStore.getController().getUserResultText(id) }}
       </li>
     </ol>
     <div class="col">
@@ -70,28 +49,24 @@ import { router } from '@/router'
 import { useUsersStore } from '@/stores/users'
 import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
+import { useGameStore } from '@/stores/game'
 import DartboardChart from '@/components/DartboardChart.vue'
-import {
-  useGameStoreRoundDaClock,
-  getLegScore,
-} from '@/stores/game-round-da-clock'
 
-const gameStore = useGameStoreRoundDaClock()
+const gameStore = useGameStore()
 const usersStore = useUsersStore()
 const loadingStore = useLoadingStore()
 
 const allPlayersFinished = computed(
   () =>
-    (gameStore.currentGame?.legs.length ?? 0) ==
-    (gameStore.currentGame?.result.length ?? 0)
+    (gameStore.game?.legs.length ?? 0) == (gameStore.game?.result.length ?? 0)
 )
 
 const somePlayersFinished = computed(
-  () => (gameStore.currentGame?.result.length ?? 0) > 0
+  () => (gameStore.game?.result.length ?? 0) > 0
 )
 
 onMounted(() => {
-  if (!gameStore.currentGame) {
+  if (!gameStore.game) {
     quit()
   }
 })
@@ -124,13 +99,6 @@ const showChart = (userId: string) => {
   grid-template-columns: 1fr 1fr;
 }
 
-.grid-sectors {
-  display: grid;
-  column-gap: 0.5em;
-  row-gap: 1em;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-}
-
 button {
   flex: 1;
 }
@@ -142,9 +110,5 @@ button {
 li {
   font-size: 14pt;
   padding-bottom: 0.5em;
-}
-
-.scoringbutton {
-  height: 12em;
 }
 </style>

@@ -41,8 +41,7 @@ import DartboardChart from '@/components/DartboardChart.vue'
 import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { router } from '@/router'
 import { useStatsStore } from '@/stores/stats'
-import { getFirst9Avg } from '@/stores/game-x01'
+import { getFirst9Avg } from '@/games/x01'
 
 const statsStore = useStatsStore()
 </script>
-@/stores/game-x01
