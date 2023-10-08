@@ -30,7 +30,7 @@
     ></component>
   </div>
   <div v-if="gameStore.game && somePlayersFinished">
-    <h2>Results, {{ gameStore.game.type }}</h2>
+    <h2>Results, {{ gameStore.game.typeArray[0] }}</h2>
     <ol>
       <li v-for="id in gameStore.game.result">
         {{ gameStore.getController().getUserResultText(id) }}

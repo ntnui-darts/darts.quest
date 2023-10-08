@@ -6,6 +6,7 @@ import {
   Visit,
   getVisitsOfUser,
   Multiplier,
+  getTypeAttribute,
 } from '@/types/game'
 
 export const getRtcController = (game: Game): GameController => {
@@ -29,7 +30,7 @@ export const getRtcController = (game: Game): GameController => {
     },
     recordHit() {
       gameStore.saveScore({
-        multiplier: game.finishType,
+        multiplier: getTypeAttribute<Multiplier>(game, 'mode', 1),
         sector: getCurrentSector(getVisitsOfUser(game, gameStore.userId)),
       })
     },

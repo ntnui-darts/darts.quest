@@ -10,6 +10,7 @@ import {
   getVisitsOfUser,
   multiplierToString,
   Multiplier,
+  getTypeAttribute,
 } from '@/types/game'
 
 export const getX01Controller = (game: Game): GameController => {
@@ -20,7 +21,7 @@ export const getX01Controller = (game: Game): GameController => {
       return getLegScore(
         getVisitsOfUser(game, gameStore.userId),
         game.type,
-        game.finishType
+        getTypeAttribute<1 | 2 | 3>(game, 'finish', 1)
       )
     },
     getUserResultText(userId) {
@@ -29,19 +30,18 @@ export const getX01Controller = (game: Game): GameController => {
       const avg = getAvgVisitScore(
         game.legs.find((leg) => leg.userId == userId)?.visits ?? [],
         game.type,
-        game.finishType,
+        getTypeAttribute<1 | 2 | 3>(game, 'finish', 1),
         true
       ).toFixed(1)
       return `${name}, ${visits} visits, ${avg} average`
     },
     getUserDisplayText(userId) {
+      const finishType = getTypeAttribute<1 | 2 | 3>(game, 'finish', 1)
       const visits = getVisitsOfUser(game, userId)
       const rest =
         (GamePoints[game.type] ?? 0) -
-        getLegScore(visits, game.type, game.finishType)
-      const avg = getAvgVisitScore(visits, game.type, game.finishType).toFixed(
-        1
-      )
+        getLegScore(visits, game.type, finishType)
+      const avg = getAvgVisitScore(visits, game.type, finishType).toFixed(1)
       return `${rest} (${avg})`
     },
     getSegmentText(segment) {

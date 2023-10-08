@@ -1,5 +1,10 @@
 import { useGameStore } from '@/stores/game'
-import { Game, GameController } from '@/types/game'
+import {
+  Game,
+  GameController,
+  Multiplier,
+  getTypeAttribute,
+} from '@/types/game'
 import { getRtcController } from './rtc'
 
 export const getRtcRandomController = (game: Game): GameController => {
@@ -24,7 +29,7 @@ export const getRtcRandomController = (game: Game): GameController => {
       const sector = sequence.at(-1)
       if (!sector) return
       gameStore.saveScore({
-        multiplier: game.finishType,
+        multiplier: getTypeAttribute<Multiplier>(game, 'mode', 1),
         sector,
       })
       sequence.pop()

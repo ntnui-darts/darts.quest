@@ -117,7 +117,6 @@ const onPlay = () => {
     userId: usersStore.getCurrentUser.id,
     typeArray,
     type: gameType.value,
-    finishType: mode.value,
     result: [],
     players,
     legs: players.map(
@@ -131,7 +130,6 @@ const onPlay = () => {
           gameId: gameId,
           typeArray: [],
           type: gameType.value,
-          finishType: mode.value,
           beers: null,
           finish: false,
           createdAt: new Date().toISOString(),

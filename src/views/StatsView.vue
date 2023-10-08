@@ -25,7 +25,10 @@
     <h3>First 9 Average</h3>
     <LegHistoryChart
       :legs="statsStore.legs"
-      :y="(leg, type, finishType) => getFirst9Avg(leg.visits, type, finishType)"
+      :y="
+        (leg) =>
+          getFirst9Avg(leg.visits, leg.type, getTypeAttribute(leg, 'finish', 1))
+      "
       :group-by-type="false"
     ></LegHistoryChart>
     <h3>History</h3>
@@ -42,6 +45,7 @@ import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { router } from '@/router'
 import { useStatsStore } from '@/stores/stats'
 import { getFirst9Avg } from '@/games/x01'
+import { getTypeAttribute } from '@/types/game'
 
 const statsStore = useStatsStore()
 </script>

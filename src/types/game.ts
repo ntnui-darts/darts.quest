@@ -40,7 +40,6 @@ export type Leg = Omit<
   visits: Visit[]
   createdAt: string
   type: GameType
-  finishType: 1 | 2 | 3
 }
 
 export type DbGame = Database['public']['Tables']['games']['Row']
@@ -51,7 +50,6 @@ export type Game = Omit<
   createdAt?: string
   legs: Leg[]
   type: GameType
-  finishType: 1 | 2 | 3
 }
 
 export interface GameController {
@@ -75,4 +73,22 @@ export const getLegOfUser = (game: Game, userId: string) => {
 export const getVisitsOfUser = (game: Game, userId?: string | null) => {
   if (!userId) return []
   return getLegOfUser(game, userId)?.visits ?? []
+}
+
+export const getTypeAttribute = <T>(
+  data: Game | Leg,
+  name: string,
+  _default: T
+) => {
+  for (const attr of data.typeArray) {
+    if (!attr.includes(':')) continue
+    const [key, value] = attr.split(':')
+    if (key == name) {
+      if (typeof _default == 'number') {
+        return parseFloat(value) as T
+      }
+      return value as T
+    }
+  }
+  return _default
 }

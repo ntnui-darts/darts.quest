@@ -12,7 +12,6 @@ export interface Database {
       games: {
         Row: {
           createdAt: string
-          finishType: number
           id: string
           legs: string[]
           players: string[]
@@ -23,7 +22,6 @@ export interface Database {
         }
         Insert: {
           createdAt?: string
-          finishType?: number
           id: string
           legs: string[]
           players?: string[]
@@ -34,7 +32,6 @@ export interface Database {
         }
         Update: {
           createdAt?: string
-          finishType?: number
           id?: string
           legs?: string[]
           players?: string[]
@@ -59,7 +56,6 @@ export interface Database {
           confirmed: boolean
           createdAt: string
           finish: boolean
-          finishType: number
           gameId: string
           id: string
           type: string
@@ -73,7 +69,6 @@ export interface Database {
           confirmed?: boolean
           createdAt?: string
           finish?: boolean
-          finishType?: number
           gameId: string
           id: string
           type: string
@@ -87,7 +82,6 @@ export interface Database {
           confirmed?: boolean
           createdAt?: string
           finish?: boolean
-          finishType?: number
           gameId?: string
           id?: string
           type?: string

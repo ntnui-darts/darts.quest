@@ -10,7 +10,7 @@ import { GameType, Leg } from '@/types/game'
 
 const props = defineProps<{
   legs: Leg[]
-  y: (leg: Leg, type: GameType, finishType: 1 | 2 | 3) => number
+  y: (leg: Leg) => number
   groupByType: boolean
 }>()
 
@@ -19,7 +19,10 @@ let chart: Chart<any> | null = null
 
 const legsOfType = (type: GameType, finishType: 1 | 2 | 3) => {
   return props.legs.filter(
-    (leg) => leg.finish && leg.type == type && leg.finishType == finishType
+    (leg) =>
+      leg.finish &&
+      leg.type == type &&
+      leg.typeArray.includes(`finish:${finishType}`)
   )
 }
 
@@ -37,7 +40,7 @@ const getDatasetsGroupedByType = () => {
           label: `${type} ${finishTypeText}`,
           data: legs.map((leg) => ({
             x: new Date(leg.createdAt),
-            y: props.y(leg, type, finishType),
+            y: props.y(leg),
           })),
         })
       }
@@ -56,7 +59,7 @@ const buildChart = async () => {
           label: `All`,
           data: props.legs.map((leg) => ({
             x: new Date(leg.createdAt),
-            y: props.y(leg, leg.type, leg.finishType),
+            y: props.y(leg),
           })),
         },
       ]
