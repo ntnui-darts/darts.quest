@@ -1,5 +1,6 @@
 <template>
   <div v-auto-animate class="col">
+    <h3>darts.quest</h3>
     <div class="row center">
       <button @click="setSignUp(false)" :class="{ selected: signUp == false }">
         Sign In
