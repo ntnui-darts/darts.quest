@@ -1,4 +1,4 @@
-# Dartpp
+# darts.quest
 
 ## Vue 3 + TypeScript + Vite
 

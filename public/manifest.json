@@ -1,20 +1,20 @@
 {
-  "short_name": "dartpp",
-  "name": "dartpp",
+  "short_name": "darts.quest",
+  "name": "darts.quest",
   "icons": [
     {
-      "src": "./dartpp/icon.svg",
+      "src": "/icon.svg",
       "type": "image/svg+xml",
       "sizes": "512x512"
     }
   ],
-  "id": "/dartpp/",
-  "start_url": "/dartpp/",
+  "id": "/",
+  "start_url": "/",
   "background_color": "#242424",
   "display": "standalone",
-  "scope": "/dartpp/",
+  "scope": "/",
   "theme_color": "#242424",
   "shortcuts": [],
-  "description": "NTNUI Darts App",
+  "description": "A quest to master the game of darts",
   "screenshots": []
 }
