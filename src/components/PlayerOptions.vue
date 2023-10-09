@@ -6,21 +6,25 @@
   <input id="arrows" type="text" v-model="arrows" />
   <br />
   <div class="row">
-    <button @click="emit('cancel')">Cancel</button>
-    <button @click="emit('submit', { beers, arrows })">Confirm</button>
+    <button @click="emit('cancel')">{{ leftButtonText ?? 'Cancel' }}</button>
+    <button class="selected" @click="emit('submit', { beers, arrows })">
+      {{ rightButtonText ?? 'Confirm' }}
+    </button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { User } from '@/stores/users'
 import { ref } from 'vue'
+import { UserCurrentInfo } from '@/components/PlayerSelection.vue'
 
-const beers = ref(0)
-const arrows = ref('unknown')
-
-defineProps<{
-  user: User
+const props = defineProps<{
+  user: UserCurrentInfo
+  leftButtonText?: string
+  rightButtonText?: string
 }>()
+
+const beers = ref(props.user.beers ?? 0)
+const arrows = ref(props.user.arrows ?? 'unknown')
 
 const emit = defineEmits<{
   cancel: []

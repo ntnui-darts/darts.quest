@@ -19,6 +19,7 @@ import { ref, watch } from 'vue'
 import { User, useUsersStore } from '@/stores/users'
 import { useModalStore } from '@/stores/modal'
 import PlayerSearch from './PlayerSearch.vue'
+import PlayerOptions from './PlayerOptions.vue'
 
 export type UserCurrentInfo = User & {
   arrows?: string
@@ -48,12 +49,24 @@ const searchForPlayer = () => {
 }
 
 const toggleUser = (user: UserCurrentInfo) => {
-  const index = selectedUsers.value.findIndex((u) => u.id == user.id)
-  if (index == -1) {
-    selectedUsers.value.push(user)
-  } else {
-    selectedUsers.value.splice(index, 1)
-  }
+  useModalStore().push(
+    PlayerOptions,
+    { user, leftButtonText: 'Remove' },
+    {
+      cancel: () => {
+        const index = selectedUsers.value.indexOf(user)
+        if (index >= 0) {
+          selectedUsers.value.splice(index, 1)
+        }
+        useModalStore().pop()
+      },
+      submit: (data: { beers: number; arrows: string }) => {
+        user.arrows = data.arrows
+        user.beers = data.beers
+        useModalStore().pop()
+      },
+    }
+  )
   emit('update', selectedUsers.value)
 }
 
