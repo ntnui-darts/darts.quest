@@ -4,16 +4,22 @@
     <div class="row spaced">
       <div>
         <h2>Stats</h2>
-        <p>
+        <p style="min-width: 100px">
           {{ statsStore.getNumberOfWins }} wins. <br />
           {{ statsStore.getNumberOfLosses }} losses. <br />
           {{ statsStore.getNumberOfSoloGames }} solo games. <br />
         </p>
       </div>
       <DartboardChart
-        :visits="statsStore.legs.map((leg) => leg.visits).flat()"
-        :width="300"
-        :height="300"
+        :visits="
+          statsStore.legs
+            .filter((leg) => ['301', '501', '701'].includes(leg.type))
+            .map((leg) => leg.visits)
+            .flat()
+        "
+        :width="220"
+        :height="220"
+        title="X01"
       ></DartboardChart>
     </div>
     <h3>Number of Visits</h3>
@@ -30,6 +36,7 @@
           getFirst9Avg(leg.visits, leg.type, getTypeAttribute(leg, 'finish', 1))
       "
       :group-by-type="false"
+      :filter="(leg) => ['301', '501', '701'].includes(leg.type)"
     ></LegHistoryChart>
     <h3>History</h3>
     <div v-for="leg in statsStore.legs.toReversed()">

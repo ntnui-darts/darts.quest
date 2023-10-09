@@ -11,6 +11,7 @@ const props = defineProps<{
   visits: Visit[]
   width?: number
   height?: number
+  title?: string
 }>()
 
 const chartElement = ref<HTMLCanvasElement | null>(null)
@@ -47,8 +48,11 @@ const buildChart = () => {
     type: 'polarArea',
     data: data,
     options: {
-      plugins: { legend: { display: false } },
-      layout: { padding: 25 },
+      plugins: {
+        legend: { display: false },
+        title: { text: props.title, color: 'white', display: !!props.title },
+      },
+      layout: { padding: 0 },
     },
   })
   chartElement.value.style.transform = 'rotate(-9deg)'
@@ -57,4 +61,3 @@ const buildChart = () => {
   }
 }
 </script>
-@/stores/game-x01
