@@ -19,7 +19,11 @@
   ></component>
   <PlayerSelection @update="players = $event"></PlayerSelection>
   <br />
-  <button class="selected" :disabled="players.length == 0" @click="onPlay">
+  <button
+    :class="{ selected: players.length > 0 }"
+    :disabled="players.length == 0"
+    @click="onPlay"
+  >
     Play
   </button>
   <br />
