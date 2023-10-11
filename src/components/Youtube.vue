@@ -1,6 +1,6 @@
 <template>
   <iframe
-    :src="`https://www.youtube.com/embed/${videoId}?amp;start=${startTime}&autoplay=1`"
+    :src="`https://www.youtube.com/embed/${videoId}?amp;start=${startTime}&autoplay=1&playsinline=1`"
     title="YouTube video player"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
   ></iframe>
