@@ -47,6 +47,19 @@ export const useAuthStore = defineStore('auth', {
         await useUsersStore().fetchUsers()
       }
     },
+    async setWalkOn(walkOn: string | null) {
+      if (!this.auth) throw Error()
+      const prevWalkOn = await supabase
+        .from('users')
+        .select('walkOn')
+        .eq('id', this.auth.id)
+      if (prevWalkOn.data?.length == 0) {
+        await supabase.from('users').insert({ walkOn })
+      } else {
+        await supabase.from('users').update({ walkOn }).eq('id', this.auth.id)
+        await useUsersStore().fetchUsers()
+      }
+    },
   },
 })
 

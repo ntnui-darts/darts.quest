@@ -103,16 +103,22 @@ export interface Database {
           created_at: string
           id: string
           name: string
+          walkOn: string | null
+          walkOnTime: number
         }
         Insert: {
           created_at?: string
           id?: string
           name?: string
+          walkOn?: string | null
+          walkOnTime?: number
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          walkOn?: string | null
+          walkOnTime?: number
         }
         Relationships: []
       }

@@ -16,11 +16,14 @@ import X01GameInputVue from '@/components/X01GameInput.vue'
 import RtcGameInputVue from '@/components/RtcGameInput.vue'
 import { getRtcRandomController } from '@/games/rtc-random'
 import { Component } from 'vue'
+import { useUsersStore } from './users'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
     userId: null as string | null,
     game: null as Game | null,
+    walkOn: null as string | null,
+    walkOnTime: 0,
     // Don't access controller directly, use getController()
     _controller: null as GameController | null,
   }),
@@ -61,6 +64,7 @@ export const useGameStore = defineStore('game', {
       this.game = game
       if (this.game.legs.length == 0) throw Error()
       this.userId = this.game.legs[0].userId
+      this.walkOn = useUsersStore().getUser(this.userId)?.walkOn ?? null
       this.addVisitIfNecessary()
     },
     saveScore(segment: Segment) {
@@ -132,6 +136,14 @@ export const useGameStore = defineStore('game', {
       )?.userId
       if (nextUser) {
         this.userId = nextUser
+        if (this.getCurrentVisits.length == 0) {
+          this.walkOn = useUsersStore().getUser(this.userId)?.walkOn ?? null
+          this.walkOnTime =
+            useUsersStore().getUser(this.userId)?.walkOnTime ?? 0
+        } else {
+          this.walkOn = null
+          this.walkOnTime = 0
+        }
         this.addVisitIfNecessary()
       }
       if (this.game.result.includes(this.userId)) {
