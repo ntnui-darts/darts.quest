@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { User as AuthUser } from '@supabase/supabase-js'
 import { supabase } from '@/supabase'
-import { useUsersStore } from './users'
+import { User, useUsersStore } from './users'
 import { useStatsStore } from './stats'
 
 supabase.auth.onAuthStateChange(async (_, session) => {
@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async signUp(name: string, email: string, password: string) {
       await supabase.auth.signUp({ email, password })
-      await this.setName(name)
+      await this.setUserParams({ name })
     },
     async signIn(email: string, password: string) {
       await supabase.auth.signInWithPassword({ email, password })
@@ -34,29 +34,23 @@ export const useAuthStore = defineStore('auth', {
     async signOut() {
       await supabase.auth.signOut()
     },
-    async setName(name: string) {
+    async setUserParams(user: Partial<User>) {
       if (!this.auth) throw Error()
       const prevName = await supabase
         .from('users')
         .select('name')
         .eq('id', this.auth.id)
+      const copy = {
+        name: user.name,
+        created_at: user.created_at,
+        id: user.id,
+        walkOn: user.walkOn,
+        walkOnTime: user.walkOnTime,
+      } satisfies Partial<User>
       if (prevName.data?.length == 0) {
-        await supabase.from('users').insert({ name })
+        await supabase.from('users').insert(copy)
       } else {
-        await supabase.from('users').update({ name }).eq('id', this.auth.id)
-        await useUsersStore().fetchUsers()
-      }
-    },
-    async setWalkOn(walkOn: string | null) {
-      if (!this.auth) throw Error()
-      const prevWalkOn = await supabase
-        .from('users')
-        .select('walkOn')
-        .eq('id', this.auth.id)
-      if (prevWalkOn.data?.length == 0) {
-        await supabase.from('users').insert({ walkOn })
-      } else {
-        await supabase.from('users').update({ walkOn }).eq('id', this.auth.id)
+        await supabase.from('users').update(copy).eq('id', this.auth.id)
         await useUsersStore().fetchUsers()
       }
     },

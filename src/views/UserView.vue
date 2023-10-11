@@ -56,8 +56,7 @@ const updateWalkOnTime = (e: Event) => {
 
 const saveChanges = () => {
   if (!usersStore.getCurrentUser) return
-  authStore.setName(usersStore.getCurrentUser.name)
-  authStore.setWalkOn(usersStore.getCurrentUser.walkOn)
+  authStore.setUserParams(usersStore.getCurrentUser)
   changed.value = false
 }
 

@@ -65,6 +65,7 @@ export const useGameStore = defineStore('game', {
       if (this.game.legs.length == 0) throw Error()
       this.userId = this.game.legs[0].userId
       this.walkOn = useUsersStore().getUser(this.userId)?.walkOn ?? null
+      this.walkOnTime = useUsersStore().getUser(this.userId)?.walkOnTime ?? 0
       this.addVisitIfNecessary()
     },
     saveScore(segment: Segment) {
