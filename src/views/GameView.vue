@@ -1,4 +1,12 @@
 <template>
+  <div hidden>
+    <Youtube
+      v-if="gameStore.walkOn"
+      :video-id="gameStore.walkOn"
+      :start-time="gameStore.walkOnTime"
+    >
+    </Youtube>
+  </div>
   <button @click="quit">Quit</button>
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div class="grid-users" style="grid-template-columns: 1fr 1fr">
@@ -50,6 +58,7 @@ import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 import DartboardChart from '@/components/DartboardChart.vue'
+import Youtube from '@/components/Youtube.vue'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
