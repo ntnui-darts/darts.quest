@@ -51,7 +51,7 @@ export const getCurrentSector = (game: Game, visits: Visit[]) => {
   return getRtcLegScore(game, visits) + 1
 }
 
-const sumNumbers = (numbers: number[]) => {
+export const sumNumbers = (numbers: number[]) => {
   return numbers.reduce((prev, current) => prev + current, 0)
 }
 
@@ -69,4 +69,32 @@ const getVisitScore = (game: Game, visit: Visit) => {
       seg ? (isFast ? seg.multiplier : Math.min(1, seg.sector)) : 0
     )
   )
+}
+
+const numbers = [
+  20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5,
+]
+export const rtcStats = (visits: Visit[]) => {
+  const visitsFlat = visits.flat()
+  let count = 0
+  const missCountList = Array(20).fill(0)
+  const hitCountList = Array(20).fill(0)
+  for (let i = 0; i < visitsFlat.length; i++) {
+    const visit = visitsFlat[i]
+    if (!visit) {
+      continue
+    }
+    if (visit.sector == 0) {
+      count++
+    } else {
+      const index = numbers.indexOf(visit.sector)
+      missCountList[index] += count
+      hitCountList[index] += 1
+      count = 0
+    }
+  }
+  return Array(20)
+    .fill(0)
+    .map((_, i) => hitCountList[i] / (hitCountList[i] + missCountList[i]))
+    .map((x) => (Number.isNaN(x) ? 0 : x))
 }

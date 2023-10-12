@@ -5,13 +5,14 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue'
 import { Chart } from 'chart.js'
-import { Visit } from '@/types/game'
+import { GameType, Visit } from '@/types/game'
+import { rtcStats } from '@/games/rtc'
 
 const props = defineProps<{
   visits: Visit[]
   width?: number
   height?: number
-  statType: 'x01' | 'rtc'
+  statType: GameType
   title?: string
 }>()
 
@@ -24,32 +25,8 @@ let chart: Chart<any> | null = null
 onMounted(() => {
   buildChart()
 })
-const x01Stats = () =>
-  numbers.map((n) => props.visits.flat().filter((s) => s?.sector == n).length)
-
-const rtcStats = () => {
-  const visitsFlat = props.visits.flat()
-  let count = 0
-  const missCountList = Array(20).fill(0)
-  const hitCountList = Array(20).fill(0)
-  for (let i = 0; i < visitsFlat.length; i++) {
-    const visit = visitsFlat[i]
-    if (!visit) {
-      continue
-    }
-    if (visit.sector == 0) {
-      count++
-    } else {
-      const index = numbers.indexOf(visit.sector)
-      missCountList[index] += count
-      hitCountList[index] += 1
-      count = 0
-    }
-  }
-  return Array(20)
-    .fill(0)
-    .map((_, i) => hitCountList[i] / (hitCountList[i] + missCountList[i]))
-}
+const x01Stats = (visits: Visit[]) =>
+  numbers.map((n) => visits.flat().filter((s) => s?.sector == n).length)
 
 watch(
   () => props.visits,
@@ -57,17 +34,21 @@ watch(
 )
 const getData = () => {
   switch (props.statType) {
-    case 'rtc':
-      return rtcStats()
-    case 'x01':
-      return x01Stats()
+    case 'Round the Clock':
+      return rtcStats(props.visits)
+    case '701':
+    case '501':
+    case '301':
+      return x01Stats(props.visits)
   }
 }
 const getLabel = () => {
   switch (props.statType) {
-    case 'rtc':
+    case 'Round the Clock':
       return 'Hit Rate'
-    case 'x01':
+    case '701':
+    case '501':
+    case '301':
       return 'Hits'
   }
 }

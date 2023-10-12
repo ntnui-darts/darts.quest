@@ -20,6 +20,10 @@ const props = defineProps<{
 }>()
 
 const showChart = () => {
-  useModalStore().push(DartboardChart, { visits: props.leg.visits }, {})
+  useModalStore().push(
+    DartboardChart,
+    { visits: props.leg.visits, statType: props.leg.type },
+    {}
+  )
 }
 </script>
