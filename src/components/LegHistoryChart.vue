@@ -63,7 +63,6 @@ const buildChart = async () => {
           })),
         },
       ]
-  console.log(datasets)
   chart?.destroy()
   chart = new Chart(chartElement.value, {
     type: 'line',

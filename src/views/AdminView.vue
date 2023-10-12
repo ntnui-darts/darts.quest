@@ -5,9 +5,9 @@
 
 <script lang="ts" setup>
 import { router } from '@/router'
-// import { migrateRenameRtc } from '@/admin/migration-rtc-rename'
+// import { migrateScoreOfX01ToTypeAttr } from '@/admin/migration-type-x01'
 
 const migrate = () => {
-  // migrateRenameRtc()
+  // migrateScoreOfX01ToTypeAttr()
 }
 </script>

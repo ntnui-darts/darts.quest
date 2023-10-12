@@ -34,7 +34,7 @@ export const migrateScoreOfX01ToTypeAttr = async () => {
     if (!['701', '501', '301'].includes(leg.type)) return
     leg.typeAttributes.push(`startScore:${leg.type}`)
     await supabase
-      .from('games')
+      .from('legs')
       .update({ type: 'x01', typeAttributes: leg.typeAttributes })
       .eq('id', leg.id)
     console.log(`Updated leg ${leg.id}`)
