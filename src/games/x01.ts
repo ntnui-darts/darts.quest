@@ -95,7 +95,7 @@ const getAvgVisitScore = (
 export const getFirst9Avg = (visits: Visit[] | null, game: Game | Leg) => {
   if (!visits) return 0
   const first9 = visits.slice(0, 3)
-  return getAvgVisitScore(first9, game)
+  return getAvgVisitScore(first9, game, true)
 }
 
 export const getX01VisitScore = (visit: Visit, includeUnfinished = true) => {

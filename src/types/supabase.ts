@@ -101,6 +101,7 @@ export interface Database {
       statistics: {
         Row: {
           maxRtcStreak: number
+          maxX01First9Avg: number
           maxX01VisitScore: number
           min301DoubleVisits: number | null
           minRtcVisits: number | null
@@ -108,6 +109,7 @@ export interface Database {
         }
         Insert: {
           maxRtcStreak?: number
+          maxX01First9Avg?: number
           maxX01VisitScore?: number
           min301DoubleVisits?: number | null
           minRtcVisits?: number | null
@@ -115,6 +117,7 @@ export interface Database {
         }
         Update: {
           maxRtcStreak?: number
+          maxX01First9Avg?: number
           maxX01VisitScore?: number
           min301DoubleVisits?: number | null
           minRtcVisits?: number | null

@@ -3,7 +3,7 @@ import { supabase } from '@/supabase'
 import { DbGame, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
-import { getX01VisitScore } from '@/games/x01'
+import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
 
 export type UserStat = Database['public']['Tables']['statistics']['Row']
 
@@ -59,11 +59,14 @@ export const useStatsStore = defineStore('stats', {
       let minRtcVisits = null as number | null
       let min301DoubleVisits = null as number | null
       let maxX01VisitScore = 0
+      let maxX01First9Avg = 0
       this.legs
         .filter((leg) => leg.finish)
         .forEach((leg) => {
           switch (leg.type) {
             case 'rtc':
+              const fastMode = getTypeAttribute<boolean>(leg, 'fast', false)
+              if (fastMode) return
               minRtcVisits = Math.min(
                 minRtcVisits ?? Infinity,
                 leg.visits.length
@@ -90,6 +93,10 @@ export const useStatsStore = defineStore('stats', {
                 maxX01VisitScore,
                 ...leg.visits.map((v) => getX01VisitScore(v))
               )
+              maxX01First9Avg = Math.max(
+                maxX01First9Avg,
+                getFirst9Avg(leg.visits, leg)
+              )
           }
         })
       const userStat = {
@@ -97,6 +104,7 @@ export const useStatsStore = defineStore('stats', {
         minRtcVisits,
         min301DoubleVisits,
         maxX01VisitScore,
+        maxX01First9Avg,
       }
       const userStatPrev = await supabase
         .from('statistics')
