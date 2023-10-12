@@ -7,7 +7,7 @@
 import { router } from '@/router'
 // import { migrateRenameRtc } from '@/admin/migration-rtc-rename'
 
-export const migrate = () => {
+const migrate = () => {
   // migrateRenameRtc()
 }
 </script>
