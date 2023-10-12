@@ -3,10 +3,7 @@
     <p>
       <small>{{ new Date(leg.createdAt).toLocaleString() }}</small>
       <br />
-      <span
-        >{{ leg.type }}
-        {{ ['Single', 'Double', 'Triple'][leg.finishType - 1] }} finish</span
-      >
+      <span>{{ leg.type }} {{ leg.typeAttributes }}</span>
       {{ leg.visits.length }} visits
     </p>
     <button @click="showChart" style="flex: 0">Chart</button>
@@ -14,8 +11,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Leg } from '@/stores/game'
 import DartboardChart from './DartboardChart.vue'
+import { Leg } from '@/types/game'
 import { useModalStore } from '@/stores/modal'
 
 const props = defineProps<{
@@ -26,4 +23,3 @@ const showChart = () => {
   useModalStore().push(DartboardChart, { visits: props.leg.visits }, {})
 }
 </script>
-@/stores/game-x01

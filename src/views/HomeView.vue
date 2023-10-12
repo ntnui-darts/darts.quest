@@ -3,64 +3,54 @@
     <button @click="router.push({ name: 'user' })">My Profile</button>
     <button @click="router.push({ name: 'stats' })">My Stats</button>
   </div>
-  <br />
   <h2>Select Game Type</h2>
   <div class="row">
     <button
-      v-for="(_, type) in GameTypes"
+      v-for="(displayName, type) in GameDisplayNames"
       :class="{ selected: type == gameType }"
       @click="selectGameType(type)"
     >
-      {{ type }}
+      {{ displayName }}
     </button>
   </div>
-  <h4 style="margin: 0">
-    {{ gameType == 'Round the Clock' ? 'Mode' : 'Finish' }}
-  </h4>
-  <div class="row">
-    <button
-      v-for="t in ([1, 2, 3] as const)"
-      :class="{ selected: t == mode }"
-      @click="mode = t"
-    >
-      {{ ['Single', 'Double', 'Triple'][t - 1] }}
-    </button>
-  </div>
-  <h2>Select Players</h2>
-  <div v-auto-animate class="col">
-    <button
-      v-for="user in usersStore.users"
-      :key="user.id"
-      :id="user.id"
-      :class="{ selected: selectedUsers.has(user.id) }"
-      @click="toggleUser(user)"
-    >
-      {{ user.name }}
-    </button>
-  </div>
+  <component
+    :is="getOptionsComponent(gameType)"
+    @update="typeAttributes = $event"
+  ></component>
+  <PlayerSelection @update="players = $event"></PlayerSelection>
+  <br />
+  <button
+    :class="{ selected: players.length > 0 }"
+    :disabled="players.length == 0"
+    @click="onPlay"
+  >
+    Play
+  </button>
   <br />
   <br />
-  <button :disabled="selectedUsers.size == 0" @click="onPlay">Play</button>
 </template>
 
 <script lang="ts" setup>
-import { router } from '@/router'
-import { GameType, GameTypes, Leg } from '@/stores/game'
-import { useGameStoreX01 } from '@/stores/game-x01'
-import { useGameStoreRoundDaClock } from '@/stores/game-round-da-clock'
-import { useUsersStore, User } from '@/stores/users'
-import { nanoid } from 'nanoid'
-import { onMounted, ref, watch } from 'vue'
-import { useModalStore } from '@/stores/modal'
 import ReloadView from '@/components/ReloadView.vue'
+import { router } from '@/router'
+import { GameType, Leg, GameDisplayNames } from '@/types/game'
+import { useUsersStore } from '@/stores/users'
+import { nanoid } from 'nanoid'
+import { onMounted, ref } from 'vue'
+import { useModalStore } from '@/stores/modal'
+import { useGameStore } from '@/stores/game'
+import X01OptionsInput from '@/components/X01OptionsInput.vue'
+import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
+import PlayerSelection, {
+  UserCurrentInfo,
+} from '@/components/PlayerSelection.vue'
 
-const gameStoreX01 = useGameStoreX01()
-const gameStoreRoundDaClock = useGameStoreRoundDaClock()
+const gameStore = useGameStore()
 const usersStore = useUsersStore()
 
-const selectedUsers = ref(new Set<string>())
+const typeAttributes = ref<string[]>([])
+const players = ref<UserCurrentInfo[]>([])
 const gameType = ref<GameType>('301')
-const mode = ref<1 | 2 | 3>(2)
 
 onMounted(() => {
   if (localStorage.getItem('data')) {
@@ -68,70 +58,51 @@ onMounted(() => {
   }
 })
 
-watch(
-  () => usersStore.getCurrentUser,
-  (user) => {
-    if (user) {
-      selectedUsers.value.add(user.id)
-    }
-  },
-  { immediate: true }
-)
-
-const toggleUser = (user: User) => {
-  if (selectedUsers.value.has(user.id)) {
-    selectedUsers.value.delete(user.id)
-  } else {
-    selectedUsers.value.add(user.id)
+const getOptionsComponent = (type: GameType) => {
+  switch (type) {
+    case '301':
+    case '501':
+    case '701':
+      return X01OptionsInput
+    case 'Round the Clock':
+      return RtcOptionsInput
   }
 }
 
 const selectGameType = (type: GameType) => {
   if (gameType.value == type) return
   gameType.value = type
-  // Set default mode based on gameType
-  if (gameType.value == 'Round the Clock') {
-    mode.value = 1
-  } else {
-    mode.value = 2
-  }
 }
 
 const onPlay = () => {
-  if (selectedUsers.value.size == 0) return
+  if (players.value.length == 0) return
   if (!usersStore.getCurrentUser) return
   const gameId = nanoid()
-  const players = Array.from(selectedUsers.value)
-  const store =
-    gameType.value == 'Round the Clock' ? gameStoreRoundDaClock : gameStoreX01
-  store.setCurrentGame({
+
+  gameStore.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
+    typeAttributes: typeAttributes.value,
     type: gameType.value,
-    finishType: mode.value,
     result: [],
-    players,
-    legs: players.map(
-      (userId) =>
+    players: players.value.map((player) => player.id),
+    legs: players.value.map(
+      (player) =>
         ({
           id: nanoid(),
-          userId,
+          userId: player.id,
           visits: [],
-          arrows: 'unknown',
+          arrows: player.arrows ?? 'unknown',
           confirmed: false,
           gameId: gameId,
+          typeAttributes: typeAttributes.value,
           type: gameType.value,
-          finishType: mode.value,
-          beers: null,
+          beers: player.beers ?? null,
           finish: false,
           createdAt: new Date().toISOString(),
         } satisfies Leg)
     ),
   })
-  router.push(
-    gameType.value == 'Round the Clock'
-      ? { name: 'game-round-da-clock' }
-      : { name: 'game-x01' }
-  )
+  router.push({ name: 'game' })
 }
 </script>

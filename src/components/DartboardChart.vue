@@ -5,13 +5,14 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue'
 import { Chart } from 'chart.js'
-import { Visit } from '@/stores/game'
+import { Visit } from '@/types/game'
 
 const props = defineProps<{
   visits: Visit[]
   width?: number
   height?: number
   statType: 'x01' | 'rtc'
+  title?: string
 }>()
 
 const chartElement = ref<HTMLCanvasElement | null>(null)
@@ -88,8 +89,11 @@ const buildChart = () => {
     type: 'polarArea',
     data: data,
     options: {
-      plugins: { legend: { display: false } },
-      layout: { padding: 25 },
+      plugins: {
+        legend: { display: false },
+        title: { text: props.title, color: 'white', display: !!props.title },
+      },
+      layout: { padding: 0 },
     },
   })
   chartElement.value.style.transform = 'rotate(-9deg)'
@@ -98,4 +102,3 @@ const buildChart = () => {
   }
 }
 </script>
-@/stores/game-x01

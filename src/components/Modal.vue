@@ -26,7 +26,7 @@ defineProps<{
 .modal {
   position: relative;
   background-color: var(--c-background);
-  border-radius: 1.5em;
+  border-radius: 1em;
   box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.5);
   min-height: 25%;
   max-height: 80%;

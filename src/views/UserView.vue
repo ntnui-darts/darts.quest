@@ -1,12 +1,25 @@
 <template>
   <button id="back" @click="router.push({ name: 'home' })">Back</button>
-  <label for="name">Name</label>
+  <label for="name">Display Name</label>
   <input
     id="name"
     :value="usersStore.getCurrentUser?.name"
     @change="updateName"
   />
-  <p>{{ usersStore.getCurrentUser?.email }}</p>
+  <p>Mail Address: {{ usersStore.getCurrentUser?.email }}</p>
+  <label for="videoId">Walk-on Youtube Id</label>
+  <input
+    id="walkOn"
+    :value="usersStore.getCurrentUser?.walkOn"
+    @change="updateWalkOn"
+  />
+  <label for="videoId">Walk-on Video Start Time</label>
+  <input
+    id="walkOnStart"
+    :value="usersStore.getCurrentUser?.walkOnTime"
+    type="number"
+    @change="updateWalkOnTime"
+  />
   <button v-if="changed" id="save" @click="saveChanges">Save Changes</button>
   <button id="logout" @click="logout">Logout</button>
 </template>
@@ -27,10 +40,23 @@ const updateName = (e: Event) => {
   usersStore.getCurrentUser.name = el.value
   changed.value = true
 }
+const updateWalkOn = (e: Event) => {
+  const el = e.target as HTMLInputElement
+  if (!usersStore.getCurrentUser) return
+  usersStore.getCurrentUser.walkOn = el.value
+  changed.value = true
+}
+
+const updateWalkOnTime = (e: Event) => {
+  const el = e.target as HTMLInputElement
+  if (!usersStore.getCurrentUser) return
+  usersStore.getCurrentUser.walkOnTime = el.valueAsNumber
+  changed.value = true
+}
 
 const saveChanges = () => {
   if (!usersStore.getCurrentUser) return
-  authStore.setName(usersStore.getCurrentUser.name)
+  authStore.setUserParams(usersStore.getCurrentUser)
   changed.value = false
 }
 

@@ -1,5 +1,6 @@
 <template>
   <div v-auto-animate class="col">
+    <h3>darts.quest</h3>
     <div class="row center">
       <button @click="setSignUp(false)" :class="{ selected: signUp == false }">
         Sign In
@@ -13,17 +14,29 @@
     <label for="email">Email</label>
     <input id="email" type="email" v-model="email" />
     <label for="password">Password</label>
-    <input id="password" type="password" v-model="password" />
+    <input
+      id="password"
+      type="password"
+      v-model="password"
+      @keyup.enter="
+        () => {
+          if (!signUp) submit()
+        }
+      "
+    />
     <label v-if="signUp" for="repeat-password">Repeat Password</label>
     <input
       v-if="signUp"
       id="repeat-password"
       type="password"
       v-model="repeatedPassword"
+      @keyup.enter="submit"
     />
     <p v-if="error" id="error">{{ error }}</p>
     <br />
-    <button @click="submit">{{ signUp ? 'Sign Up' : 'Sign In' }}</button>
+    <button :class="{ selected: checkForErrors().length == 0 }" @click="submit">
+      {{ signUp ? 'Sign Up' : 'Sign In' }}
+    </button>
   </div>
 </template>
 
@@ -46,12 +59,10 @@ const setSignUp = (value: boolean) => {
   error.value = ''
 }
 
-const submit = async () => {
-  error.value = ''
+const checkForErrors = () => {
   if (!signUp.value) {
     if (!email.value || !password.value) {
-      error.value = 'All fields are required!'
-      return
+      return 'All fields are required!'
     }
   }
   if (signUp.value) {
@@ -61,14 +72,17 @@ const submit = async () => {
       !password.value ||
       !repeatedPassword.value
     ) {
-      error.value = 'All fields are required!'
-      return
+      return 'All fields are required!'
     }
     if (signUp.value && password.value != repeatedPassword.value) {
-      error.value = "Passwords don't match!"
-      return
+      return "Passwords don't match!"
     }
   }
+  return ''
+}
+
+const submit = async () => {
+  error.value = checkForErrors()
   try {
     if (!authStore.auth) {
       if (signUp.value) {

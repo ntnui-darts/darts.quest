@@ -12,32 +12,32 @@ export interface Database {
       games: {
         Row: {
           createdAt: string
-          finishType: number
           id: string
           legs: string[]
           players: string[]
           result: string[]
           type: string
+          typeAttributes: string[]
           userId: string
         }
         Insert: {
           createdAt?: string
-          finishType?: number
           id: string
           legs: string[]
           players?: string[]
           result: string[]
           type: string
+          typeAttributes?: string[]
           userId?: string
         }
         Update: {
           createdAt?: string
-          finishType?: number
           id?: string
           legs?: string[]
           players?: string[]
           result?: string[]
           type?: string
+          typeAttributes?: string[]
           userId?: string
         }
         Relationships: [
@@ -56,10 +56,10 @@ export interface Database {
           confirmed: boolean
           createdAt: string
           finish: boolean
-          finishType: number
           gameId: string
           id: string
           type: string
+          typeAttributes: string[]
           userId: string
           visits: Json
         }
@@ -69,10 +69,10 @@ export interface Database {
           confirmed?: boolean
           createdAt?: string
           finish?: boolean
-          finishType?: number
           gameId: string
           id: string
           type: string
+          typeAttributes?: string[]
           userId: string
           visits?: Json
         }
@@ -82,10 +82,10 @@ export interface Database {
           confirmed?: boolean
           createdAt?: string
           finish?: boolean
-          finishType?: number
           gameId?: string
           id?: string
           type?: string
+          typeAttributes?: string[]
           userId?: string
           visits?: Json
         }
@@ -103,16 +103,22 @@ export interface Database {
           created_at: string
           id: string
           name: string
+          walkOn: string | null
+          walkOnTime: number
         }
         Insert: {
           created_at?: string
           id?: string
           name?: string
+          walkOn?: string | null
+          walkOnTime?: number
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          walkOn?: string | null
+          walkOnTime?: number
         }
         Relationships: []
       }

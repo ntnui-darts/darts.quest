@@ -4,7 +4,7 @@
     <div class="row spaced">
       <div>
         <h2>Stats</h2>
-        <p>
+        <p style="min-width: 100px">
           {{ statsStore.getNumberOfWins }} wins. <br />
           {{ statsStore.getNumberOfLosses }} losses. <br />
           {{ statsStore.getNumberOfSoloGames }} solo games. <br />
@@ -20,6 +20,7 @@
         :width="300"
         :height="300"
         stat-type="rtc"
+        title="rtc"
       ></DartboardChart>
     </div>
     <h3>Number of Visits</h3>
@@ -31,8 +32,12 @@
     <h3>First 9 Average</h3>
     <LegHistoryChart
       :legs="statsStore.legs"
-      :y="(leg, type, finishType) => getFirst9Avg(leg.visits, type, finishType)"
+      :y="
+        (leg) =>
+          getFirst9Avg(leg.visits, leg.type, getTypeAttribute(leg, 'finish', 1))
+      "
       :group-by-type="false"
+      :filter="(leg) => ['301', '501', '701'].includes(leg.type)"
     ></LegHistoryChart>
     <h3>History</h3>
     <div v-for="leg in statsStore.legs.toReversed()">
@@ -47,8 +52,8 @@ import DartboardChart from '@/components/DartboardChart.vue'
 import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { router } from '@/router'
 import { useStatsStore } from '@/stores/stats'
-import { getFirst9Avg } from '@/stores/game-x01'
+import { getFirst9Avg } from '@/games/x01'
+import { getTypeAttribute } from '@/types/game'
 
 const statsStore = useStatsStore()
 </script>
-@/stores/game-x01
