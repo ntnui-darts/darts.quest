@@ -51,6 +51,11 @@ const stats = computed(
           userStats: sort(statsStore.userStats, 'min301DoubleVisits', Infinity),
         },
         {
+          key: 'min501DoubleVisits',
+          text: 'Fastest 501 Double Finish',
+          userStats: sort(statsStore.userStats, 'min501DoubleVisits', Infinity),
+        },
+        {
           key: 'maxX01First9Avg',
           text: 'Highest X01 First 9 Average',
           userStats: sort(statsStore.userStats, 'maxX01First9Avg', 0, false),
@@ -59,6 +64,11 @@ const stats = computed(
           key: 'maxX01VisitScore',
           text: 'Highest X01 Single Visit Score',
           userStats: sort(statsStore.userStats, 'maxX01VisitScore', 0, false),
+        },
+        {
+          key: 'numX01Games',
+          text: 'Number of X01 Games',
+          userStats: sort(statsStore.userStats, 'numX01Games', 0, false),
         },
       ],
       rtc: [
@@ -71,6 +81,11 @@ const stats = computed(
           key: 'maxRtcStreak',
           text: 'Longest Streak',
           userStats: sort(statsStore.userStats, 'maxRtcStreak', 0, false),
+        },
+        {
+          key: 'numRtcGames',
+          text: 'Number of RTC Games',
+          userStats: sort(statsStore.userStats, 'numRtcGames', 0, false),
         },
       ],
     } satisfies Record<
@@ -85,9 +100,9 @@ const sort = (
   _default: number,
   ascending = true
 ) => {
-  const sorted = userStats.toSorted(
-    (a, b) => (a[key] ?? _default) - (b[key] ?? _default)
-  )
+  const sorted = userStats
+    .filter((userStat) => userStat[key] != null && userStat[key] != 0)
+    .toSorted((a, b) => (a[key] ?? _default) - (b[key] ?? _default))
   return ascending ? sorted : sorted.toReversed()
 }
 </script>

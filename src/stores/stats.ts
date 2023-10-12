@@ -58,13 +58,17 @@ export const useStatsStore = defineStore('stats', {
       let maxRtcStreak = 0
       let minRtcVisits = null as number | null
       let min301DoubleVisits = null as number | null
+      let min501DoubleVisits = null as number | null
       let maxX01VisitScore = 0
       let maxX01First9Avg = 0
+      let numRtcGames = 0
+      let numX01Games = 0
       this.legs
         .filter((leg) => leg.finish)
         .forEach((leg) => {
           switch (leg.type) {
             case 'rtc':
+              numRtcGames += 1
               const fastMode = getTypeAttribute<boolean>(leg, 'fast', false)
               if (fastMode) return
               minRtcVisits = Math.min(
@@ -82,10 +86,18 @@ export const useStatsStore = defineStore('stats', {
               })
               break
             case 'x01':
+              numX01Games += 1
+              const startScore = getTypeAttribute<number>(leg, 'startScore', 0)
               const finish = getTypeAttribute<number>(leg, 'finish', 1)
-              if (finish == 2) {
+              if (startScore == 301 && finish == 2) {
                 min301DoubleVisits = Math.min(
                   min301DoubleVisits ?? Infinity,
+                  leg.visits.length
+                )
+              }
+              if (startScore == 501 && finish == 2) {
+                min501DoubleVisits = Math.min(
+                  min501DoubleVisits ?? Infinity,
                   leg.visits.length
                 )
               }
@@ -103,8 +115,11 @@ export const useStatsStore = defineStore('stats', {
         maxRtcStreak,
         minRtcVisits,
         min301DoubleVisits,
+        min501DoubleVisits,
         maxX01VisitScore,
         maxX01First9Avg,
+        numRtcGames,
+        numX01Games,
       }
       const userStatPrev = await supabase
         .from('statistics')

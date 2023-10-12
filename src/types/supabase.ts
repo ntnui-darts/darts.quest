@@ -104,7 +104,10 @@ export interface Database {
           maxX01First9Avg: number
           maxX01VisitScore: number
           min301DoubleVisits: number | null
+          min501DoubleVisits: number | null
           minRtcVisits: number | null
+          numRtcGames: number
+          numX01Games: number
           userId: string
         }
         Insert: {
@@ -112,7 +115,10 @@ export interface Database {
           maxX01First9Avg?: number
           maxX01VisitScore?: number
           min301DoubleVisits?: number | null
+          min501DoubleVisits?: number | null
           minRtcVisits?: number | null
+          numRtcGames?: number
+          numX01Games?: number
           userId: string
         }
         Update: {
@@ -120,7 +126,10 @@ export interface Database {
           maxX01First9Avg?: number
           maxX01VisitScore?: number
           min301DoubleVisits?: number | null
+          min501DoubleVisits?: number | null
           minRtcVisits?: number | null
+          numRtcGames?: number
+          numX01Games?: number
           userId?: string
         }
         Relationships: [
