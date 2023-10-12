@@ -7,7 +7,13 @@
     >
     </Youtube>
   </div>
-  <button @click="quit">Quit</button>
+  <button
+    @click="
+      promptQuit('Are you sure that you want to discard the current game?')
+    "
+  >
+    Quit
+  </button>
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div class="grid-users" style="grid-template-columns: 1fr 1fr">
       <button
@@ -81,18 +87,26 @@ onMounted(() => {
 })
 
 const quit = () => {
+  localStorage.removeItem('data')
+  router.push('/')
+}
+
+const promptQuit = (prompt: string, yesFunc?: () => void) => {
   useModalStore().push(
     Prompt,
     {
-      text: 'Are you sure that you want to exit the current game?',
+      text: prompt,
       buttons: [
         { text: 'No', onClick: () => useModalStore().pop() },
         {
           text: 'Yes',
           onClick: () => {
-            localStorage.removeItem('data')
+            if (yesFunc) {
+              yesFunc()
+            } else {
+              quit()
+            }
             useModalStore().pop()
-            router.push('/')
           },
         },
       ],
@@ -102,11 +116,13 @@ const quit = () => {
 }
 
 const saveGame = async () => {
-  if (loadingStore.loading) return
-  loadingStore.loading = true
-  await gameStore.saveGame()
-  loadingStore.loading = false
-  quit()
+  promptQuit('Save game and exit?', async () => {
+    if (loadingStore.loading) return
+    loadingStore.loading = true
+    await gameStore.saveGame()
+    loadingStore.loading = false
+    quit()
+  })
 }
 
 const showChart = (userId: string) => {

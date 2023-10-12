@@ -83,7 +83,6 @@ export const useStatsStore = defineStore('stats', {
                   min301DoubleVisits ?? Infinity,
                   leg.visits.length
                 )
-                if (leg.visits.length == min301DoubleVisits) console.log(leg)
               }
           }
         })

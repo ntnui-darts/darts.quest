@@ -69,8 +69,8 @@ export interface GameController {
   recordMiss(): void
 }
 
-export const multiplierToString = (m?: Multiplier) => {
-  return m ? 'I'.repeat(m) : '-'
+export const multiplierToString = (m: Multiplier) => {
+  return 'I'.repeat(m)
 }
 
 export const getLegOfUser = (game: Game, userId: string) => {

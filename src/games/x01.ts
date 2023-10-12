@@ -28,7 +28,7 @@ export const getX01Controller = (game: Game): GameController => {
         game,
         true
       ).toFixed(1)
-      return `${name}, ${visits} visits, ${avg} average`
+      return `${name}, ${visits?.length} visits, ${avg} average`
     },
     getUserDisplayText(userId) {
       const visits = getVisitsOfUser(game, userId)
@@ -37,9 +37,10 @@ export const getX01Controller = (game: Game): GameController => {
       return `${rest} (${avg})`
     },
     getSegmentText(segment) {
-      return segment
-        ? `${multiplierToString(segment.multiplier)} - ${segment.sector}`
-        : '-'
+      if (!segment) return '-'
+      if (!segment.multiplier || segment.multiplier == 1)
+        return segment.sector.toString()
+      return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
     },
     recordHit(segment) {
       if (!segment) return
