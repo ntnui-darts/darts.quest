@@ -14,7 +14,7 @@
     <DartboardChart
       :visits="
         statsStore.legs
-          .filter((leg) => ['301', '501', '701'].includes(leg.type))
+          .filter((leg) => leg.type == 'x01')
           .map((leg) => leg.visits)
           .flat()
       "
@@ -43,11 +43,7 @@
     ></LegHistoryChart>
     <h3>First 9 Average</h3>
     <LegHistoryChart
-      :legs="
-        statsStore.legs.filter((leg) =>
-          ['301', '501', '701'].includes(leg.type)
-        )
-      "
+      :legs="statsStore.legs.filter((leg) => leg.type == 'x01')"
       :y="(leg) => getFirst9Avg(leg.visits, leg)"
       :group-by-type="false"
     ></LegHistoryChart>
