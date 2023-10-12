@@ -56,6 +56,10 @@
       </tr>
     </tbody>
   </table>
+
+  <br />
+  <br />
+  <br />
 </template>
 
 <script lang="ts" setup>
