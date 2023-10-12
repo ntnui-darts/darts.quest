@@ -21,7 +21,7 @@ const legsOfType = (startScore: 301 | 501 | 701, finishType: 1 | 2 | 3) => {
   return props.legs.filter(
     (leg) =>
       leg.finish &&
-      getTypeAttribute<number>(leg, 'startScore', NaN) == startScore &&
+      getTypeAttribute<number>(leg, 'startScore', 0) == startScore &&
       leg.typeAttributes.includes(`finish:${finishType}`)
   )
 }
