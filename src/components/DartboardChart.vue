@@ -5,12 +5,14 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue'
 import { Chart } from 'chart.js'
-import { Visit } from '@/types/game'
+import { GameType, Visit } from '@/types/game'
+import { rtcStats } from '@/games/rtc'
 
 const props = defineProps<{
   visits: Visit[]
   width?: number
   height?: number
+  statType: GameType
   title?: string
 }>()
 
@@ -23,11 +25,33 @@ let chart: Chart<any> | null = null
 onMounted(() => {
   buildChart()
 })
+const x01Stats = (visits: Visit[]) =>
+  numbers.map((n) => visits.flat().filter((s) => s?.sector == n).length)
 
 watch(
   () => props.visits,
   () => buildChart()
 )
+const getData = () => {
+  switch (props.statType) {
+    case 'Round the Clock':
+      return rtcStats(props.visits)
+    case '701':
+    case '501':
+    case '301':
+      return x01Stats(props.visits)
+  }
+}
+const getLabel = () => {
+  switch (props.statType) {
+    case 'Round the Clock':
+      return 'Hit Rate'
+    case '701':
+    case '501':
+    case '301':
+      return 'Hits'
+  }
+}
 
 const buildChart = () => {
   if (!chartElement.value) return
@@ -35,10 +59,8 @@ const buildChart = () => {
     labels: numbers,
     datasets: [
       {
-        label: 'Hits',
-        data: numbers.map(
-          (n) => props.visits.flat().filter((s) => s?.sector == n).length
-        ),
+        label: getLabel(),
+        data: getData(),
         backgroundColor: ['rgba(20, 20, 40, 0.5)', 'rgba(250, 210, 160, 0.5)'],
       },
     ],

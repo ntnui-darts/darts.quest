@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { watch, ref, onMounted, computed } from 'vue'
+import { watch, ref, onMounted } from 'vue'
 import { Chart } from 'chart.js'
 import 'chartjs-adapter-date-fns'
 import { GameType, Leg } from '@/types/game'
@@ -12,18 +12,13 @@ const props = defineProps<{
   legs: Leg[]
   y: (leg: Leg) => number
   groupByType: boolean
-  filter?: (leg: Leg) => boolean
 }>()
 
 const chartElement = ref<HTMLCanvasElement | null>(null)
 let chart: Chart<any> | null = null
 
-const legs = computed(() =>
-  props.filter ? props.legs.filter(props.filter) : props.legs
-)
-
 const legsOfType = (type: GameType, finishType: 1 | 2 | 3) => {
-  return legs.value.filter(
+  return props.legs.filter(
     (leg) =>
       leg.finish &&
       leg.type == type &&
@@ -55,20 +50,20 @@ const getDatasetsGroupedByType = () => {
 }
 
 const buildChart = async () => {
-  if (!chartElement.value || legs.value.length == 0) return
+  if (!chartElement.value || props.legs.length == 0) return
 
   const datasets = props.groupByType
     ? getDatasetsGroupedByType()
     : [
         {
           label: `All`,
-          data: legs.value.map((leg) => ({
+          data: props.legs.map((leg) => ({
             x: new Date(leg.createdAt),
             y: props.y(leg),
           })),
         },
       ]
-
+  console.log(datasets)
   chart?.destroy()
   chart = new Chart(chartElement.value, {
     type: 'line',
@@ -90,8 +85,7 @@ onMounted(() => {
 })
 
 watch(
-  () => legs.value,
+  () => props.legs,
   () => buildChart()
 )
 </script>
-@/stores/game-x01

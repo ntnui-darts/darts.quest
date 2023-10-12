@@ -112,7 +112,11 @@ const saveGame = async () => {
 const showChart = (userId: string) => {
   const leg = gameStore.getUserLeg(userId)
   if (!leg) return
-  useModalStore().push(DartboardChart, { visits: leg.visits }, {})
+  useModalStore().push(
+    DartboardChart,
+    { visits: leg.visits, statType: leg.type },
+    {}
+  )
 }
 </script>
 
