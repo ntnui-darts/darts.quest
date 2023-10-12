@@ -20,19 +20,19 @@
       "
       :width="300"
       :height="300"
-      stat-type="301"
+      stat-type="x01"
       title="X01"
     ></DartboardChart>
     <DartboardChart
       :visits="
         statsStore.legs
-          .filter((leg) => leg.type == 'Round the Clock')
+          .filter((leg) => leg.type == 'rtc')
           .map((leg) => leg.visits)
           .flat()
       "
       :width="300"
       :height="300"
-      stat-type="Round the Clock"
+      stat-type="rtc"
       title="RTC"
     ></DartboardChart>
     <h3>X01 Number of Visits</h3>
@@ -48,15 +48,12 @@
           ['301', '501', '701'].includes(leg.type)
         )
       "
-      :y="
-        (leg) =>
-          getFirst9Avg(leg.visits, leg.type, getTypeAttribute(leg, 'finish', 1))
-      "
+      :y="(leg) => getFirst9Avg(leg.visits, leg)"
       :group-by-type="false"
     ></LegHistoryChart>
     <h3>RTC Hit rate</h3>
     <LegHistoryChart
-      :legs="statsStore.legs.filter((leg) => leg.type == 'Round the Clock')"
+      :legs="statsStore.legs.filter((leg) => leg.type == 'rtc')"
       :y="
         (leg) =>
           rtcStats(leg.visits).filter((x) => x != 0).length /
@@ -78,7 +75,6 @@ import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { router } from '@/router'
 import { useStatsStore } from '@/stores/stats'
 import { getFirst9Avg } from '@/games/x01'
-import { getTypeAttribute } from '@/types/game'
 import { rtcStats } from '@/games/rtc'
 
 const statsStore = useStatsStore()

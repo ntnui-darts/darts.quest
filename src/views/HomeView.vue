@@ -6,11 +6,11 @@
   <h2>Select Game Type</h2>
   <div class="row">
     <button
-      v-for="(displayName, type) in GameDisplayNames"
+      v-for="(name, type) in GameTypeNames"
       :class="{ selected: type == gameType }"
       @click="selectGameType(type)"
     >
-      {{ displayName }}
+      {{ name }}
     </button>
   </div>
   <component
@@ -33,7 +33,7 @@
 <script lang="ts" setup>
 import ReloadView from '@/components/ReloadView.vue'
 import { router } from '@/router'
-import { GameType, Leg, GameDisplayNames } from '@/types/game'
+import { GameType, Leg, GameTypeNames } from '@/types/game'
 import { useUsersStore } from '@/stores/users'
 import { nanoid } from 'nanoid'
 import { onMounted, ref } from 'vue'
@@ -50,7 +50,7 @@ const usersStore = useUsersStore()
 
 const typeAttributes = ref<string[]>([])
 const players = ref<UserCurrentInfo[]>([])
-const gameType = ref<GameType>('301')
+const gameType = ref<GameType>('x01')
 
 onMounted(() => {
   if (localStorage.getItem('data')) {
@@ -60,11 +60,9 @@ onMounted(() => {
 
 const getOptionsComponent = (type: GameType) => {
   switch (type) {
-    case '301':
-    case '501':
-    case '701':
+    case 'x01':
       return X01OptionsInput
-    case 'Round the Clock':
+    case 'rtc':
       return RtcOptionsInput
   }
 }

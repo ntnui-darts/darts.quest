@@ -7,7 +7,7 @@ import {
   getVisitsOfUser,
   Multiplier,
   getTypeAttribute,
-  GamePoints,
+  getGamePoints,
 } from '@/types/game'
 
 export type RtcController = GameController & { getSequence(): number[] }
@@ -57,7 +57,7 @@ export const sumNumbers = (numbers: number[]) => {
 
 export const getRtcLegScore = (game: Game, visits: Visit[]) => {
   return Math.min(
-    GamePoints[game.type],
+    getGamePoints(game),
     sumNumbers(visits.map((v) => getVisitScore(game, v)))
   )
 }

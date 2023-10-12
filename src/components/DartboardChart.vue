@@ -34,21 +34,17 @@ watch(
 )
 const getData = () => {
   switch (props.statType) {
-    case 'Round the Clock':
+    case 'rtc':
       return rtcStats(props.visits)
-    case '701':
-    case '501':
-    case '301':
+    case 'x01':
       return x01Stats(props.visits)
   }
 }
 const getLabel = () => {
   switch (props.statType) {
-    case 'Round the Clock':
+    case 'rtc':
       return 'Hit Rate'
-    case '701':
-    case '501':
-    case '301':
+    case 'x01':
       return 'Hits'
   }
 }

@@ -4,11 +4,11 @@ import { supabase } from '@/supabase'
 import {
   Game,
   Segment,
-  GamePoints,
   Visit,
   getLegOfUser,
   GameController,
   getTypeAttribute,
+  getGamePoints,
 } from '@/types/game'
 import { getX01Controller } from '@/games/x01'
 import { getRtcController } from '@/games/rtc'
@@ -33,12 +33,10 @@ export const useGameStore = defineStore('game', {
       if (!this.game) throw Error()
       if (this.game != this._controller?.game) {
         switch (this.game.type) {
-          case '301':
-          case '501':
-          case '701':
+          case 'x01':
             this._controller = getX01Controller(this.game)
             break
-          case 'Round the Clock':
+          case 'rtc':
             if (getTypeAttribute(this.game, 'random', false)) {
               this._controller = getRtcRandomController(this.game)
             } else {
@@ -52,11 +50,9 @@ export const useGameStore = defineStore('game', {
     getInputComponent(): Component {
       if (!this.game) throw Error()
       switch (this.game.type) {
-        case '301':
-        case '501':
-        case '701':
+        case 'x01':
           return X01GameInputVue
-        case 'Round the Clock':
+        case 'rtc':
           return RtcGameInputVue
       }
     },
@@ -78,7 +74,7 @@ export const useGameStore = defineStore('game', {
       visit[index] = segment
 
       if (
-        this.getController().getCurrentLegScore() == GamePoints[this.game.type]
+        this.getController().getCurrentLegScore() == getGamePoints(this.game)
       ) {
         this.game.result.push(this.userId)
         this.getCurrentLeg.finish = true

@@ -1,9 +1,13 @@
 <template>
   <button id="back" @click="router.push({ name: 'home' })">Home</button>
-  <button @click="migrateTypeToArray">Type Array Migration</button>
+  <button @click="migrate">Perform Migration</button>
 </template>
 
 <script lang="ts" setup>
 import { router } from '@/router'
-import { migrateTypeToArray } from '@/admin/migration-type-array'
+// import { migrateRenameRtc } from '@/admin/migration-rtc-rename'
+
+export const migrate = () => {
+  // migrateRenameRtc()
+}
 </script>

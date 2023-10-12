@@ -14,21 +14,30 @@ export type Segment = {
 
 export type Visit = [Segment | null, Segment | null, Segment | null]
 
-export const GamePoints = {
-  '301': 301,
-  '501': 501,
-  '701': 701,
-  'Round the Clock': 20,
-} as const satisfies Record<GameType, number>
+export const getGamePoints = (game: Game | Leg) => {
+  switch (game.type) {
+    case 'rtc':
+      return 20
+    case 'x01':
+      return getTypeAttribute<number>(game, 'startScore', NaN)
+  }
+}
 
-export const GameDisplayNames = {
-  '301': '301',
-  '501': '501',
-  '701': '701',
-  'Round the Clock': 'Round the Clock',
+export const GameTypeNames = {
+  x01: 'X01',
+  rtc: 'Round the Clock',
 } as const satisfies Record<GameType, string>
 
-export type GameType = '301' | '501' | '701' | 'Round the Clock'
+export const getGameDisplayName = (game: Game) => {
+  switch (game.type) {
+    case 'rtc':
+      return 'Round the Clock'
+    case 'x01':
+      return getTypeAttribute<number>(game, 'startScore', NaN).toString()
+  }
+}
+
+export type GameType = 'x01' | 'rtc'
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
 export type Leg = Omit<

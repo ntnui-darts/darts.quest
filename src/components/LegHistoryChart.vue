@@ -6,7 +6,7 @@
 import { watch, ref, onMounted } from 'vue'
 import { Chart } from 'chart.js'
 import 'chartjs-adapter-date-fns'
-import { GameType, Leg } from '@/types/game'
+import { Leg, getTypeAttribute } from '@/types/game'
 
 const props = defineProps<{
   legs: Leg[]
@@ -17,18 +17,18 @@ const props = defineProps<{
 const chartElement = ref<HTMLCanvasElement | null>(null)
 let chart: Chart<any> | null = null
 
-const legsOfType = (type: GameType, finishType: 1 | 2 | 3) => {
+const legsOfType = (startScore: 301 | 501 | 701, finishType: 1 | 2 | 3) => {
   return props.legs.filter(
     (leg) =>
       leg.finish &&
-      leg.type == type &&
+      getTypeAttribute<number>(leg, 'startScore', NaN) == startScore &&
       leg.typeAttributes.includes(`finish:${finishType}`)
   )
 }
 
 const getDatasetsGroupedByType = () => {
   const datasets = []
-  for (const type of ['301', '501', '701'] as const) {
+  for (const type of [301, 501, 701] as const) {
     for (const [finishType, finishTypeText] of [
       [1, 'Single'],
       [2, 'Double'],

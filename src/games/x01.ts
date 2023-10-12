@@ -1,8 +1,6 @@
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
-  GameType,
-  GamePoints,
   Segment,
   Visit,
   Game,
@@ -11,6 +9,8 @@ import {
   multiplierToString,
   Multiplier,
   getTypeAttribute,
+  getGamePoints,
+  Leg,
 } from '@/types/game'
 
 export const getX01Controller = (game: Game): GameController => {
@@ -18,30 +18,22 @@ export const getX01Controller = (game: Game): GameController => {
   return {
     game,
     getCurrentLegScore() {
-      return getLegScore(
-        getVisitsOfUser(game, gameStore.userId),
-        game.type,
-        getTypeAttribute<1 | 2 | 3>(game, 'finish', 1)
-      )
+      return getLegScore(getVisitsOfUser(game, gameStore.userId), game)
     },
     getUserResultText(userId) {
       const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
       const visits = game.legs.find((leg) => leg.userId == userId)?.visits
       const avg = getAvgVisitScore(
         game.legs.find((leg) => leg.userId == userId)?.visits ?? [],
-        game.type,
-        getTypeAttribute<1 | 2 | 3>(game, 'finish', 1),
+        game,
         true
       ).toFixed(1)
       return `${name}, ${visits} visits, ${avg} average`
     },
     getUserDisplayText(userId) {
-      const finishType = getTypeAttribute<1 | 2 | 3>(game, 'finish', 1)
       const visits = getVisitsOfUser(game, userId)
-      const rest =
-        (GamePoints[game.type] ?? 0) -
-        getLegScore(visits, game.type, finishType)
-      const avg = getAvgVisitScore(visits, game.type, finishType).toFixed(1)
+      const rest = getGamePoints(game) - getLegScore(visits, game)
+      const avg = getAvgVisitScore(visits, game).toFixed(1)
       return `${rest} (${avg})`
     },
     getSegmentText(segment) {
@@ -61,22 +53,23 @@ export const getX01Controller = (game: Game): GameController => {
 
 const getLegScore = (
   visits: Visit[],
-  gameType: GameType,
-  finishType: 1 | 2 | 3,
+  game: Game | Leg,
   includeUnfinished = true
 ) => {
   let score = 0
+  const points = getGamePoints(game)
+  const finishType = getTypeAttribute(game, 'finish', 1)
   visits?.forEach((v) => {
     const visitScore = getVisitScore(v, includeUnfinished)
-    if (score + visitScore == GamePoints[gameType]) {
+    if (score + visitScore == points) {
       if (
         finishType == 1 ||
         (v.findLast((s) => s != null)?.multiplier ?? 0) == finishType
       ) {
         score += visitScore
       }
-    } else if (score + visitScore < GamePoints[gameType]) {
-      const rest = GamePoints[gameType] - score - visitScore
+    } else if (score + visitScore < points) {
+      const rest = points - score - visitScore
       if (rest >= finishType) {
         score += visitScore
       }
@@ -87,8 +80,7 @@ const getLegScore = (
 
 const getAvgVisitScore = (
   visits: Visit[] | null,
-  gameType: GameType,
-  finishType: 1 | 2 | 3,
+  game: Game | Leg,
   includeUnfinished = false
 ) => {
   if (!visits || visits.length == 0) return 0
@@ -96,17 +88,13 @@ const getAvgVisitScore = (
     ? visits.length
     : visits.filter((visit) => !visit.includes(null)).length
   if (!count) return 0
-  return getLegScore(visits, gameType, finishType, includeUnfinished) / count
+  return getLegScore(visits, game, includeUnfinished) / count
 }
 
-export const getFirst9Avg = (
-  visits: Visit[] | null,
-  gameType: GameType,
-  finishType: 1 | 2 | 3
-) => {
+export const getFirst9Avg = (visits: Visit[] | null, game: Game | Leg) => {
   if (!visits) return 0
   const first9 = visits.slice(0, 3)
-  return getAvgVisitScore(first9, gameType, finishType)
+  return getAvgVisitScore(first9, game)
 }
 
 const getVisitScore = (visit: Visit, includeUnfinished = true) => {
