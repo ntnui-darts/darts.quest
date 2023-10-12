@@ -101,18 +101,21 @@ export interface Database {
       statistics: {
         Row: {
           maxRtcStreak: number
+          maxX01VisitScore: number
           min301DoubleVisits: number | null
           minRtcVisits: number | null
           userId: string
         }
         Insert: {
           maxRtcStreak?: number
+          maxX01VisitScore?: number
           min301DoubleVisits?: number | null
           minRtcVisits?: number | null
           userId: string
         }
         Update: {
           maxRtcStreak?: number
+          maxX01VisitScore?: number
           min301DoubleVisits?: number | null
           minRtcVisits?: number | null
           userId?: string

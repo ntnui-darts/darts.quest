@@ -39,6 +39,23 @@
       </tr>
     </tbody>
   </table>
+
+  <h3>Max X01 Single Visit Score</h3>
+  <table>
+    <tbody>
+      <tr
+        v-for="userStat in sort(
+          statsStore.userStats,
+          'maxX01VisitScore',
+          0,
+          false
+        )"
+      >
+        <td>{{ useUsersStore().getUser(userStat.userId)?.name }}</td>
+        <td>{{ userStat.maxX01VisitScore }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script lang="ts" setup>

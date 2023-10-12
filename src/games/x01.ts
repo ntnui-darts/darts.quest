@@ -61,7 +61,7 @@ const getLegScore = (
   const points = getGamePoints(game)
   const finishType = getTypeAttribute(game, 'finish', 1)
   visits?.forEach((v) => {
-    const visitScore = getVisitScore(v, includeUnfinished)
+    const visitScore = getX01VisitScore(v, includeUnfinished)
     if (score + visitScore == points) {
       if (
         finishType == 1 ||
@@ -98,7 +98,7 @@ export const getFirst9Avg = (visits: Visit[] | null, game: Game | Leg) => {
   return getAvgVisitScore(first9, game)
 }
 
-const getVisitScore = (visit: Visit, includeUnfinished = true) => {
+export const getX01VisitScore = (visit: Visit, includeUnfinished = true) => {
   if (!includeUnfinished && visit.includes(null)) return 0
   return visit.reduce((prev, current) => prev + getSegmentScore(current), 0)
 }
