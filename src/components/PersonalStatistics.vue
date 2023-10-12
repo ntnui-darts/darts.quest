@@ -110,7 +110,7 @@ const addDays = (date: Date, days: number) => {
 }
 
 const setLastDays = (days: 7 | 30 | 365) => {
-  endDate.value = toYyyyMmDd(new Date())
+  endDate.value = toYyyyMmDd(addDays(new Date(), 1))
   startDate.value = toYyyyMmDd(addDays(new Date(), -days))
   selected.value = days
 }
