@@ -1,5 +1,5 @@
 <template>
-  <h4 style="margin: 0">Finish</h4>
+  <h4 style="margin: 0">Start Score</h4>
   <div class="row">
     <button
       v-for="t in ([301, 501, 701] as const)"
@@ -14,6 +14,7 @@
       {{ t }}
     </button>
   </div>
+  <h4 style="margin: 0">Finish</h4>
   <div class="row">
     <button
       v-for="t in ([1, 2, 3] as const)"
