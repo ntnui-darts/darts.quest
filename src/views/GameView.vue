@@ -59,6 +59,7 @@ import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 import DartboardChart from '@/components/DartboardChart.vue'
 import Youtube from '@/components/Youtube.vue'
+import Prompt from '@/components/Prompt.vue'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
@@ -80,8 +81,24 @@ onMounted(() => {
 })
 
 const quit = () => {
-  localStorage.removeItem('data')
-  router.push('/')
+  useModalStore().push(
+    Prompt,
+    {
+      text: 'Are you sure that you want to exit the current game?',
+      buttons: [
+        { text: 'No', onClick: () => useModalStore().pop() },
+        {
+          text: 'Yes',
+          onClick: () => {
+            localStorage.removeItem('data')
+            useModalStore().pop()
+            router.push('/')
+          },
+        },
+      ],
+    },
+    {}
+  )
 }
 
 const saveGame = async () => {
