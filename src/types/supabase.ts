@@ -100,15 +100,21 @@ export interface Database {
       }
       statistics: {
         Row: {
-          rtcStreak: number
+          maxRtcStreak: number
+          min301DoubleVisits: number | null
+          minRtcVisits: number | null
           userId: string
         }
         Insert: {
-          rtcStreak?: number
+          maxRtcStreak?: number
+          min301DoubleVisits?: number | null
+          minRtcVisits?: number | null
           userId: string
         }
         Update: {
-          rtcStreak?: number
+          maxRtcStreak?: number
+          min301DoubleVisits?: number | null
+          minRtcVisits?: number | null
           userId?: string
         }
         Relationships: [

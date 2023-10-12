@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { supabase } from '@/supabase'
-import { DbGame, Leg } from '@/types/game'
+import { DbGame, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 
@@ -17,7 +17,7 @@ export const useStatsStore = defineStore('stats', {
     async fetchAll() {
       await this.fetchGames()
       await this.fetchLegs()
-      await this.refreshPersonalStats()
+      await this.recalculatePersonalStats()
       await this.fetchUserStats()
     },
     async fetchLegs() {
@@ -51,35 +51,51 @@ export const useStatsStore = defineStore('stats', {
         this.userStats = userStats.data
       }
     },
-    async refreshPersonalStats() {
+    async recalculatePersonalStats() {
       const userId = useAuthStore().auth?.id
       if (!userId) throw Error()
-      let longestRtcStreak = 0
-      this.legs.forEach((leg) => {
-        if (leg.type != 'rtc') return
-        let currentRtcStreak = 0
-        leg.visits.flat().forEach((s) => {
-          if (s != null && s.sector != 0) {
-            currentRtcStreak += 1
-            longestRtcStreak = Math.max(longestRtcStreak, currentRtcStreak)
-          } else {
-            currentRtcStreak = 0
+      let maxRtcStreak = 0
+      let minRtcVisits = null as number | null
+      let min301DoubleVisits = null as number | null
+      this.legs
+        .filter((leg) => leg.finish)
+        .forEach((leg) => {
+          switch (leg.type) {
+            case 'rtc':
+              minRtcVisits = Math.min(
+                minRtcVisits ?? Infinity,
+                leg.visits.length
+              )
+              let currentRtcStreak = 0
+              leg.visits.flat().forEach((s) => {
+                if (s != null && s.sector != 0) {
+                  currentRtcStreak += 1
+                  maxRtcStreak = Math.max(maxRtcStreak, currentRtcStreak)
+                } else {
+                  currentRtcStreak = 0
+                }
+              })
+              break
+            case 'x01':
+              const finish = getTypeAttribute<number>(leg, 'finish', 1)
+              if (finish == 2) {
+                min301DoubleVisits = Math.min(
+                  min301DoubleVisits ?? Infinity,
+                  leg.visits.length
+                )
+                if (leg.visits.length == min301DoubleVisits) console.log(leg)
+              }
           }
         })
-      })
-      const userStat = await supabase
+      const userStat = { maxRtcStreak, minRtcVisits, min301DoubleVisits }
+      const userStatPrev = await supabase
         .from('statistics')
         .select('*')
         .eq('userId', userId)
-      if (!userStat.data?.length) {
-        await supabase
-          .from('statistics')
-          .insert({ userId, rtcStreak: longestRtcStreak })
+      if (!userStatPrev.data?.length) {
+        await supabase.from('statistics').insert({ userId, ...userStat })
       } else {
-        await supabase
-          .from('statistics')
-          .update({ rtcStreak: longestRtcStreak })
-          .eq('userId', userId)
+        await supabase.from('statistics').update(userStat).eq('userId', userId)
       }
     },
   },

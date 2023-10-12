@@ -3,12 +3,16 @@
   <table>
     <thead>
       <th>User</th>
-      <th>RTC Streak</th>
+      <th>Min 301-Double Visits</th>
+      <th>Max RTC Streak</th>
+      <th>Min RTC Visits</th>
     </thead>
     <tbody>
       <tr v-for="userStat in statsStore.userStats">
         <td>{{ useUsersStore().getUser(userStat.userId)?.name }}</td>
-        <td>{{ userStat.rtcStreak }}</td>
+        <td>{{ userStat.min301DoubleVisits }}</td>
+        <td>{{ userStat.maxRtcStreak }}</td>
+        <td>{{ userStat.minRtcVisits }}</td>
       </tr>
     </tbody>
   </table>
