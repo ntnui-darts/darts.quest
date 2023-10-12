@@ -63,7 +63,13 @@ const buildChart = async () => {
           })),
         },
       ]
-  chart?.destroy()
+
+  if (chart) {
+    chart.data.datasets = datasets
+    chart.update()
+    return
+  }
+
   chart = new Chart(chartElement.value, {
     type: 'line',
     data: {

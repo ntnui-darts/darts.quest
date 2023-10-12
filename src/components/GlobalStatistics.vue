@@ -1,72 +1,55 @@
 <template>
   <br />
-  <h3>Min 301-Double Visits</h3>
-  <table>
-    <tbody>
-      <tr
-        v-for="userStat in sort(
-          statsStore.userStats,
-          'min301DoubleVisits',
-          Infinity
-        )"
-      >
-        <td>{{ useUsersStore().getUser(userStat.userId)?.name }}</td>
-        <td>{{ userStat.min301DoubleVisits }}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h3>Min RTC Visits</h3>
-  <table>
-    <tbody>
-      <tr
-        v-for="userStat in sort(statsStore.userStats, 'minRtcVisits', Infinity)"
-      >
-        <td>{{ useUsersStore().getUser(userStat.userId)?.name }}</td>
-        <td>{{ userStat.minRtcVisits }}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h3>Max RTC Streak</h3>
-  <table>
-    <tbody>
-      <tr
-        v-for="userStat in sort(statsStore.userStats, 'maxRtcStreak', 0, false)"
-      >
-        <td>{{ useUsersStore().getUser(userStat.userId)?.name }}</td>
-        <td>{{ userStat.maxRtcStreak }}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h3>Max X01 Single Visit Score</h3>
-  <table>
-    <tbody>
-      <tr
-        v-for="userStat in sort(
-          statsStore.userStats,
-          'maxX01VisitScore',
-          0,
-          false
-        )"
-      >
-        <td>{{ useUsersStore().getUser(userStat.userId)?.name }}</td>
-        <td>{{ userStat.maxX01VisitScore }}</td>
-      </tr>
-    </tbody>
-  </table>
-
+  <div v-for="stat in stats" class="col">
+    <h3>{{ stat.text }}</h3>
+    <table>
+      <tbody>
+        <tr v-for="(userStat, i) in stat.userStats">
+          <td>
+            {{ i + 1 }}. {{ useUsersStore().getUser(userStat.userId)?.name }}
+          </td>
+          <td style="text-align: end">{{ userStat[stat.key] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <br />
   <br />
   <br />
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { useStatsStore, UserStat } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 
 const statsStore = useStatsStore()
+
+const stats = computed(
+  () =>
+    [
+      {
+        key: 'min301DoubleVisits',
+        text: 'Min 301-Double Visits',
+        userStats: sort(statsStore.userStats, 'min301DoubleVisits', Infinity),
+      },
+      {
+        key: 'minRtcVisits',
+        text: 'Min RTC Visits',
+        userStats: sort(statsStore.userStats, 'minRtcVisits', Infinity),
+      },
+      {
+        key: 'maxRtcStreak',
+        text: 'Max RTC Streak',
+        userStats: sort(statsStore.userStats, 'maxRtcStreak', 0, false),
+      },
+      {
+        key: 'maxX01VisitScore',
+        text: 'Max X01 Single Visit Score',
+        userStats: sort(statsStore.userStats, 'maxX01VisitScore', 0, false),
+      },
+    ] satisfies { key: keyof UserStat; text: string; userStats: UserStat[] }[]
+)
 
 const sort = (
   userStats: UserStat[],

@@ -32,7 +32,7 @@ const emit = defineEmits<{
 }>()
 </script>
 
-<style>
+<style scoped>
 input {
   min-width: 250px;
 }

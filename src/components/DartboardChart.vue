@@ -61,7 +61,15 @@ const buildChart = () => {
       },
     ],
   }
-  chart?.destroy()
+
+  chartElement.value.style.transform = 'rotate(-9deg)'
+
+  if (chart) {
+    chart.data.datasets = data.datasets
+    chart.update()
+    return
+  }
+
   chart = new Chart(chartElement.value, {
     type: 'polarArea',
     data: data,
@@ -73,7 +81,7 @@ const buildChart = () => {
       layout: { padding: 0 },
     },
   })
-  chartElement.value.style.transform = 'rotate(-9deg)'
+
   if (props.width && props.height) {
     chart.resize(props.width, props.height)
   }
