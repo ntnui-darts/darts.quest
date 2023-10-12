@@ -5,7 +5,7 @@ const GameView = () => import('@/views/GameView.vue')
 const HomeView = () => import('@/views/HomeView.vue')
 const LoginView = () => import('@/views/LoginView.vue')
 const UserView = () => import('@/views/UserView.vue')
-const StatsView = () => import('@/views/StatsView.vue')
+const StatisticsView = () => import('@/views/StatisticsView.vue')
 const AdminView = () => import('@/views/AdminView.vue')
 
 const routes: Readonly<RouteRecordRaw[]> = [
@@ -14,7 +14,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
   { path: '/game', name: 'game', component: GameView },
   { path: '/login', name: 'login', component: LoginView },
   { path: '/user', name: 'user', component: UserView },
-  { path: '/stats', name: 'stats', component: StatsView },
+  { path: '/statistics', name: 'statistics', component: StatisticsView },
   { path: '/admin', name: 'admin', component: AdminView },
   { path: '/:pathMatch(.*)*', name: 'not-found', redirect: '/' },
 ]

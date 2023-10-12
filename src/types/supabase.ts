@@ -98,6 +98,28 @@ export interface Database {
           }
         ]
       }
+      statistics: {
+        Row: {
+          rtcStreak: number
+          userId: string
+        }
+        Insert: {
+          rtcStreak?: number
+          userId: string
+        }
+        Update: {
+          rtcStreak?: number
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistics_userId_fkey"
+            columns: ["userId"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       users: {
         Row: {
           created_at: string

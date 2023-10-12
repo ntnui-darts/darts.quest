@@ -177,8 +177,7 @@ export const useGameStore = defineStore('game', {
         legs: this.game.legs.map((leg) => leg.id),
         type: this.game.type.toString(),
       })
-      useStatsStore().fetchLegs()
-      useStatsStore().fetchGames()
+      useStatsStore().fetchAll()
     },
     saveToLocalStorage() {
       localStorage.setItem('data', JSON.stringify(this.game))

@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <button @click="router.push({ name: 'user' })">My Profile</button>
-    <button @click="router.push({ name: 'stats' })">My Stats</button>
+    <button @click="router.push({ name: 'statistics' })">Statistics</button>
   </div>
   <h2>Select Game Type</h2>
   <div class="row">

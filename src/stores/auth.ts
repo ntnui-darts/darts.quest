@@ -6,11 +6,10 @@ import { useStatsStore } from './stats'
 
 supabase.auth.onAuthStateChange(async (_, session) => {
   const user = session?.user
-  useAuthStore().auth = user
-  if (user) {
+  if (user && useAuthStore().auth?.id != user?.id) {
+    useAuthStore().auth = user
     useUsersStore().fetchUsers()
-    useStatsStore().fetchLegs()
-    useStatsStore().fetchGames()
+    useStatsStore().fetchAll()
   }
 })
 
