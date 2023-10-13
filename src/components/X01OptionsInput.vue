@@ -1,6 +1,6 @@
 <template>
   <h4 style="margin: 0">Start Score</h4>
-  <div class="row">
+  <div class="row options">
     <button
       v-for="t in ([301, 501, 701] as const)"
       :class="{ selected: t == startScore }"
@@ -15,7 +15,7 @@
     </button>
   </div>
   <h4 style="margin: 0">Finish</h4>
-  <div class="row">
+  <div class="row options">
     <button
       v-for="t in ([1, 2, 3] as const)"
       :class="{ selected: t == finish }"

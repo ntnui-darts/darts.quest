@@ -5,13 +5,15 @@
       v-for="user in selectedUsers"
       :key="user.id"
       :id="user.id"
-      class="selected"
       @click="toggleUser(user)"
     >
       {{ user.name }}
     </button>
+    <div class="row">
+      <div style="flex: 2"></div>
+      <button style="flex: 1" @click="searchForPlayer">+ Add Player</button>
+    </div>
   </div>
-  <button @click="searchForPlayer">+ Add Player</button>
 </template>
 
 <script lang="ts" setup>

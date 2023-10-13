@@ -4,24 +4,40 @@
     <button @click="router.push({ name: 'statistics' })">Statistics</button>
   </div>
   <h2>Select Game Type</h2>
-  <div class="row">
-    <button
-      v-for="(name, type) in GameTypeNames"
-      :class="{ selected: type == gameType }"
-      @click="selectGameType(type)"
-    >
-      {{ name }}
-    </button>
+
+  <div
+    class="col"
+    style="gap: 0; background-color: rgb(43, 43, 43); border-radius: 0.5em"
+  >
+    <div class="row options">
+      <button
+        v-for="(name, type) in GameTypeNames"
+        :class="{ selected: type == gameType }"
+        style="font-size: larger"
+        @click="selectGameType(type)"
+      >
+        {{ name }}
+      </button>
+    </div>
+    <div v-auto-animate class="col" style="padding: 1em">
+      <component
+        v-if="getOptionsComponent(gameType)"
+        :is="getOptionsComponent(gameType)"
+        :key="gameType"
+        @update="typeAttributes = $event"
+      ></component>
+    </div>
   </div>
-  <component
-    :is="getOptionsComponent(gameType)"
-    @update="typeAttributes = $event"
-  ></component>
   <PlayerSelection @update="players = $event"></PlayerSelection>
   <br />
   <button
-    :class="{ selected: players.length > 0 }"
+    :class="{ primary: players.length > 0 }"
     :disabled="players.length == 0"
+    style="
+      position: sticky;
+      bottom: 2em;
+      box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.2);
+    "
     @click="onPlay"
   >
     Play
@@ -83,6 +99,7 @@ const selectGameType = (type: GameType) => {
 
 const onPlay = () => {
   if (players.value.length == 0) return
+  if (!gameType.value) return
   if (!usersStore.getCurrentUser) return
   const gameId = nanoid()
 
@@ -103,7 +120,7 @@ const onPlay = () => {
           confirmed: false,
           gameId: gameId,
           typeAttributes: typeAttributes.value,
-          type: gameType.value,
+          type: gameType.value!,
           beers: player.beers ?? null,
           finish: false,
           createdAt: new Date().toISOString(),
@@ -113,3 +130,5 @@ const onPlay = () => {
   router.push({ name: 'game' })
 }
 </script>
+
+<style></style>

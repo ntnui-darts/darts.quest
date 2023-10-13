@@ -8,7 +8,7 @@
       </p>
     </div>
   </div>
-  <div class="row" style="position: sticky; top: 1em; z-index: 10">
+  <div class="row options" style="position: sticky; top: 1em; z-index: 10">
     <button
       v-for="days in ([7, 30, 365] as const)"
       @click="setLastDays(days)"
@@ -80,14 +80,16 @@
     "
     :group-by-type="false"
   ></LegHistoryChart>
-  <h3>History</h3>
+  <br />
+  <br />
+  <!-- <h3>History</h3>
   <div v-for="leg in legs.toReversed()">
     <LegStats :leg="leg"></LegStats>
-  </div>
+  </div> -->
 </template>
 
 <script lang="ts" setup>
-import LegStats from '@/components/LegStats.vue'
+// import LegStats from '@/components/LegStats.vue'
 import DartboardChart from '@/components/DartboardChart.vue'
 import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { useStatsStore } from '@/stores/stats'

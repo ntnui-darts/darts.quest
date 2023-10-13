@@ -26,7 +26,7 @@
     <button v-if="changed" id="discard" @click="discardChanges">
       Discard Changes
     </button>
-    <button v-if="changed" id="save" class="selected" @click="saveChanges">
+    <button v-if="changed" id="save" class="primary" @click="saveChanges">
       Save Changes
     </button>
   </div>

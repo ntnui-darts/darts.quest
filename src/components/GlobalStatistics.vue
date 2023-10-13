@@ -1,7 +1,7 @@
 <template>
   <br />
   <h2>Game Type</h2>
-  <div class="row">
+  <div class="row options">
     <button
       v-for="(name, type) in GameTypeNames"
       :class="{ selected: gameType == type }"

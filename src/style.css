@@ -1,4 +1,5 @@
 :root {
+  --c-green-light: rgb(108, 255, 164);
   --c-green: rgb(19, 221, 97);
   --c-background: #242424;
 
@@ -23,6 +24,15 @@ body {
   position: relative;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 0;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -35,15 +45,26 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
-  border-color: var(--c-green);
-}
 button.selected {
-  background-color: var(--c-green);
-  color: black;
+  background-color: var(--c-green) !important;
+  color: black !important;
 }
 button:disabled {
   color: rgba(255, 255, 255, 0.4);
+}
+button.primary {
+  background-color: var(--c-green) !important;
+  color: black !important;
+}
+
+.options {
+  border-radius: 0.5em;
+  gap: 4px !important;
+  overflow: hidden;
+}
+.options button {
+  border-radius: 0;
+  color: white;
 }
 
 .col {

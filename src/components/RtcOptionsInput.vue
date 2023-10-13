@@ -1,6 +1,6 @@
 <template>
   <h4 style="margin: 0">Mode</h4>
-  <div class="row">
+  <div class="row options">
     <button
       v-for="t in ([1, 2, 3] as const)"
       :class="{ selected: t == mode }"

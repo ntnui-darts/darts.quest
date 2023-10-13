@@ -41,7 +41,7 @@
     />
     <p v-if="error" id="error">{{ error }}</p>
     <br />
-    <button :class="{ selected: checkForErrors().length == 0 }" @click="submit">
+    <button :class="{ primary: checkForErrors().length == 0 }" @click="submit">
       {{ signUp ? 'Sign Up' : 'Sign In' }}
     </button>
   </div>

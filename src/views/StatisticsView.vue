@@ -1,7 +1,7 @@
 <template>
   <button id="back" @click="router.push({ name: 'home' })">Back</button>
   <h1>Statistics</h1>
-  <div class="row">
+  <div class="row options">
     <button
       id="back"
       :class="{ selected: tab == 'personal' }"

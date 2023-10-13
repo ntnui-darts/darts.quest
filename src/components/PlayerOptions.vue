@@ -7,7 +7,7 @@
   <br />
   <div class="row">
     <button @click="emit('cancel')">{{ leftButtonText ?? 'Cancel' }}</button>
-    <button class="selected" @click="emit('submit', { beers, arrows })">
+    <button class="primary" @click="emit('submit', { beers, arrows })">
       {{ rightButtonText ?? 'Confirm' }}
     </button>
   </div>
