@@ -19,7 +19,7 @@ const loadingStore = useLoadingStore()
 
 onMounted(async () => {
   await useAuthStore().getSession()
-  if (!authStore.auth) {
+  if (!authStore.auth && router.currentRoute.value.name != 'password') {
     router.push({ name: 'login' })
   }
 })
