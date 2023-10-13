@@ -5,6 +5,7 @@ const GameView = () => import('@/views/GameView.vue')
 const HomeView = () => import('@/views/HomeView.vue')
 const LoginView = () => import('@/views/LoginView.vue')
 const UserView = () => import('@/views/UserView.vue')
+const PasswordView = () => import('@/views/PasswordView.vue')
 const StatisticsView = () => import('@/views/StatisticsView.vue')
 const AdminView = () => import('@/views/AdminView.vue')
 
@@ -14,9 +15,10 @@ const routes: Readonly<RouteRecordRaw[]> = [
   { path: '/game', name: 'game', component: GameView },
   { path: '/login', name: 'login', component: LoginView },
   { path: '/user', name: 'user', component: UserView },
+  { path: '/password', name: 'password', component: PasswordView },
   { path: '/statistics', name: 'statistics', component: StatisticsView },
   { path: '/admin', name: 'admin', component: AdminView },
-  { path: '/:pathMatch(.*)*', name: 'not-found', redirect: '/' },
+  // { path: '/:pathMatch(.*)*', name: 'not-found', redirect: '/' },
 ]
 
 export const router = createRouter({
@@ -34,7 +36,7 @@ router.beforeEach(async (to) => {
     })
     if ('access_token' in jwt && 'refresh_token' in jwt) {
       supabase.auth.setSession(jwt)
-      return { name: 'home' }
+      // return { name: 'home' }
     }
   }
 })

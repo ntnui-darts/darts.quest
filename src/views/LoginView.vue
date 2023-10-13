@@ -24,6 +24,13 @@
         }
       "
     />
+    <small
+      v-if="!signUp"
+      style="text-decoration: underline; cursor: pointer"
+      @click="forgotPassword"
+    >
+      Forgot your password?
+    </small>
     <label v-if="signUp" for="repeat-password">Repeat Password</label>
     <input
       v-if="signUp"
@@ -41,8 +48,10 @@
 </template>
 
 <script lang="ts" setup>
+import Prompt from '@/components/Prompt.vue'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
+import { useModalStore } from '@/stores/modal'
 import { ref, watch } from 'vue'
 
 const authStore = useAuthStore()
@@ -94,6 +103,27 @@ const submit = async () => {
   } catch {
     error.value = 'Oh no! Something went wrong :('
   }
+}
+
+const forgotPassword = async () => {
+  if (!email.value) {
+    error.value = 'Please include your email.'
+    return
+  }
+  await authStore.forgotPassword(email.value)
+  useModalStore().push(
+    Prompt,
+    {
+      text: `If you have previously registered an account with the email ${email.value}, you will receive a link to change your password within a few minutes.`,
+      buttons: [
+        {
+          text: 'Ok',
+          onClick: () => useModalStore().pop(),
+        },
+      ],
+    },
+    {}
+  )
 }
 
 watch(
