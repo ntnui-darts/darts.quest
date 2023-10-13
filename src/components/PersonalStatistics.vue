@@ -25,7 +25,7 @@
       style="flex: 1"
       @change="selected = 'other'"
     />
-    <span>🠆</span>
+    <span>→</span>
     <input
       id="endDate"
       type="date"
