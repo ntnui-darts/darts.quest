@@ -18,7 +18,9 @@
           <td>
             {{ i + 1 }}. {{ useUsersStore().getUser(userStat.userId)?.name }}
           </td>
-          <td style="text-align: end">{{ userStat[stat.key]?.toFixed(1) }}</td>
+          <td style="text-align: end">
+            {{ Math.round((userStat[stat.key] ?? 0) * 10) / 10 }}
+          </td>
         </tr>
       </tbody>
     </table>
