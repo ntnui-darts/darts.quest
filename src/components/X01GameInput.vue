@@ -38,7 +38,7 @@
     >
       25
     </button>
-    <button @click="emit('undo')">&#10226;</button>
+    <button @click="emit('undo')">&#x232B;</button>
   </div>
 </template>
 
