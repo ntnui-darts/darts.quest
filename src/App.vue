@@ -1,6 +1,6 @@
 <template>
   <modal-view></modal-view>
-  <div v-auto-animate class="view-container col">
+  <div class="view-container col">
     <router-view></router-view>
   </div>
   <div v-if="loadingStore.loading" class="loading"></div>

@@ -10,7 +10,20 @@
       {{ name }}
     </button>
   </div>
-  <div v-for="stat in stats[gameType]" class="col">
+  <div v-if="gameType == 'x01'" class="row options">
+    <button
+      v-for="option in (['General', '301 Double', '501 Double'] as const)"
+      :class="{ selected: subCategory == option }"
+      @click="subCategory = option"
+    >
+      {{ option }}
+    </button>
+  </div>
+  <div
+    v-for="stat in getStats(gameType, subCategory)"
+    class="col"
+    :key="stat.key"
+  >
     <h3>{{ stat.text }}</h3>
     <table>
       <tbody>
@@ -19,7 +32,7 @@
             {{ i + 1 }}. {{ useUsersStore().getUser(userStat.userId)?.name }}
           </td>
           <td style="text-align: end">
-            {{ Math.round((userStat[stat.key] ?? 0) * 10) / 10 }}
+            {{ Math.round((userStat[stat.key] ?? 0) * 100) / 100 }}
           </td>
         </tr>
       </tbody>
@@ -34,81 +47,126 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useStatsStore, UserStat } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import { GameType, GameTypeNames } from '@/types/game'
 
 const statsStore = useStatsStore()
 
+type SubCategory = 'General' | '301 Double' | '501 Double'
 const gameType = ref<GameType>('x01')
+const subCategory = ref<SubCategory>('General')
 
-const stats = computed(
-  () =>
-    ({
-      x01: [
+const getStats = (
+  gameType: GameType,
+  subCategory: SubCategory
+): {
+  key: keyof Omit<UserStat, 'userId'>
+  text: string
+  userStats: UserStat[]
+}[] => {
+  switch (gameType) {
+    case 'x01':
+      switch (subCategory) {
+        case 'General':
+          return [
+            {
+              key: 'numX01Games',
+              text: 'Number of Games',
+              userStats: sort(statsStore.userStats, 'numX01Games', 0, false),
+            },
+            {
+              key: 'maxX01First9Avg',
+              text: 'Highest First 9 Average',
+              userStats: sort(
+                statsStore.userStats,
+                'maxX01First9Avg',
+                0,
+                false
+              ),
+            },
+            {
+              key: 'maxX01DoubleCheckout',
+              text: 'Highest Double Checkout',
+              userStats: sort(
+                statsStore.userStats,
+                'maxX01DoubleCheckout',
+                0,
+                false
+              ),
+            },
+            {
+              key: 'maxX01VisitScore',
+              text: 'Highest Single Visit Score',
+              userStats: sort(
+                statsStore.userStats,
+                'maxX01VisitScore',
+                0,
+                false
+              ),
+            },
+          ]
+        case '301 Double':
+          return [
+            {
+              key: 'avg301DoubleVisitsLast10',
+              text: 'Average # Visits Last 10 Games',
+              userStats: sort(
+                statsStore.userStats,
+                'avg301DoubleVisitsLast10',
+                Infinity
+              ),
+            },
+            {
+              key: 'min301DoubleVisits',
+              text: 'Fastest [# Visits]',
+              userStats: sort(
+                statsStore.userStats,
+                'min301DoubleVisits',
+                Infinity
+              ),
+            },
+          ]
+        case '501 Double':
+          return [
+            {
+              key: 'avg501DoubleVisitsLast10',
+              text: 'Average # Visits Last 10 Games',
+              userStats: sort(
+                statsStore.userStats,
+                'avg501DoubleVisitsLast10',
+                Infinity
+              ),
+            },
+            {
+              key: 'min501DoubleVisits',
+              text: 'Fastest [# Visits]',
+              userStats: sort(
+                statsStore.userStats,
+                'min501DoubleVisits',
+                Infinity
+              ),
+            },
+            {
+              key: 'max501DoubleVisits',
+              text: 'Slowest [# Visits]',
+              userStats: sort(
+                statsStore.userStats,
+                'max501DoubleVisits',
+                0,
+                false
+              ),
+            },
+          ]
+      }
+    case 'rtc':
+      return [
         {
-          key: 'numX01Games',
-          text: 'Number of X01 Games',
-          userStats: sort(statsStore.userStats, 'numX01Games', 0, false),
+          key: 'numRtcGames',
+          text: 'Number of Games',
+          userStats: sort(statsStore.userStats, 'numRtcGames', 0, false),
         },
-        {
-          key: 'avg501DoubleVisitsLast10',
-          text: 'Average 501 Double Finish Visits Last 10 Games',
-          userStats: sort(
-            statsStore.userStats,
-            'avg501DoubleVisitsLast10',
-            0,
-            false
-          ),
-        },
-        {
-          key: 'avg301DoubleVisitsLast10',
-          text: 'Average 301 Double Finish Visits Last 10 Games',
-          userStats: sort(
-            statsStore.userStats,
-            'avg301DoubleVisitsLast10',
-            0,
-            false
-          ),
-        },
-        {
-          key: 'min501DoubleVisits',
-          text: 'Fastest 501 Double Finish',
-          userStats: sort(statsStore.userStats, 'min501DoubleVisits', Infinity),
-        },
-        {
-          key: 'max501DoubleVisits',
-          text: 'Slowest 501 Double Finish',
-          userStats: sort(statsStore.userStats, 'max501DoubleVisits', 0, false),
-        },
-        {
-          key: 'min301DoubleVisits',
-          text: 'Fastest 301 Double Finish',
-          userStats: sort(statsStore.userStats, 'min301DoubleVisits', Infinity),
-        },
-        {
-          key: 'maxX01First9Avg',
-          text: 'Highest X01 First 9 Average',
-          userStats: sort(statsStore.userStats, 'maxX01First9Avg', 0, false),
-        },
-        {
-          key: 'maxX01DoubleCheckout',
-          text: 'Highest X01 Double Checkout',
-          userStats: sort(
-            statsStore.userStats,
-            'maxX01DoubleCheckout',
-            0,
-            false
-          ),
-        },
-        {
-          key: 'maxX01VisitScore',
-          text: 'Highest X01 Single Visit Score',
-          userStats: sort(statsStore.userStats, 'maxX01VisitScore', 0, false),
-        },
-      ],
-      rtc: [
         {
           key: 'avgRtcHitRateLast10',
           text: 'Average Hit Rate Last 10 Games',
@@ -120,11 +178,6 @@ const stats = computed(
           ),
         },
         {
-          key: 'numRtcGames',
-          text: 'Number of RTC Games',
-          userStats: sort(statsStore.userStats, 'numRtcGames', 0, false),
-        },
-        {
           key: 'minRtcVisits',
           text: 'Fewest Visits',
           userStats: sort(statsStore.userStats, 'minRtcVisits', Infinity),
@@ -134,12 +187,9 @@ const stats = computed(
           text: 'Longest Streak',
           userStats: sort(statsStore.userStats, 'maxRtcStreak', 0, false),
         },
-      ],
-    } satisfies Record<
-      GameType,
-      { key: keyof UserStat; text: string; userStats: UserStat[] }[]
-    >)
-)
+      ]
+  }
+}
 
 const sort = (
   userStats: UserStat[],
