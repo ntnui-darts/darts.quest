@@ -51,6 +51,7 @@
 import Prompt from '@/components/Prompt.vue'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
+import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
 import { ref, watch } from 'vue'
 
@@ -110,7 +111,9 @@ const forgotPassword = async () => {
     error.value = 'Please include your email.'
     return
   }
+  useLoadingStore().loading = true
   await authStore.forgotPassword(email.value)
+  useLoadingStore().loading = false
   useModalStore().push(
     Prompt,
     {

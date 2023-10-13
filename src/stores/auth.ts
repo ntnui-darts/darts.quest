@@ -37,10 +37,9 @@ export const useAuthStore = defineStore('auth', {
       await supabase.auth.updateUser({ password })
     },
     async forgotPassword(email: string) {
-      const result = await supabase.auth.resetPasswordForEmail(email, {
+      await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: 'https://darts.quest/#/password',
       })
-      console.log(result)
     },
     async setUserParams(user: Partial<User>) {
       if (!this.auth) throw Error()
