@@ -100,6 +100,7 @@ export interface Database {
       }
       statistics: {
         Row: {
+          max501DoubleVisits: number
           maxRtcStreak: number
           maxX01DoubleCheckout: number
           maxX01First9Avg: number
@@ -112,6 +113,7 @@ export interface Database {
           userId: string
         }
         Insert: {
+          max501DoubleVisits?: number
           maxRtcStreak?: number
           maxX01DoubleCheckout?: number
           maxX01First9Avg?: number
@@ -124,6 +126,7 @@ export interface Database {
           userId: string
         }
         Update: {
+          max501DoubleVisits?: number
           maxRtcStreak?: number
           maxX01DoubleCheckout?: number
           maxX01First9Avg?: number

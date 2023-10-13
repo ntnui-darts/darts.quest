@@ -64,6 +64,7 @@ export const useStatsStore = defineStore('stats', {
       let numRtcGames = 0
       let numX01Games = 0
       let maxX01DoubleCheckout = 0
+      let max501DoubleVisits = 0
       this.legs
         .filter((leg) => leg.finish)
         .forEach((leg) => {
@@ -101,6 +102,10 @@ export const useStatsStore = defineStore('stats', {
                   min501DoubleVisits ?? Infinity,
                   leg.visits.length
                 )
+                max501DoubleVisits = Math.max(
+                  max501DoubleVisits,
+                  leg.visits.length
+                )
               }
               const lastVisit = leg.visits.at(-1)
               if (lastVisit && leg.finish && finishType == 2) {
@@ -129,6 +134,7 @@ export const useStatsStore = defineStore('stats', {
         numRtcGames,
         numX01Games,
         maxX01DoubleCheckout,
+        max501DoubleVisits,
       }
       const userStatPrev = await supabase
         .from('statistics')
