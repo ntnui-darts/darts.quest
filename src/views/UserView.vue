@@ -1,5 +1,6 @@
 <template>
   <button id="back" @click="router.push({ name: 'home' })">Back</button>
+  <br />
   <label for="name">Display Name</label>
   <input
     id="name"
@@ -20,7 +21,17 @@
     type="number"
     @change="updateWalkOnTime"
   />
-  <button v-if="changed" id="save" @click="saveChanges">Save Changes</button>
+  <button @click="router.push({ name: 'password' })">Change Password</button>
+  <div class="row">
+    <button v-if="changed" id="discard" @click="discardChanges">
+      Discard Changes
+    </button>
+    <button v-if="changed" id="save" class="selected" @click="saveChanges">
+      Save Changes
+    </button>
+  </div>
+  <br />
+  <br />
   <button id="logout" @click="logout">Logout</button>
 </template>
 
@@ -57,6 +68,12 @@ const updateWalkOnTime = (e: Event) => {
 const saveChanges = () => {
   if (!usersStore.getCurrentUser) return
   authStore.setUserParams(usersStore.getCurrentUser)
+  changed.value = false
+}
+
+const discardChanges = async () => {
+  if (!usersStore.getCurrentUser) return
+  await useUsersStore().fetchUsers()
   changed.value = false
 }
 
