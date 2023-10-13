@@ -18,7 +18,6 @@
     </button>
   </div>
   <div class="row" style="align-items: center">
-    <label for="startDate">From</label>
     <input
       id="startDate"
       type="date"
@@ -26,7 +25,7 @@
       style="flex: 1"
       @change="selected = 'other'"
     />
-    <label for="endDate">To</label>
+    <span>🠆</span>
     <input
       id="endDate"
       type="date"
