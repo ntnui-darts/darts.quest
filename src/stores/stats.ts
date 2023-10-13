@@ -63,6 +63,7 @@ export const useStatsStore = defineStore('stats', {
       let maxX01First9Avg = 0
       let numRtcGames = 0
       let numX01Games = 0
+      let maxX01DoubleCheckout = 0
       this.legs
         .filter((leg) => leg.finish)
         .forEach((leg) => {
@@ -88,17 +89,24 @@ export const useStatsStore = defineStore('stats', {
             case 'x01':
               numX01Games += 1
               const startScore = getTypeAttribute<number>(leg, 'startScore', 0)
-              const finish = getTypeAttribute<number>(leg, 'finish', 1)
-              if (startScore == 301 && finish == 2) {
+              const finishType = getTypeAttribute<number>(leg, 'finish', 1)
+              if (startScore == 301 && finishType == 2) {
                 min301DoubleVisits = Math.min(
                   min301DoubleVisits ?? Infinity,
                   leg.visits.length
                 )
               }
-              if (startScore == 501 && finish == 2) {
+              if (startScore == 501 && finishType == 2) {
                 min501DoubleVisits = Math.min(
                   min501DoubleVisits ?? Infinity,
                   leg.visits.length
+                )
+              }
+              const lastVisit = leg.visits.at(-1)
+              if (lastVisit && leg.finish && finishType == 2) {
+                maxX01DoubleCheckout = Math.max(
+                  maxX01DoubleCheckout,
+                  getX01VisitScore(lastVisit)
                 )
               }
               maxX01VisitScore = Math.max(
@@ -120,6 +128,7 @@ export const useStatsStore = defineStore('stats', {
         maxX01First9Avg,
         numRtcGames,
         numX01Games,
+        maxX01DoubleCheckout,
       }
       const userStatPrev = await supabase
         .from('statistics')

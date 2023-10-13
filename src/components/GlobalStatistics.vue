@@ -18,7 +18,7 @@
           <td>
             {{ i + 1 }}. {{ useUsersStore().getUser(userStat.userId)?.name }}
           </td>
-          <td style="text-align: end">{{ userStat[stat.key] }}</td>
+          <td style="text-align: end">{{ userStat[stat.key]?.toFixed(1) }}</td>
         </tr>
       </tbody>
     </table>
@@ -59,6 +59,16 @@ const stats = computed(
           key: 'maxX01First9Avg',
           text: 'Highest X01 First 9 Average',
           userStats: sort(statsStore.userStats, 'maxX01First9Avg', 0, false),
+        },
+        {
+          key: 'maxX01DoubleCheckout',
+          text: 'Highest X01 Double Checkout',
+          userStats: sort(
+            statsStore.userStats,
+            'maxX01DoubleCheckout',
+            0,
+            false
+          ),
         },
         {
           key: 'maxX01VisitScore',
