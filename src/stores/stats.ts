@@ -4,6 +4,7 @@ import { DbGame, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
+import { sumNumbers } from '@/games/rtc'
 
 export type UserStat = Database['public']['Tables']['statistics']['Row']
 
@@ -65,65 +66,87 @@ export const useStatsStore = defineStore('stats', {
       let numX01Games = 0
       let maxX01DoubleCheckout = 0
       let max501DoubleVisits = 0
-      this.legs
-        .filter((leg) => leg.finish)
-        .forEach((leg) => {
-          switch (leg.type) {
-            case 'rtc':
-              numRtcGames += 1
-              const fastMode = getTypeAttribute<boolean>(leg, 'fast', false)
-              if (fastMode) return
-              minRtcVisits = Math.min(
-                minRtcVisits ?? Infinity,
+      let avgRtcHitRateLast10 = 0
+      let avg501DoubleVisitsLast10 = 0
+      let avg301DoubleVisitsLast10 = 0
+
+      const legs = this.legs.filter((leg) => leg.finish)
+      const rtcLegs = legs.filter((leg) => leg.type == 'rtc')
+      const rtcLegsLast10 = rtcLegs.slice(-10)
+      avgRtcHitRateLast10 =
+        sumNumbers(rtcLegsLast10.map((leg) => 20 / leg.visits.flat().length)) /
+        rtcLegsLast10.length
+      const x01DoubleLegs = legs.filter(
+        (leg) =>
+          leg.type == 'x01' && getTypeAttribute<number>(leg, 'finish', 1) == 2
+      )
+      const _501DoubleLegsLast10 = x01DoubleLegs
+        .filter((leg) => getTypeAttribute<number>(leg, 'startScore', 0) == 501)
+        .slice(-10)
+      avg501DoubleVisitsLast10 =
+        sumNumbers(_501DoubleLegsLast10.map((leg) => leg.visits.length)) /
+        _501DoubleLegsLast10.length
+      const _301DoubleLegsLast10 = x01DoubleLegs
+        .filter((leg) => getTypeAttribute<number>(leg, 'startScore', 0) == 301)
+        .slice(-10)
+      avg301DoubleVisitsLast10 =
+        sumNumbers(_301DoubleLegsLast10.map((leg) => leg.visits.length)) /
+        _301DoubleLegsLast10.length
+
+      legs.forEach((leg) => {
+        switch (leg.type) {
+          case 'rtc':
+            numRtcGames += 1
+            const fastMode = getTypeAttribute<boolean>(leg, 'fast', false)
+            if (fastMode) return
+            minRtcVisits = Math.min(minRtcVisits ?? Infinity, leg.visits.length)
+            let currentRtcStreak = 0
+            leg.visits.flat().forEach((s) => {
+              if (s != null && s.sector != 0) {
+                currentRtcStreak += 1
+                maxRtcStreak = Math.max(maxRtcStreak, currentRtcStreak)
+              } else {
+                currentRtcStreak = 0
+              }
+            })
+            break
+          case 'x01':
+            numX01Games += 1
+            const startScore = getTypeAttribute<number>(leg, 'startScore', 0)
+            const finishType = getTypeAttribute<number>(leg, 'finish', 1)
+            if (startScore == 301 && finishType == 2) {
+              min301DoubleVisits = Math.min(
+                min301DoubleVisits ?? Infinity,
                 leg.visits.length
               )
-              let currentRtcStreak = 0
-              leg.visits.flat().forEach((s) => {
-                if (s != null && s.sector != 0) {
-                  currentRtcStreak += 1
-                  maxRtcStreak = Math.max(maxRtcStreak, currentRtcStreak)
-                } else {
-                  currentRtcStreak = 0
-                }
-              })
-              break
-            case 'x01':
-              numX01Games += 1
-              const startScore = getTypeAttribute<number>(leg, 'startScore', 0)
-              const finishType = getTypeAttribute<number>(leg, 'finish', 1)
-              if (startScore == 301 && finishType == 2) {
-                min301DoubleVisits = Math.min(
-                  min301DoubleVisits ?? Infinity,
-                  leg.visits.length
-                )
-              }
-              if (startScore == 501 && finishType == 2) {
-                min501DoubleVisits = Math.min(
-                  min501DoubleVisits ?? Infinity,
-                  leg.visits.length
-                )
-                max501DoubleVisits = Math.max(
-                  max501DoubleVisits,
-                  leg.visits.length
-                )
-              }
-              const lastVisit = leg.visits.at(-1)
-              if (lastVisit && leg.finish && finishType == 2) {
-                maxX01DoubleCheckout = Math.max(
-                  maxX01DoubleCheckout,
-                  getX01VisitScore(lastVisit)
-                )
-              }
-              maxX01VisitScore = Math.max(
-                maxX01VisitScore,
-                ...leg.visits.map((v) => getX01VisitScore(v))
+            }
+            if (startScore == 501 && finishType == 2) {
+              min501DoubleVisits = Math.min(
+                min501DoubleVisits ?? Infinity,
+                leg.visits.length
               )
-              maxX01First9Avg = Math.max(
-                maxX01First9Avg,
-                getFirst9Avg(leg.visits, leg)
+              max501DoubleVisits = Math.max(
+                max501DoubleVisits,
+                leg.visits.length
               )
-          }
-        })
+            }
+            const lastVisit = leg.visits.at(-1)
+            if (lastVisit && finishType == 2) {
+              maxX01DoubleCheckout = Math.max(
+                maxX01DoubleCheckout,
+                getX01VisitScore(lastVisit)
+              )
+            }
+            maxX01VisitScore = Math.max(
+              maxX01VisitScore,
+              ...leg.visits.map((v) => getX01VisitScore(v))
+            )
+            maxX01First9Avg = Math.max(
+              maxX01First9Avg,
+              getFirst9Avg(leg.visits, leg)
+            )
+        }
+      })
       const userStat = {
         maxRtcStreak,
         minRtcVisits,
@@ -135,6 +158,9 @@ export const useStatsStore = defineStore('stats', {
         numX01Games,
         maxX01DoubleCheckout,
         max501DoubleVisits,
+        avgRtcHitRateLast10,
+        avg301DoubleVisitsLast10,
+        avg501DoubleVisitsLast10,
       }
       const userStatPrev = await supabase
         .from('statistics')

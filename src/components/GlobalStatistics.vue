@@ -48,9 +48,34 @@ const stats = computed(
     ({
       x01: [
         {
-          key: 'min301DoubleVisits',
-          text: 'Fastest 301 Double Finish',
-          userStats: sort(statsStore.userStats, 'min301DoubleVisits', Infinity),
+          key: 'numX01Games',
+          text: 'Number of X01 Games',
+          userStats: sort(statsStore.userStats, 'numX01Games', 0, false),
+        },
+        {
+          key: 'avg501DoubleVisitsLast10',
+          text: 'Average 501 Double Finish Visits Last 10 Games',
+          userStats: sort(
+            statsStore.userStats,
+            'avg501DoubleVisitsLast10',
+            0,
+            false
+          ),
+        },
+        {
+          key: 'avg301DoubleVisitsLast10',
+          text: 'Average 301 Double Finish Visits Last 10 Games',
+          userStats: sort(
+            statsStore.userStats,
+            'avg301DoubleVisitsLast10',
+            0,
+            false
+          ),
+        },
+        {
+          key: 'min501DoubleVisits',
+          text: 'Fastest 501 Double Finish',
+          userStats: sort(statsStore.userStats, 'min501DoubleVisits', Infinity),
         },
         {
           key: 'max501DoubleVisits',
@@ -58,9 +83,9 @@ const stats = computed(
           userStats: sort(statsStore.userStats, 'max501DoubleVisits', 0, false),
         },
         {
-          key: 'min501DoubleVisits',
-          text: 'Fastest 501 Double Finish',
-          userStats: sort(statsStore.userStats, 'min501DoubleVisits', Infinity),
+          key: 'min301DoubleVisits',
+          text: 'Fastest 301 Double Finish',
+          userStats: sort(statsStore.userStats, 'min301DoubleVisits', Infinity),
         },
         {
           key: 'maxX01First9Avg',
@@ -82,13 +107,23 @@ const stats = computed(
           text: 'Highest X01 Single Visit Score',
           userStats: sort(statsStore.userStats, 'maxX01VisitScore', 0, false),
         },
-        {
-          key: 'numX01Games',
-          text: 'Number of X01 Games',
-          userStats: sort(statsStore.userStats, 'numX01Games', 0, false),
-        },
       ],
       rtc: [
+        {
+          key: 'avgRtcHitRateLast10',
+          text: 'Average Hit Rate Last 10 Games',
+          userStats: sort(
+            statsStore.userStats,
+            'avgRtcHitRateLast10',
+            0,
+            false
+          ),
+        },
+        {
+          key: 'numRtcGames',
+          text: 'Number of RTC Games',
+          userStats: sort(statsStore.userStats, 'numRtcGames', 0, false),
+        },
         {
           key: 'minRtcVisits',
           text: 'Fewest Visits',
@@ -98,11 +133,6 @@ const stats = computed(
           key: 'maxRtcStreak',
           text: 'Longest Streak',
           userStats: sort(statsStore.userStats, 'maxRtcStreak', 0, false),
-        },
-        {
-          key: 'numRtcGames',
-          text: 'Number of RTC Games',
-          userStats: sort(statsStore.userStats, 'numRtcGames', 0, false),
         },
       ],
     } satisfies Record<

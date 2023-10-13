@@ -100,6 +100,9 @@ export interface Database {
       }
       statistics: {
         Row: {
+          avg301DoubleVisitsLast10: number
+          avg501DoubleVisitsLast10: number
+          avgRtcHitRateLast10: number
           max501DoubleVisits: number
           maxRtcStreak: number
           maxX01DoubleCheckout: number
@@ -113,6 +116,9 @@ export interface Database {
           userId: string
         }
         Insert: {
+          avg301DoubleVisitsLast10?: number
+          avg501DoubleVisitsLast10?: number
+          avgRtcHitRateLast10: number
           max501DoubleVisits?: number
           maxRtcStreak?: number
           maxX01DoubleCheckout?: number
@@ -126,6 +132,9 @@ export interface Database {
           userId: string
         }
         Update: {
+          avg301DoubleVisitsLast10?: number
+          avg501DoubleVisitsLast10?: number
+          avgRtcHitRateLast10?: number
           max501DoubleVisits?: number
           maxRtcStreak?: number
           maxX01DoubleCheckout?: number
