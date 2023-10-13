@@ -9,20 +9,9 @@
 <script setup lang="ts">
 import ModalView from './components/ModalView.vue'
 import { RouterView } from 'vue-router'
-import { onMounted } from 'vue'
-import { useAuthStore } from './stores/auth'
 import { useLoadingStore } from './stores/loading'
-import { router } from './router'
 
-const authStore = useAuthStore()
 const loadingStore = useLoadingStore()
-
-onMounted(async () => {
-  await useAuthStore().getSession()
-  if (!authStore.auth && router.currentRoute.value.name != 'password') {
-    router.push({ name: 'login' })
-  }
-})
 </script>
 
 <style scoped>

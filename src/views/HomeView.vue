@@ -44,13 +44,22 @@ import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
 import PlayerSelection, {
   UserCurrentInfo,
 } from '@/components/PlayerSelection.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
+const authStore = useAuthStore()
 
 const typeAttributes = ref<string[]>([])
 const players = ref<UserCurrentInfo[]>([])
 const gameType = ref<GameType>('x01')
+
+onMounted(async () => {
+  await useAuthStore().getSession()
+  if (!authStore.auth) {
+    router.push({ name: 'login' })
+  }
+})
 
 onMounted(() => {
   if (localStorage.getItem('data')) {
