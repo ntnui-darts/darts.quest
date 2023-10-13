@@ -53,6 +53,11 @@ const stats = computed(
           userStats: sort(statsStore.userStats, 'min301DoubleVisits', Infinity),
         },
         {
+          key: 'max501DoubleVisits',
+          text: 'Slowest 501 Double Finish',
+          userStats: sort(statsStore.userStats, 'max501DoubleVisits', 0, false),
+        },
+        {
           key: 'min501DoubleVisits',
           text: 'Fastest 501 Double Finish',
           userStats: sort(statsStore.userStats, 'min501DoubleVisits', Infinity),
