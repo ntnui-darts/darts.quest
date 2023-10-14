@@ -76,7 +76,7 @@ export const useStatsStore = defineStore('stats', {
       if (rtcLegsLast10.length > 0) {
         avgRtcHitRateLast10 =
           sumNumbers(
-            rtcLegsLast10.map((leg) => 20 / leg.visits.flat().length)
+            rtcLegsLast10.map((leg) => 20 / (leg.visits.flat().length || 1))
           ) / rtcLegsLast10.length
       }
       const x01DoubleLegs = legs.filter(
@@ -87,27 +87,33 @@ export const useStatsStore = defineStore('stats', {
       const _501DoubleLegsLast10 = x01DoubleLegs
         .filter((leg) => getTypeAttribute<number>(leg, 'startScore', 0) == 501)
         .slice(-10)
-      avg501DoubleVisitsLast10 =
-        sumNumbers(_501DoubleLegsLast10.map((leg) => leg.visits.length)) /
-        _501DoubleLegsLast10.length
+      if (_501DoubleLegsLast10.length > 0) {
+        avg501DoubleVisitsLast10 =
+          sumNumbers(_501DoubleLegsLast10.map((leg) => leg.visits.length)) /
+          _501DoubleLegsLast10.length
+      }
       const _301DoubleLegsLast10 = x01DoubleLegs
         .filter((leg) => getTypeAttribute<number>(leg, 'startScore', 0) == 301)
         .slice(-10)
-      avg301DoubleVisitsLast10 =
-        sumNumbers(_301DoubleLegsLast10.map((leg) => leg.visits.length)) /
-        _301DoubleLegsLast10.length
+      if (_301DoubleLegsLast10.length > 0) {
+        avg301DoubleVisitsLast10 =
+          sumNumbers(_301DoubleLegsLast10.map((leg) => leg.visits.length)) /
+          _301DoubleLegsLast10.length
+      }
       const killerGames = this.games.filter((leg) => leg.type == 'killer')
-      avgKillerResult =
-        sumNumbers(
-          killerGames.map((game) => {
-            let index = game.result.indexOf(userId)
-            if (index < 0) return 0
-            return (
-              (game.result.length - 1 - index) /
-              (Math.max(game.players.length, 2) - 1)
-            )
-          })
-        ) / killerGames.length
+      if (killerGames.length > 0) {
+        avgKillerResult =
+          sumNumbers(
+            killerGames.map((game) => {
+              let index = game.result.indexOf(userId)
+              if (index < 0) return 0
+              return (
+                (game.result.length - 1 - index) /
+                (Math.max(game.players.length, 2) - 1)
+              )
+            })
+          ) / killerGames.length
+      }
 
       legs.forEach((leg) => {
         switch (leg.type) {
