@@ -7,7 +7,7 @@ export type KillerController = GameController & {
   getKillerPlayers: () => KillerPlayer[]
 }
 
-type KillerPlayer = {
+export type KillerPlayer = {
   userId: string
   sector: number | null
   points: number

@@ -33,22 +33,19 @@
     >
       0
     </button>
-    <button @click="emit('undo')">&#x232B;</button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { KillerController } from '@/games/killer'
+import { KillerController, KillerPlayer } from '@/games/killer'
 import { useGameStore } from '@/stores/game'
 import { Segment, multiplierToString } from '@/types/game'
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const selectedMultiplier = ref(1)
 const selectedSector = ref<number | null>(null)
 
-const players = computed(() =>
-  (useGameStore().getController() as KillerController).getKillerPlayers()
-)
+const players = ref<KillerPlayer[]>([])
 
 const emit = defineEmits<{
   hit: [segment: Segment]
@@ -66,7 +63,16 @@ const selectSector = (sector: number) => {
     })
   }
   selectedMultiplier.value = 1
+  players.value = (
+    useGameStore().getController() as KillerController
+  ).getKillerPlayers() // to trigger rerender
 }
+
+onMounted(() => {
+  players.value = (
+    useGameStore().getController() as KillerController
+  ).getKillerPlayers()
+})
 </script>
 
 <style scoped>
