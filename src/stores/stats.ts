@@ -73,9 +73,12 @@ export const useStatsStore = defineStore('stats', {
       const rtcLegs = legs.filter((leg) => leg.type == 'rtc')
       const rtcGames = this.games.filter((leg) => leg.type == 'rtc')
       const rtcLegsLast10 = rtcLegs.slice(-10)
-      avgRtcHitRateLast10 =
-        sumNumbers(rtcLegsLast10.map((leg) => 20 / leg.visits.flat().length)) /
-        rtcLegsLast10.length
+      if (rtcLegsLast10.length > 0) {
+        avgRtcHitRateLast10 =
+          sumNumbers(
+            rtcLegsLast10.map((leg) => 20 / leg.visits.flat().length)
+          ) / rtcLegsLast10.length
+      }
       const x01DoubleLegs = legs.filter(
         (leg) =>
           leg.type == 'x01' && getTypeAttribute<number>(leg, 'finish', 1) == 2
