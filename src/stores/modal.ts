@@ -17,6 +17,7 @@ export const useModalStore = defineStore('modal', {
         emits: emits,
       })
     },
+
     pop() {
       this.components.pop()
     },

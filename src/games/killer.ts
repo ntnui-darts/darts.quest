@@ -23,19 +23,24 @@ export const getKillerController = (game: Game): KillerController => {
   }))
   return {
     ...getGenericController(game),
+
     getKillerPlayers() {
       return _players
     },
+
     getGameState() {
       const gameState = getGameState(game, _players)
       return {
         getSegmentText,
+
         ...gameState,
+
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
           const player = gameState.allPlayers.find((p) => p.userId == userId)
           return `${name}, ${player?.points} points`
         },
+
         getUserDisplayText(userId) {
           const player = gameState.allPlayers.find((p) => p.userId == userId)
           if (!player) return '-'
@@ -43,6 +48,7 @@ export const getKillerController = (game: Game): KillerController => {
         },
       }
     },
+
     recordHit(segment) {
       const player = _players.find(
         (p) => p.userId == gameStore.gameState?.userId
@@ -59,6 +65,7 @@ export const getKillerController = (game: Game): KillerController => {
       }
       gameStore.saveScore(segment)
     },
+
     recordMiss() {
       const player = _players.find(
         (p) => p.userId == gameStore.gameState?.userId

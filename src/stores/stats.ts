@@ -22,6 +22,7 @@ export const useStatsStore = defineStore('stats', {
       await this.recalculatePersonalStats()
       await this.fetchUserStats()
     },
+
     async fetchLegs() {
       const id = useAuthStore().auth?.id
       if (!id) return
@@ -33,6 +34,7 @@ export const useStatsStore = defineStore('stats', {
         )
       }
     },
+
     async fetchGames() {
       const id = useAuthStore().auth?.id
       if (!id) return
@@ -47,12 +49,14 @@ export const useStatsStore = defineStore('stats', {
         )
       }
     },
+
     async fetchUserStats() {
       const userStats = await supabase.from('statistics').select('*')
       if (userStats.data) {
         this.userStats = userStats.data
       }
     },
+
     async recalculatePersonalStats() {
       const userId = useAuthStore().auth?.id
       if (!userId) throw Error()
@@ -208,6 +212,7 @@ export const useStatsStore = defineStore('stats', {
           game.result[0] == useAuthStore().auth?.id
       ).length
     },
+
     getNumberOfLosses: (state) => {
       return state.games.filter(
         (game) =>
@@ -216,6 +221,7 @@ export const useStatsStore = defineStore('stats', {
           game.result[0] != useAuthStore().auth?.id
       ).length
     },
+
     getNumberOfSoloGames: (state) => {
       return state.games.filter((game) => game.players.length < 2).length
     },

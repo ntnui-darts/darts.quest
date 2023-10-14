@@ -26,6 +26,20 @@ export const useGameStore = defineStore('game', {
   }),
 
   actions: {
+    setCurrentGame(game: GameData) {
+      this.game = game
+      if (this.game.legs.length == 0) throw Error()
+      this.updateGameState()
+    },
+
+    getController(): GameController {
+      if (!this.game) throw Error()
+      if (this.game != this._controller?.game) {
+        this._controller = getGameController(this.game)
+      }
+      return this._controller
+    },
+
     updateGameState() {
       this.gameState = this.getController().getGameState()
 
@@ -45,18 +59,7 @@ export const useGameStore = defineStore('game', {
 
       return this.gameState
     },
-    getController(): GameController {
-      if (!this.game) throw Error()
-      if (this.game != this._controller?.game) {
-        this._controller = getGameController(this.game)
-      }
-      return this._controller
-    },
-    setCurrentGame(game: GameData) {
-      this.game = game
-      if (this.game.legs.length == 0) throw Error()
-      this.updateGameState()
-    },
+
     saveScore(segment: Segment) {
       if (!this.game || !this.getCurrentLeg) throw Error()
       if (!this.gameState?.userId) throw Error('No current user')
@@ -68,6 +71,7 @@ export const useGameStore = defineStore('game', {
       this.updateGameState()
       this.saveToLocalStorage()
     },
+
     undoScore() {
       if (!this.game) throw Error()
       if (!this.gameState) throw Error()
@@ -93,10 +97,7 @@ export const useGameStore = defineStore('game', {
       this.updateGameState()
       this.saveToLocalStorage()
     },
-    getUserLeg(userId: string) {
-      if (!this.game) throw Error()
-      return this.game?.legs.find((leg) => leg.userId == userId) ?? null
-    },
+
     async saveGame() {
       if (!this.game) throw Error()
       this.game.result = this.updateGameState().results
@@ -116,6 +117,7 @@ export const useGameStore = defineStore('game', {
       })
       useStatsStore().fetchAll()
     },
+
     saveToLocalStorage() {
       localStorage.setItem('data', JSON.stringify(this.game))
     },
@@ -127,12 +129,15 @@ export const useGameStore = defineStore('game', {
       if (!leg) throw Error()
       return leg.visits.at(-1)!
     },
+
     getCurrentVisits(): Visit[] {
       return this.getCurrentLeg?.visits ?? []
     },
+
     getNumberOfThrows(): number | null {
       return this.getCurrentVisit?.findIndex((s) => s == null) ?? null
     },
+
     getCurrentLeg: (state) => {
       if (!state.game || !state.gameState?.userId) return null
       return getLegOfUser(state.game, state.gameState?.userId)

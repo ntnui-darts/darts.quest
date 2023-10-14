@@ -22,6 +22,7 @@ export const getRtcController = (game: Game): RtcController => {
 
   return {
     ...getGenericController(game),
+
     getGameState() {
       const sequence = this.getSequence()
       return {
@@ -29,23 +30,28 @@ export const getRtcController = (game: Game): RtcController => {
           game,
           (game, visits) => getRtcLegScore(game, visits) == getGamePoints(game)
         ),
+
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
           const visits = getVisitsOfUser(game, userId, false)
           return `${name}, ${visits?.length} visits`
         },
+
         getUserDisplayText(userId) {
           const score = getRtcLegScore(game, getVisitsOfUser(game, userId))
           return `${sequence.at(score)}`
         },
+
         getSegmentText(segment) {
           return segment ? `${segment.sector}` : '-'
         },
       }
     },
+
     getSequence() {
       return sequence
     },
+
     recordHit(segment) {
       const score = getRtcLegScore(game, useGameStore().getCurrentVisits)
       const sector = this.getSequence().at(score)

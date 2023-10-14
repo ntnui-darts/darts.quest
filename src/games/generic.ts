@@ -12,10 +12,12 @@ import {
 export const getGenericController = (game: Game) => {
   return {
     game,
+
     recordHit(segment) {
       if (!segment) return
       useGameStore().saveScore(segment)
     },
+
     recordMiss() {
       useGameStore().saveScore({ multiplier: Multiplier.None, sector: 0 })
     },

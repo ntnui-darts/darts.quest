@@ -23,24 +23,30 @@ export const useAuthStore = defineStore('auth', {
       const response = await supabase.auth.getSession()
       this.auth = response.data.session?.user
     },
+
     async signUp(name: string, email: string, password: string) {
       await supabase.auth.signUp({ email, password })
       await this.setUserParams({ name })
     },
+
     async signIn(email: string, password: string) {
       await supabase.auth.signInWithPassword({ email, password })
     },
+
     async signOut() {
       await supabase.auth.signOut()
     },
+
     async updatePassword(password: string) {
       await supabase.auth.updateUser({ password })
     },
+
     async forgotPassword(email: string) {
       await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: 'https://darts.quest/#/password',
       })
     },
+
     async setUserParams(user: Partial<User>) {
       if (!this.auth) throw Error()
       const prevName = await supabase

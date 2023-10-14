@@ -60,8 +60,10 @@ export const getGamePoints = (game: Game | Leg) => {
   switch (game.type) {
     case 'rtc':
       return 20
+
     case 'x01':
       return getTypeAttribute<number>(game, 'startScore', NaN)
+
     case 'killer':
       return 5
   }
@@ -71,12 +73,14 @@ export const getGameController = (game: Game) => {
   switch (game.type) {
     case 'x01':
       return getX01Controller(game)
+
     case 'rtc':
       if (getTypeAttribute(game, 'random', false)) {
         return getRtcRandomController(game)
       } else {
         return getRtcController(game)
       }
+
     case 'killer':
       return getKillerController(game)
   }

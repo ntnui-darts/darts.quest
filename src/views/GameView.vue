@@ -70,6 +70,7 @@ import DartboardChart from '@/components/DartboardChart.vue'
 import Youtube from '@/components/Youtube.vue'
 import Prompt from '@/components/Prompt.vue'
 import { getGameDisplayName, getInputComponent } from '@/games/games'
+import { getLegOfUser } from '@/types/game'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
@@ -131,7 +132,8 @@ const saveGame = async () => {
 }
 
 const showChart = (userId: string) => {
-  const leg = gameStore.getUserLeg(userId)
+  if (!gameStore.game) return
+  const leg = getLegOfUser(gameStore.game, userId)
   if (!leg) return
   useModalStore().push(
     DartboardChart,

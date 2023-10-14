@@ -17,6 +17,7 @@ export const useUsersStore = defineStore('users', {
         this.users = fetchedUsers
       }
     },
+
     getUser(id?: string) {
       return this.users.find((user) => user.id == id)
     },

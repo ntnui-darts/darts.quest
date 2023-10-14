@@ -19,13 +19,16 @@ import { getGamePoints } from './games'
 export const getX01Controller = (game: Game): GameController => {
   return {
     ...getGenericController(game),
+
     getGameState() {
       return {
         ...getResultsOfFirstToWinGame(
           game,
           (game, visits) => getLegScore(visits, game) == getGamePoints(game)
         ),
+
         getSegmentText,
+
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
           const visits = game.legs.find((leg) => leg.userId == userId)?.visits
@@ -36,6 +39,7 @@ export const getX01Controller = (game: Game): GameController => {
           ).toFixed(1)
           return `${name}, ${visits?.length} visits, ${avg} average`
         },
+
         getUserDisplayText(userId) {
           const visits = getVisitsOfUser(game, userId)
           const rest = getGamePoints(game) - getLegScore(visits, game)
