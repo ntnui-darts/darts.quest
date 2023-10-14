@@ -103,9 +103,16 @@ export const getLegOfUser = (game: Game, userId: string) => {
   return leg
 }
 
-export const getVisitsOfUser = (game: Game, userId?: string | null) => {
+export const getVisitsOfUser = (
+  game: Game,
+  userId?: string | null,
+  includeEmpty = true
+) => {
   if (!userId) return []
-  return getLegOfUser(game, userId)?.visits ?? []
+  const leg = getLegOfUser(game, userId)
+  if (!leg) return []
+  if (!includeEmpty) return leg.visits.filter((v) => !v.every((s) => s == null))
+  return leg.visits
 }
 
 export const getTypeAttribute = <T>(

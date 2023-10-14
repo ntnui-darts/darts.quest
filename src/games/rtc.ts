@@ -31,7 +31,7 @@ export const getRtcController = (game: Game): RtcController => {
         ),
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
-          const visits = game.legs.find((leg) => leg.userId == userId)?.visits
+          const visits = getVisitsOfUser(game, userId, false)
           return `${name}, ${visits?.length} visits`
         },
         getUserDisplayText(userId) {
