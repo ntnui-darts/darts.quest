@@ -12,12 +12,14 @@ import {
   GameController,
   getTypeAttribute,
   GameState,
+  getVisitsOfUser,
 } from '@/types/game'
 import { getX01Controller } from '@/games/x01'
 import { getRtcController } from '@/games/rtc'
 import { getRtcRandomController } from '@/games/rtc-random'
 import { getKillerController } from '@/games/killer'
 import { Component } from 'vue'
+import { useUsersStore } from './users'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -32,6 +34,21 @@ export const useGameStore = defineStore('game', {
   actions: {
     updateGameState() {
       this.gameState = this.getController().getGameState()
+
+      this.walkOn = null
+      this.walkOnTime = 0
+      if (
+        this.game &&
+        this.gameState.userId &&
+        getVisitsOfUser(this.game, this.gameState.userId).length <= 1
+      ) {
+        const user = useUsersStore().getUser(this.gameState.userId)
+        if (user) {
+          this.walkOn = user.walkOn
+          this.walkOnTime = user.walkOnTime
+        }
+      }
+
       return this.gameState
     },
     getController(): GameController {
