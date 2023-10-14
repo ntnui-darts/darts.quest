@@ -3,8 +3,10 @@
     <p>
       <small>{{ new Date(leg.createdAt).toLocaleString() }}</small>
       <br />
-      <span>{{ leg.type }} {{ leg.typeAttributes }}</span>
-      {{ leg.visits.length }} visits
+      <span style="display: inline-block; min-width: 10em"
+        >{{ getGameDisplayName(leg) }} &emsp;</span
+      >
+      <span>{{ leg.visits.length }} visits</span>
     </p>
     <button @click="showChart" style="flex: 0">Chart</button>
   </div>
@@ -14,6 +16,7 @@
 import DartboardChart from './DartboardChart.vue'
 import { Leg } from '@/types/game'
 import { useModalStore } from '@/stores/modal'
+import { getGameDisplayName } from '@/games/games'
 
 const props = defineProps<{
   leg: Leg

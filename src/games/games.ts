@@ -29,7 +29,7 @@ export const getMinPlayerCount = (gameType: GameType) => {
   }
 }
 
-export const getGameDisplayName = (game?: Game | null) => {
+export const getGameDisplayName = (game?: Game | Leg | null) => {
   if (!game) return 'Empty Game'
   switch (game.type) {
     case 'rtc':

@@ -82,14 +82,14 @@
   ></LegHistoryChart>
   <br />
   <br />
-  <!-- <h3>History</h3>
-  <div v-for="leg in legs.toReversed()">
+  <h3>Last 10 Games</h3>
+  <div v-for="leg in legs.slice(-10).toReversed()">
     <LegStats :leg="leg"></LegStats>
-  </div> -->
+  </div>
 </template>
 
 <script lang="ts" setup>
-// import LegStats from '@/components/LegStats.vue'
+import LegStats from '@/components/LegStats.vue'
 import DartboardChart from '@/components/DartboardChart.vue'
 import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { useStatsStore } from '@/stores/stats'
