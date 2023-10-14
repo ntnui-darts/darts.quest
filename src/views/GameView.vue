@@ -14,6 +14,7 @@
   >
     Quit
   </button>
+  <h3>{{ getGameDisplayName(gameStore.game) }}</h3>
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div class="grid-users" style="grid-template-columns: 1fr 1fr">
       <button
@@ -46,7 +47,7 @@
     <!-- <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
       &#x232B;
     </button> -->
-    <h2>Results, {{ gameStore.game.typeAttributes[0] }}</h2>
+    <h2>Results</h2>
     <ol>
       <li v-for="id in gameStore.gameState?.results">
         {{ gameStore.gameState?.getUserResultText(id) }}
@@ -68,7 +69,7 @@ import { useGameStore } from '@/stores/game'
 import DartboardChart from '@/components/DartboardChart.vue'
 import Youtube from '@/components/Youtube.vue'
 import Prompt from '@/components/Prompt.vue'
-import { getInputComponent } from '@/games/games'
+import { getGameDisplayName, getInputComponent } from '@/games/games'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()

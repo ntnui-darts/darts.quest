@@ -29,7 +29,8 @@ export const getMinPlayerCount = (gameType: GameType) => {
   }
 }
 
-export const getGameDisplayName = (game: Game) => {
+export const getGameDisplayName = (game?: Game | null) => {
+  if (!game) return 'Empty Game'
   switch (game.type) {
     case 'rtc':
       const mode = ['', ' Double', ' Triple'][
