@@ -44,9 +44,10 @@
     ></component>
   </div>
   <div v-if="gameStore.game && somePlayersFinished">
-    <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
+    <!-- TODO -->
+    <!-- <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
       &#x232B;
-    </button>
+    </button> -->
     <h2>Results, {{ gameStore.game.typeAttributes[0] }}</h2>
     <ol>
       <li v-for="id in gameStore.gameState?.results">

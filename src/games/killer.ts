@@ -108,12 +108,9 @@ const getGameState = (game: Game, _players: KillerPlayer[]) => {
 
       if (results.length == players.length - 1) {
         kill(player)
-        if (visit?.some((s) => s == null)) {
-          userId = player.userId
-        } else {
-          userId = prevUserId
-          prevUserId = player.userId
-        }
+        // TODO: Fix
+        userId = player.userId
+        prevUserId = player.userId
         break
       }
 
