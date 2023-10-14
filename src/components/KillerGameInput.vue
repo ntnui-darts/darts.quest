@@ -16,8 +16,10 @@
       v-for="(_, i) in Array(20)"
       @click="selectSector(i + 1)"
       :disabled="
-        players.every((player) => player.sector != null) &&
-        !players.some((player) => player.sector == i + 1)
+        (!players.every((player) => player.sector != null) &&
+          players.some((player) => player.sector == i + 1)) ||
+        (players.every((player) => player.sector != null) &&
+          !players.some((player) => player.sector == i + 1))
       "
       :class="{
         selected: selectedSector == i + 1,
