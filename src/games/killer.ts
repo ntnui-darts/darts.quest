@@ -83,6 +83,7 @@ const getGameState = (game: Game, _players: KillerPlayer[]) => {
   const allPlayers = _players.toSorted(
     (a, b) => (b.sector ?? 0) - (a.sector ?? 0)
   )
+  allPlayers.map((p) => (p.points = 0))
   const playersLeft = [...allPlayers]
   let visitIndex = 0
   const gamePoints = getGamePoints(game)
