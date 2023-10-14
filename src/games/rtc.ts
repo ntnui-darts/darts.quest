@@ -5,10 +5,10 @@ import {
   GameController,
   Visit,
   getVisitsOfUser,
-  Multiplier,
   getTypeAttribute,
   getGamePoints,
 } from '@/types/game'
+import { getGenericController } from '@/games/generic'
 
 export type RtcController = GameController & { getSequence(): number[] }
 
@@ -19,12 +19,15 @@ export const getRtcController = (game: Game): RtcController => {
     .map((_, i) => i + 1)
 
   return {
-    game,
+    ...getGenericController(game),
     getSequence() {
       return sequence
     },
-    getCurrentLegScore() {
-      return getRtcLegScore(game, getVisitsOfUser(game, gameStore.userId))
+    winCondition() {
+      return (
+        getRtcLegScore(game, getVisitsOfUser(game, gameStore.userId)) ==
+        getGamePoints(game)
+      )
     },
     getUserResultText(userId) {
       const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
@@ -37,12 +40,6 @@ export const getRtcController = (game: Game): RtcController => {
     },
     getSegmentText(segment) {
       return segment ? `${segment.sector}` : '-'
-    },
-    recordHit(segment) {
-      gameStore.saveScore(segment)
-    },
-    recordMiss() {
-      gameStore.saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
   }
 }

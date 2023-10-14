@@ -20,12 +20,15 @@ export const getGamePoints = (game: Game | Leg) => {
       return 20
     case 'x01':
       return getTypeAttribute<number>(game, 'startScore', NaN)
+    case 'killer':
+      return 5
   }
 }
 
 export const GameTypeNames = {
   x01: 'X01',
   rtc: 'Round the Clock',
+  killer: 'Killer',
 } as const satisfies Record<GameType, string>
 
 export const getGameDisplayName = (game: Game) => {
@@ -37,7 +40,7 @@ export const getGameDisplayName = (game: Game) => {
   }
 }
 
-export type GameType = 'x01' | 'rtc'
+export type GameType = 'x01' | 'rtc' | 'killer'
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
 export type Leg = Omit<
@@ -61,12 +64,24 @@ export type Game = Omit<
 
 export interface GameController {
   game: Game
-  getCurrentLegScore(): number
+  winCondition(): boolean
+  winnerFinishesFirst(): boolean
   getUserResultText(userId: string): string
   getUserDisplayText(userId: string): string
   getSegmentText(segment?: Segment | null): string
   recordHit(segment: Segment): void
   recordMiss(): void
+}
+
+export const getMinPlayerCount = (gameType: GameType) => {
+  switch (gameType) {
+    case 'killer':
+      return 2
+    case 'rtc':
+      return 1
+    case 'x01':
+      return 1
+  }
 }
 
 export const multiplierToString = (m: Multiplier) => {

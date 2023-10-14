@@ -6,19 +6,21 @@ import {
   Game,
   GameController,
   getVisitsOfUser,
-  multiplierToString,
-  Multiplier,
   getTypeAttribute,
   getGamePoints,
   Leg,
 } from '@/types/game'
+import { getGenericController } from '@/games/generic'
 
 export const getX01Controller = (game: Game): GameController => {
   const gameStore = useGameStore()
   return {
-    game,
-    getCurrentLegScore() {
-      return getLegScore(getVisitsOfUser(game, gameStore.userId), game)
+    ...getGenericController(game),
+    winCondition() {
+      return (
+        getLegScore(getVisitsOfUser(game, gameStore.userId), game) ==
+        getGamePoints(game)
+      )
     },
     getUserResultText(userId) {
       const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
@@ -35,19 +37,6 @@ export const getX01Controller = (game: Game): GameController => {
       const rest = getGamePoints(game) - getLegScore(visits, game)
       const avg = getAvgVisitScore(visits, game).toFixed(1)
       return `${rest} (${avg})`
-    },
-    getSegmentText(segment) {
-      if (!segment) return '-'
-      if (!segment.multiplier || segment.multiplier == 1)
-        return segment.sector.toString()
-      return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
-    },
-    recordHit(segment) {
-      if (!segment) return
-      gameStore.saveScore(segment)
-    },
-    recordMiss() {
-      gameStore.saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
   }
 }

@@ -1,3 +1,6 @@
+import X01GameInputVue from '@/components/X01GameInput.vue'
+import RtcGameInputVue from '@/components/RtcGameInput.vue'
+import KillerGameInputVue from '@/components/KillerGameInput.vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useStatsStore } from './stats'
 import { supabase } from '@/supabase'
@@ -8,13 +11,11 @@ import {
   getLegOfUser,
   GameController,
   getTypeAttribute,
-  getGamePoints,
 } from '@/types/game'
 import { getX01Controller } from '@/games/x01'
 import { getRtcController } from '@/games/rtc'
-import X01GameInputVue from '@/components/X01GameInput.vue'
-import RtcGameInputVue from '@/components/RtcGameInput.vue'
 import { getRtcRandomController } from '@/games/rtc-random'
+import { getKillerController } from '@/games/killer'
 import { Component } from 'vue'
 import { useUsersStore } from './users'
 
@@ -43,6 +44,9 @@ export const useGameStore = defineStore('game', {
               this._controller = getRtcController(this.game)
             }
             break
+          case 'killer':
+            this._controller = getKillerController(this.game)
+            break
         }
       }
       return this._controller
@@ -54,6 +58,8 @@ export const useGameStore = defineStore('game', {
           return X01GameInputVue
         case 'rtc':
           return RtcGameInputVue
+        case 'killer':
+          return KillerGameInputVue
       }
     },
     setCurrentGame(game: Game) {
@@ -73,10 +79,18 @@ export const useGameStore = defineStore('game', {
       const index = visit.indexOf(null)
       visit[index] = segment
 
-      if (
-        this.getController().getCurrentLegScore() == getGamePoints(this.game)
-      ) {
-        this.game.result.push(this.userId)
+      if (this.getController().winCondition()) {
+        if (this.getController().winnerFinishesFirst()) {
+          this.game.result.push(this.userId)
+        } else {
+          this.game.players
+            .filter(
+              (player) =>
+                !this.game?.result.includes(player) && player != this.userId
+            )
+            .forEach((player) => this.game?.result.unshift(player))
+          this.game.result.unshift(this.userId)
+        }
         this.getCurrentLeg.finish = true
         this.nextUser()
       } else if (index == 2) {
@@ -118,19 +132,19 @@ export const useGameStore = defineStore('game', {
       return leg.visits.at(-1)
     },
     nextUser() {
-      if (!this.game?.legs.length) throw Error()
+      if (!this.game?.players.length) throw Error()
       if (!this.userId) {
-        this.userId = this.game?.legs[0].userId ?? null
+        this.userId = this.game?.players[0] ?? null
         return
       }
-      if (this.game.result.length == this.game.legs.length) {
+      if (this.game.result.length == this.game.players.length) {
         return
       }
-      const index = this.game.legs.findIndex((leg) => leg.userId == this.userId)
+      const index = this.game.players.indexOf(this.userId)
       if (index == -1) throw Error()
-      const nextUser = this.game.legs.at(
-        (index + 1) % this.game.legs.length
-      )?.userId
+      const nextUser = this.game.players.at(
+        (index + 1) % this.game.players.length
+      )
       if (nextUser) {
         this.userId = nextUser
         if (this.getCurrentVisits.length == 0) {

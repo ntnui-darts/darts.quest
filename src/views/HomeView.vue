@@ -31,8 +31,10 @@
   <PlayerSelection @update="players = $event"></PlayerSelection>
   <br />
   <button
-    :class="{ primary: players.length > 0 }"
-    :disabled="players.length == 0"
+    :class="{
+      primary: players.length >= getMinPlayerCount(gameType),
+    }"
+    :disabled="players.length < getMinPlayerCount(gameType)"
     style="
       position: sticky;
       bottom: 2em;
@@ -49,7 +51,7 @@
 <script lang="ts" setup>
 import ReloadView from '@/components/ReloadView.vue'
 import { router } from '@/router'
-import { GameType, Leg, GameTypeNames } from '@/types/game'
+import { GameType, Leg, GameTypeNames, getMinPlayerCount } from '@/types/game'
 import { useUsersStore } from '@/stores/users'
 import { nanoid } from 'nanoid'
 import { onMounted, ref } from 'vue'
@@ -57,6 +59,7 @@ import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 import X01OptionsInput from '@/components/X01OptionsInput.vue'
 import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
+import KillerOptionsInput from '@/components/KillerOptionsInput.vue'
 import PlayerSelection, {
   UserCurrentInfo,
 } from '@/components/PlayerSelection.vue'
@@ -89,6 +92,8 @@ const getOptionsComponent = (type: GameType) => {
       return X01OptionsInput
     case 'rtc':
       return RtcOptionsInput
+    case 'killer':
+      return KillerOptionsInput
   }
 }
 
