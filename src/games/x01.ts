@@ -1,4 +1,3 @@
-import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
   Segment,
@@ -6,48 +5,44 @@ import {
   Game,
   GameController,
   getVisitsOfUser,
-  multiplierToString,
-  Multiplier,
   getTypeAttribute,
   getGamePoints,
   Leg,
+  GameState,
 } from '@/types/game'
+import {
+  getGenericController,
+  getResultsOfFirstToWinGame,
+  getSegmentText,
+} from '@/games/generic'
 
 export const getX01Controller = (game: Game): GameController => {
-  const gameStore = useGameStore()
   return {
-    game,
-    getCurrentLegScore() {
-      return getLegScore(getVisitsOfUser(game, gameStore.userId), game)
-    },
-    getUserResultText(userId) {
-      const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
-      const visits = game.legs.find((leg) => leg.userId == userId)?.visits
-      const avg = getAvgVisitScore(
-        game.legs.find((leg) => leg.userId == userId)?.visits ?? [],
-        game,
-        true
-      ).toFixed(1)
-      return `${name}, ${visits?.length} visits, ${avg} average`
-    },
-    getUserDisplayText(userId) {
-      const visits = getVisitsOfUser(game, userId)
-      const rest = getGamePoints(game) - getLegScore(visits, game)
-      const avg = getAvgVisitScore(visits, game).toFixed(1)
-      return `${rest} (${avg})`
-    },
-    getSegmentText(segment) {
-      if (!segment) return '-'
-      if (!segment.multiplier || segment.multiplier == 1)
-        return segment.sector.toString()
-      return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
-    },
-    recordHit(segment) {
-      if (!segment) return
-      gameStore.saveScore(segment)
-    },
-    recordMiss() {
-      gameStore.saveScore({ multiplier: Multiplier.None, sector: 0 })
+    ...getGenericController(game),
+    getGameState() {
+      return {
+        ...getResultsOfFirstToWinGame(
+          game,
+          (game, visits) => getLegScore(visits, game) == getGamePoints(game)
+        ),
+        getSegmentText,
+        getUserResultText(userId) {
+          const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const visits = game.legs.find((leg) => leg.userId == userId)?.visits
+          const avg = getAvgVisitScore(
+            game.legs.find((leg) => leg.userId == userId)?.visits ?? [],
+            game,
+            true
+          ).toFixed(1)
+          return `${name}, ${visits?.length} visits, ${avg} average`
+        },
+        getUserDisplayText(userId) {
+          const visits = getVisitsOfUser(game, userId)
+          const rest = getGamePoints(game) - getLegScore(visits, game)
+          const avg = getAvgVisitScore(visits, game).toFixed(1)
+          return `${rest}\t(${avg})`
+        },
+      } satisfies GameState
     },
   }
 }

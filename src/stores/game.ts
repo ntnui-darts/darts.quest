@@ -1,3 +1,6 @@
+import X01GameInputVue from '@/components/X01GameInput.vue'
+import RtcGameInputVue from '@/components/RtcGameInput.vue'
+import KillerGameInputVue from '@/components/KillerGameInput.vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useStatsStore } from './stats'
 import { supabase } from '@/supabase'
@@ -8,27 +11,29 @@ import {
   getLegOfUser,
   GameController,
   getTypeAttribute,
-  getGamePoints,
+  GameState,
 } from '@/types/game'
 import { getX01Controller } from '@/games/x01'
 import { getRtcController } from '@/games/rtc'
-import X01GameInputVue from '@/components/X01GameInput.vue'
-import RtcGameInputVue from '@/components/RtcGameInput.vue'
 import { getRtcRandomController } from '@/games/rtc-random'
+import { getKillerController } from '@/games/killer'
 import { Component } from 'vue'
-import { useUsersStore } from './users'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
-    userId: null as string | null,
     game: null as Game | null,
     walkOn: null as string | null,
     walkOnTime: 0,
     // Don't access controller directly, use getController()
     _controller: null as GameController | null,
+    gameState: null as GameState | null,
   }),
 
   actions: {
+    updateGameState() {
+      this.gameState = this.getController().getGameState()
+      return this.gameState
+    },
     getController(): GameController {
       if (!this.game) throw Error()
       if (this.game != this._controller?.game) {
@@ -43,6 +48,9 @@ export const useGameStore = defineStore('game', {
               this._controller = getRtcController(this.game)
             }
             break
+          case 'killer':
+            this._controller = getKillerController(this.game)
+            break
         }
       }
       return this._controller
@@ -54,112 +62,50 @@ export const useGameStore = defineStore('game', {
           return X01GameInputVue
         case 'rtc':
           return RtcGameInputVue
+        case 'killer':
+          return KillerGameInputVue
       }
     },
     setCurrentGame(game: Game) {
       this.game = game
       if (this.game.legs.length == 0) throw Error()
-      this.userId = this.game.legs[0].userId
-      this.walkOn = useUsersStore().getUser(this.userId)?.walkOn ?? null
-      this.walkOnTime = useUsersStore().getUser(this.userId)?.walkOnTime ?? 0
-      this.addVisitIfNecessary()
+      this.updateGameState()
     },
     saveScore(segment: Segment) {
-      if (!this.userId || !this.game || !this.getCurrentLeg) throw Error()
-      if (this.game.result.includes(this.userId)) return
-      this.addVisitIfNecessary()
-      const visit = this.getCurrentVisit
-      if (!visit) throw Error()
-      const index = visit.indexOf(null)
-      visit[index] = segment
-
-      if (
-        this.getController().getCurrentLegScore() == getGamePoints(this.game)
-      ) {
-        this.game.result.push(this.userId)
-        this.getCurrentLeg.finish = true
-        this.nextUser()
-      } else if (index == 2) {
-        this.nextUser()
-      }
+      if (!this.game || !this.getCurrentLeg) throw Error()
+      if (!this.gameState?.userId) throw Error('No current user')
+      if (this.gameState.results.includes(this.gameState.userId))
+        throw Error('User has already finished')
+      if (!this.getCurrentVisit) throw Error()
+      const index = this.getCurrentVisit.indexOf(null)
+      this.getCurrentVisit[index] = segment
+      this.updateGameState()
       this.saveToLocalStorage()
     },
     undoScore() {
-      if (!this.userId || !this.getCurrentLeg) throw Error()
-      if (this.getCurrentVisit?.every((s) => s == null)) {
-        this.getCurrentLeg.visits.pop()
-        this.prevUser()
+      if (!this.game) throw Error()
+      if (!this.gameState) throw Error()
+      let userId = this.gameState.userId
+      let visit = this.getCurrentVisit
+      if (visit?.every((s) => s == null)) {
+        userId = this.gameState.prevUserId
+        if (userId) {
+          const leg = getLegOfUser(this.game, userId)
+          if (visit.every((s) => s == null)) {
+            leg.visits.pop()
+          }
+          visit = leg.visits.at(-1) ?? null
+        }
       }
-      const visit = this.getCurrentVisit
-      if (!visit) {
-        this.addVisitIfNecessary()
-        return
-      }
+      if (!visit) return
       for (let i = visit.length - 1; i >= 0; i--) {
         if (visit.at(i) != null) {
           visit[i] = null
-          return
+          break
         }
       }
+      this.updateGameState()
       this.saveToLocalStorage()
-    },
-    addVisitIfNecessary() {
-      if (!this.game) throw Error()
-      const leg = this.getCurrentLeg
-      if (!leg) throw Error()
-      if (leg.finish) {
-        return
-      }
-      if (leg.visits.length == 0 || leg.visits.at(-1)?.[2] != null) {
-        const visit = [null, null, null] satisfies [null, null, null]
-        leg.visits.push(visit)
-        return visit
-      }
-      return leg.visits.at(-1)
-    },
-    nextUser() {
-      if (!this.game?.legs.length) throw Error()
-      if (!this.userId) {
-        this.userId = this.game?.legs[0].userId ?? null
-        return
-      }
-      if (this.game.result.length == this.game.legs.length) {
-        return
-      }
-      const index = this.game.legs.findIndex((leg) => leg.userId == this.userId)
-      if (index == -1) throw Error()
-      const nextUser = this.game.legs.at(
-        (index + 1) % this.game.legs.length
-      )?.userId
-      if (nextUser) {
-        this.userId = nextUser
-        if (this.getCurrentVisits.length == 0) {
-          this.walkOn = useUsersStore().getUser(this.userId)?.walkOn ?? null
-          this.walkOnTime =
-            useUsersStore().getUser(this.userId)?.walkOnTime ?? 0
-        } else {
-          this.walkOn = null
-          this.walkOnTime = 0
-        }
-        this.addVisitIfNecessary()
-      }
-      if (this.game.result.includes(this.userId)) {
-        this.nextUser()
-      }
-    },
-    prevUser() {
-      if (!this.game?.legs.length) throw Error()
-      if (!this.userId) {
-        this.userId = this.game?.legs[0].userId ?? null
-        return
-      }
-      const index = this.game.legs.findIndex((leg) => leg.userId == this.userId)
-      const nextUser = this.game.legs.at(
-        (index - 1) % this.game.legs.length
-      )?.userId
-      if (nextUser) {
-        this.userId = nextUser
-      }
     },
     getUserLeg(userId: string) {
       if (!this.game) throw Error()
@@ -167,15 +113,20 @@ export const useGameStore = defineStore('game', {
     },
     async saveGame() {
       if (!this.game) throw Error()
+      this.game.result = this.updateGameState().results
       for (let leg of this.game.legs) {
-        await supabase
-          .from('legs')
-          .insert({ ...leg, type: leg.type.toString() })
+        if (this.game.result.includes(leg.userId)) {
+          leg.finish = true
+          while (leg.visits.at(-1)?.every((s) => s == null)) {
+            leg.visits.pop()
+          }
+        }
+        await supabase.from('legs').insert({ ...leg, type: leg.type })
       }
       await supabase.from('games').insert({
         ...this.game,
         legs: this.game.legs.map((leg) => leg.id),
-        type: this.game.type.toString(),
+        type: this.game.type,
       })
       useStatsStore().fetchAll()
     },
@@ -186,8 +137,9 @@ export const useGameStore = defineStore('game', {
 
   getters: {
     getCurrentVisit(): Visit | null {
-      if (!this.userId) return null
-      return this.getCurrentVisits.at(-1) ?? null
+      const leg = this.getCurrentLeg
+      if (!leg) throw Error()
+      return leg.visits.at(-1)!
     },
     getCurrentVisits(): Visit[] {
       return this.getCurrentLeg?.visits ?? []
@@ -196,11 +148,8 @@ export const useGameStore = defineStore('game', {
       return this.getCurrentVisit?.findIndex((s) => s == null) ?? null
     },
     getCurrentLeg: (state) => {
-      if (!state.game || !state.userId) return null
-      return getLegOfUser(state.game, state.userId)
-    },
-    getUserIds: (state) => {
-      return state.game?.legs.map((l) => l.userId) ?? []
+      if (!state.game || !state.gameState?.userId) return null
+      return getLegOfUser(state.game, state.gameState?.userId)
     },
   },
 })

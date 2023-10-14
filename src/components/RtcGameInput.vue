@@ -31,7 +31,6 @@ import { Multiplier, Segment, multiplierToString } from '@/types/game'
 import { ref } from 'vue'
 import { useGameStore } from '@/stores/game'
 import { getTypeAttribute } from '@/types/game'
-import { RtcController, getRtcLegScore } from '@/games/rtc'
 
 const gameStore = useGameStore()
 
@@ -53,14 +52,7 @@ const registerMiss = () => {
 
 const registerHit = () => {
   if (!gameStore.game) throw Error()
-  const sequence = (gameStore.getController() as RtcController).getSequence()
-  const score = getRtcLegScore(gameStore.game, gameStore.getCurrentVisits)
-  const sector = sequence.at(score)
-  if (!sector) throw Error()
-  emit('hit', {
-    multiplier: selectedMultiplier.value,
-    sector,
-  })
+  emit('hit', { multiplier: selectedMultiplier.value, sector: -1 })
   selectedMultiplier.value = getDefaultMultiplier()
 }
 </script>
