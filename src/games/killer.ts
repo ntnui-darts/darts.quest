@@ -62,7 +62,11 @@ export const getKillerController = (game: Game): KillerController => {
         playerHit.points += segment.multiplier
       } else if (currentPlayer.points == getGamePoints(game)) {
         playerHit.points -= segment.multiplier
+      } else {
+        gameStore.saveScore({ multiplier: Multiplier.None, sector: 0 })
+        return
       }
+
       if (
         playerHit.points > getGamePoints(game) ||
         (playerHit != currentPlayer && playerHit.points < 0)
