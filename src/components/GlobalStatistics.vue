@@ -32,7 +32,11 @@
             {{ i + 1 }}. {{ useUsersStore().getUser(userStat.userId)?.name }}
           </td>
           <td style="text-align: end">
-            {{ Math.round((userStat[stat.key] ?? 0) * 100) / 100 }}
+            {{
+              stat.transform
+                ? stat.transform(userStat[stat.key] ?? 0)
+                : Math.round((userStat[stat.key] ?? 0) * 100) / 100
+            }}
           </td>
         </tr>
       </tbody>
@@ -65,6 +69,7 @@ const getStats = (
   key: keyof Omit<UserStat, 'userId'>
   text: string
   userStats: UserStat[]
+  transform?: (n: number) => string
 }[] => {
   switch (gameType) {
     case 'x01':
@@ -176,6 +181,7 @@ const getStats = (
             0,
             false
           ),
+          transform: (n) => Math.round(n * 1000) / 10 + ' %',
         },
         {
           key: 'minRtcVisits',
@@ -188,8 +194,21 @@ const getStats = (
           userStats: sort(statsStore.userStats, 'maxRtcStreak', 0, false),
         },
       ]
+    case 'killer':
+      return [
+        {
+          key: 'numKillerGames',
+          text: 'Number of Games',
+          userStats: sort(statsStore.userStats, 'numKillerGames', 0, false),
+        },
+        {
+          key: 'avgKillerResult',
+          text: 'Win Rate [%]',
+          userStats: sort(statsStore.userStats, 'avgKillerResult', 0, false),
+          transform: (n) => Math.round(n * 10000) / 100 + ' %',
+        },
+      ]
   }
-  return []
 }
 
 const sort = (

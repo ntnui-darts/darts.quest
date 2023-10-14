@@ -100,8 +100,9 @@ export interface Database {
       }
       statistics: {
         Row: {
-          avg301DoubleVisitsLast10: number
-          avg501DoubleVisitsLast10: number
+          avg301DoubleVisitsLast10: number | null
+          avg501DoubleVisitsLast10: number | null
+          avgKillerResult: number
           avgRtcHitRateLast10: number
           max501DoubleVisits: number
           maxRtcStreak: number
@@ -111,13 +112,15 @@ export interface Database {
           min301DoubleVisits: number | null
           min501DoubleVisits: number | null
           minRtcVisits: number | null
+          numKillerGames: number
           numRtcGames: number
           numX01Games: number
           userId: string
         }
         Insert: {
-          avg301DoubleVisitsLast10?: number
-          avg501DoubleVisitsLast10?: number
+          avg301DoubleVisitsLast10?: number | null
+          avg501DoubleVisitsLast10?: number | null
+          avgKillerResult?: number
           avgRtcHitRateLast10: number
           max501DoubleVisits?: number
           maxRtcStreak?: number
@@ -127,13 +130,15 @@ export interface Database {
           min301DoubleVisits?: number | null
           min501DoubleVisits?: number | null
           minRtcVisits?: number | null
+          numKillerGames?: number
           numRtcGames?: number
           numX01Games?: number
           userId: string
         }
         Update: {
-          avg301DoubleVisitsLast10?: number
-          avg501DoubleVisitsLast10?: number
+          avg301DoubleVisitsLast10?: number | null
+          avg501DoubleVisitsLast10?: number | null
+          avgKillerResult?: number
           avgRtcHitRateLast10?: number
           max501DoubleVisits?: number
           maxRtcStreak?: number
@@ -143,6 +148,7 @@ export interface Database {
           min301DoubleVisits?: number | null
           min501DoubleVisits?: number | null
           minRtcVisits?: number | null
+          numKillerGames?: number
           numRtcGames?: number
           numX01Games?: number
           userId?: string

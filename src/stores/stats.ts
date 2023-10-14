@@ -62,16 +62,16 @@ export const useStatsStore = defineStore('stats', {
       let min501DoubleVisits = null as number | null
       let maxX01VisitScore = 0
       let maxX01First9Avg = 0
-      let numRtcGames = 0
-      let numX01Games = 0
       let maxX01DoubleCheckout = 0
       let max501DoubleVisits = 0
       let avgRtcHitRateLast10 = 0
       let avg501DoubleVisitsLast10 = 0
       let avg301DoubleVisitsLast10 = 0
+      let avgKillerResult = 0
 
       const legs = this.legs.filter((leg) => leg.finish)
       const rtcLegs = legs.filter((leg) => leg.type == 'rtc')
+      const rtcGames = this.games.filter((leg) => leg.type == 'rtc')
       const rtcLegsLast10 = rtcLegs.slice(-10)
       avgRtcHitRateLast10 =
         sumNumbers(rtcLegsLast10.map((leg) => 20 / leg.visits.flat().length)) /
@@ -80,6 +80,7 @@ export const useStatsStore = defineStore('stats', {
         (leg) =>
           leg.type == 'x01' && getTypeAttribute<number>(leg, 'finish', 1) == 2
       )
+      const x01Games = this.games.filter((leg) => leg.type == 'x01')
       const _501DoubleLegsLast10 = x01DoubleLegs
         .filter((leg) => getTypeAttribute<number>(leg, 'startScore', 0) == 501)
         .slice(-10)
@@ -92,11 +93,22 @@ export const useStatsStore = defineStore('stats', {
       avg301DoubleVisitsLast10 =
         sumNumbers(_301DoubleLegsLast10.map((leg) => leg.visits.length)) /
         _301DoubleLegsLast10.length
+      const killerGames = this.games.filter((leg) => leg.type == 'killer')
+      avgKillerResult =
+        sumNumbers(
+          killerGames.map((game) => {
+            let index = game.result.indexOf(userId)
+            if (index < 0) return 0
+            return (
+              (game.result.length - 1 - index) /
+              (Math.max(game.players.length, 2) - 1)
+            )
+          })
+        ) / killerGames.length
 
       legs.forEach((leg) => {
         switch (leg.type) {
           case 'rtc':
-            numRtcGames += 1
             const fastMode = getTypeAttribute<boolean>(leg, 'fast', false)
             if (fastMode) return
             minRtcVisits = Math.min(minRtcVisits ?? Infinity, leg.visits.length)
@@ -111,7 +123,6 @@ export const useStatsStore = defineStore('stats', {
             })
             break
           case 'x01':
-            numX01Games += 1
             const startScore = getTypeAttribute<number>(leg, 'startScore', 0)
             const finishType = getTypeAttribute<number>(leg, 'finish', 1)
             if (startScore == 301 && finishType == 2) {
@@ -145,6 +156,9 @@ export const useStatsStore = defineStore('stats', {
               maxX01First9Avg,
               getFirst9Avg(leg.visits, leg)
             )
+            break
+          case 'killer':
+            break
         }
       })
       const userStat = {
@@ -154,13 +168,15 @@ export const useStatsStore = defineStore('stats', {
         min501DoubleVisits,
         maxX01VisitScore,
         maxX01First9Avg,
-        numRtcGames,
-        numX01Games,
         maxX01DoubleCheckout,
         max501DoubleVisits,
         avgRtcHitRateLast10,
         avg301DoubleVisitsLast10,
         avg501DoubleVisitsLast10,
+        avgKillerResult,
+        numRtcGames: rtcGames.length,
+        numX01Games: x01Games.length,
+        numKillerGames: killerGames.length,
       }
       const userStatPrev = await supabase
         .from('statistics')
