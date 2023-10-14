@@ -33,7 +33,7 @@ export const getResultsOfFirstToWinGame = (
   game: Game,
   winCondition: (game: Game, visits: Visit[]) => boolean
 ) => {
-  const results = []
+  const results: string[] = []
   const playersLeft = [...game.players]
   let visitIndex = 0
   let userId: string | null = null
@@ -71,5 +71,10 @@ export const getResultsOfFirstToWinGame = (
 
     visitIndex += 1
   }
-  return { results, userId, prevUserId }
+  return {
+    results,
+    userId,
+    prevUserId,
+    playersLeft: game.players.filter((p) => !results.includes(p)),
+  }
 }

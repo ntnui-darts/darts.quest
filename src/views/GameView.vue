@@ -17,9 +17,7 @@
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div class="grid-users" style="grid-template-columns: 1fr 1fr">
       <button
-        v-for="userId in gameStore.game.players.filter(
-          (id) => !gameStore.gameState?.results.includes(id)
-        )"
+        v-for="userId in gameStore.gameState?.playersLeft ?? []"
         :class="{ selected: gameStore.gameState?.userId == userId }"
         @click="showChart(userId)"
       >

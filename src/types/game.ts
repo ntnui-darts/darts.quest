@@ -66,6 +66,7 @@ export interface GameState {
   results: string[]
   userId: string | null
   prevUserId: string | null
+  playersLeft: string[]
   getUserResultText(userId: string): string
   getUserDisplayText(userId: string): string
   getSegmentText(segment?: Segment | null): string

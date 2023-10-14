@@ -37,10 +37,12 @@ export const getKillerController = (game: Game): KillerController => {
         getSegmentText,
         ...gameState,
         getUserResultText(userId) {
-          return useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const player = gameState.allPlayers.find((p) => p.userId == userId)
+          return `${name}, ${player?.points} points`
         },
         getUserDisplayText(userId) {
-          const player = gameState.players.find((p) => p.userId == userId)
+          const player = gameState.allPlayers.find((p) => p.userId == userId)
           if (!player) return '-'
           return `${player.points}\t[${player.sector ?? '?'}]`
         },
@@ -78,18 +80,26 @@ export const getKillerController = (game: Game): KillerController => {
 
 const getGameState = (game: Game, _players: KillerPlayer[]) => {
   const results: string[] = []
-  const players = JSON.parse(JSON.stringify(_players)) as KillerPlayer[]
-  const playersLeft = [...players]
+  const allPlayers = _players.toSorted(
+    (a, b) => (b.sector ?? 0) - (a.sector ?? 0)
+  )
+  const playersLeft = [...allPlayers]
   let visitIndex = 0
   const gamePoints = getGamePoints(game)
   let userId: null | string = null
   let prevUserId: null | string = null
 
-  for (let i = 0; i < players.length; i++) {
-    if (!players[i].sector) {
-      return { userId: players[i].userId, results, players, prevUserId }
+  for (let i = 0; i < allPlayers.length; i++) {
+    if (!allPlayers[i].sector) {
+      return {
+        userId: allPlayers[i].userId,
+        results,
+        allPlayers,
+        prevUserId,
+        playersLeft: allPlayers.map((p) => p.userId),
+      }
     }
-    prevUserId = players[i].userId
+    prevUserId = allPlayers[i].userId
   }
   prevUserId = null
 
@@ -106,7 +116,7 @@ const getGameState = (game: Game, _players: KillerPlayer[]) => {
         if (index <= i) i -= 1
       }
 
-      if (results.length == players.length - 1) {
+      if (results.length == allPlayers.length - 1) {
         kill(player)
         // TODO: Fix
         userId = player.userId
@@ -158,5 +168,13 @@ const getGameState = (game: Game, _players: KillerPlayer[]) => {
     }
     visitIndex += 1
   }
-  return { results, userId, players, prevUserId }
+  return {
+    results,
+    userId,
+    allPlayers,
+    prevUserId,
+    playersLeft: allPlayers
+      .map((p) => p.userId)
+      .filter((id) => !results.includes(id)),
+  }
 }
