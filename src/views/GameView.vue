@@ -17,23 +17,23 @@
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div class="grid-users" style="grid-template-columns: 1fr 1fr">
       <button
-        v-for="userId in gameStore.getUserIds.filter(
-          (id) => !gameStore.game?.result.includes(id)
+        v-for="userId in gameStore.game.players.filter(
+          (id) => !gameStore.gameState?.results.includes(id)
         )"
-        :class="{ selected: gameStore.userId == userId }"
+        :class="{ selected: gameStore.gameState?.userId == userId }"
         @click="showChart(userId)"
       >
         {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
         <br />
-        {{ gameStore.getController().getUserDisplayText(userId) }}
+        {{ gameStore.gameState?.getUserDisplayText(userId) }}
       </button>
     </div>
     <div class="row">
       <button
-        v-for="(segment, i) in gameStore.getCurrentVisit"
+        v-for="(segment, i) in gameStore.getCurrentVisit ?? [null, null, null]"
         :class="{ outlined: i == gameStore.getNumberOfThrows }"
       >
-        {{ gameStore.getController().getSegmentText(segment) }}
+        {{ gameStore.gameState?.getSegmentText(segment) }}
       </button>
     </div>
     <component
@@ -44,10 +44,13 @@
     ></component>
   </div>
   <div v-if="gameStore.game && somePlayersFinished">
+    <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
+      &#x232B;
+    </button>
     <h2>Results, {{ gameStore.game.typeAttributes[0] }}</h2>
     <ol>
-      <li v-for="id in gameStore.game.result">
-        {{ gameStore.getController().getUserResultText(id) }}
+      <li v-for="id in gameStore.gameState?.results">
+        {{ gameStore.gameState?.getUserResultText(id) }}
       </li>
     </ol>
     <div class="col">
@@ -73,11 +76,12 @@ const loadingStore = useLoadingStore()
 
 const allPlayersFinished = computed(
   () =>
-    (gameStore.game?.legs.length ?? 0) == (gameStore.game?.result.length ?? 0)
+    (gameStore.game?.legs.length ?? 0) ==
+    (gameStore.gameState?.results.length ?? 0)
 )
 
 const somePlayersFinished = computed(
-  () => (gameStore.game?.result.length ?? 0) > 0
+  () => (gameStore.gameState?.results.length ?? 0) > 0
 )
 
 onMounted(() => {

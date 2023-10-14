@@ -1,4 +1,3 @@
-import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
   Game,
@@ -8,38 +7,50 @@ import {
   getTypeAttribute,
   getGamePoints,
 } from '@/types/game'
-import { getGenericController } from '@/games/generic'
+import {
+  getGenericController,
+  getResultsOfFirstToWinGame,
+} from '@/games/generic'
+import { useGameStore } from '@/stores/game'
 
 export type RtcController = GameController & { getSequence(): number[] }
 
 export const getRtcController = (game: Game): RtcController => {
-  const gameStore = useGameStore()
   const sequence = Array(20)
     .fill(undefined)
     .map((_, i) => i + 1)
 
   return {
     ...getGenericController(game),
+    getGameState() {
+      const sequence = this.getSequence()
+      return {
+        ...getResultsOfFirstToWinGame(
+          game,
+          (game, visits) => getRtcLegScore(game, visits) == getGamePoints(game)
+        ),
+        getUserResultText(userId) {
+          const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const visits = game.legs.find((leg) => leg.userId == userId)?.visits
+          return `${name}, ${visits?.length} visits`
+        },
+        getUserDisplayText(userId) {
+          const score = getRtcLegScore(game, getVisitsOfUser(game, userId))
+          return `${sequence.at(score)}`
+        },
+        getSegmentText(segment) {
+          return segment ? `${segment.sector}` : '-'
+        },
+      }
+    },
     getSequence() {
       return sequence
     },
-    winCondition() {
-      return (
-        getRtcLegScore(game, getVisitsOfUser(game, gameStore.userId)) ==
-        getGamePoints(game)
-      )
-    },
-    getUserResultText(userId) {
-      const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
-      const visits = game.legs.find((leg) => leg.userId == userId)?.visits
-      return `${name}, ${visits?.length} visits`
-    },
-    getUserDisplayText(userId) {
-      const score = getRtcLegScore(game, getVisitsOfUser(game, userId))
-      return `${this.getSequence().at(score)}`
-    },
-    getSegmentText(segment) {
-      return segment ? `${segment.sector}` : '-'
+    recordHit(segment) {
+      const score = getRtcLegScore(game, useGameStore().getCurrentVisits)
+      const sector = this.getSequence().at(score)
+      if (!sector) throw Error()
+      useGameStore().saveScore({ multiplier: segment.multiplier, sector })
     },
   }
 }

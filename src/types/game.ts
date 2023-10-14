@@ -1,4 +1,5 @@
 import { Database } from './supabase'
+import { Prettify } from './ts'
 
 export enum Multiplier {
   None,
@@ -53,22 +54,26 @@ export type Leg = Omit<
 }
 
 export type DbGame = Database['public']['Tables']['games']['Row']
-export type Game = Omit<
-  DbGame,
-  'createdAt' | 'legs' | 'type' | 'finishType'
-> & {
-  createdAt?: string
-  legs: Leg[]
-  type: GameType
+export type Game = Prettify<
+  Omit<DbGame, 'createdAt' | 'legs' | 'type' | 'finishType'> & {
+    createdAt?: string
+    legs: Leg[]
+    type: GameType
+  }
+>
+
+export interface GameState {
+  results: string[]
+  userId: string | null
+  prevUserId: string | null
+  getUserResultText(userId: string): string
+  getUserDisplayText(userId: string): string
+  getSegmentText(segment?: Segment | null): string
 }
 
 export interface GameController {
   game: Game
-  winCondition(): boolean
-  winnerFinishesFirst(): boolean
-  getUserResultText(userId: string): string
-  getUserDisplayText(userId: string): string
-  getSegmentText(segment?: Segment | null): string
+  getGameState(): GameState
   recordHit(segment: Segment): void
   recordMiss(): void
 }
@@ -89,7 +94,12 @@ export const multiplierToString = (m: Multiplier) => {
 }
 
 export const getLegOfUser = (game: Game, userId: string) => {
-  return game.legs.find((leg) => leg.userId == userId) ?? null
+  const leg = game.legs.find((leg) => leg.userId == userId)
+  if (!leg) throw Error()
+  if (leg.visits.length == 0 || leg.visits.at(-1)?.[2] != null) {
+    leg.visits.push([null, null, null])
+  }
+  return leg
 }
 
 export const getVisitsOfUser = (game: Game, userId?: string | null) => {

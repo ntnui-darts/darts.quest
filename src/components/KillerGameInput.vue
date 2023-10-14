@@ -33,6 +33,7 @@
     >
       0
     </button>
+    <button @click="emit('undo')">&#x232B;</button>
   </div>
 </template>
 
@@ -44,6 +45,7 @@ import { ref, onMounted } from 'vue'
 
 const selectedMultiplier = ref(1)
 const selectedSector = ref<number | null>(null)
+const gameStore = useGameStore()
 
 const players = ref<KillerPlayer[]>([])
 
@@ -63,15 +65,20 @@ const selectSector = (sector: number) => {
     })
   }
   selectedMultiplier.value = 1
-  players.value = (
-    useGameStore().getController() as KillerController
-  ).getKillerPlayers() // to trigger rerender
+  updatePlayers()
+}
+
+const updatePlayers = () => {
+  players.value =
+    (useGameStore().getController() as KillerController)
+      .getKillerPlayers()
+      .filter(
+        (player) => !gameStore.gameState?.results.includes(player.userId)
+      ) ?? []
 }
 
 onMounted(() => {
-  players.value = (
-    useGameStore().getController() as KillerController
-  ).getKillerPlayers()
+  updatePlayers()
 })
 </script>
 

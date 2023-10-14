@@ -189,6 +189,7 @@ const getStats = (
         },
       ]
   }
+  return []
 }
 
 const sort = (
