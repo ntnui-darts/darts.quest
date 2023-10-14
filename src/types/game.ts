@@ -1,3 +1,4 @@
+import { GameType } from '@/games/games'
 import { Database } from './supabase'
 import { Prettify } from './ts'
 
@@ -14,34 +15,6 @@ export type Segment = {
 }
 
 export type Visit = [Segment | null, Segment | null, Segment | null]
-
-export const getGamePoints = (game: Game | Leg) => {
-  switch (game.type) {
-    case 'rtc':
-      return 20
-    case 'x01':
-      return getTypeAttribute<number>(game, 'startScore', NaN)
-    case 'killer':
-      return 5
-  }
-}
-
-export const GameTypeNames = {
-  x01: 'X01',
-  rtc: 'Round the Clock',
-  killer: 'Killer',
-} as const satisfies Record<GameType, string>
-
-export const getGameDisplayName = (game: Game) => {
-  switch (game.type) {
-    case 'rtc':
-      return 'Round the Clock'
-    case 'x01':
-      return getTypeAttribute<number>(game, 'startScore', NaN).toString()
-  }
-}
-
-export type GameType = 'x01' | 'rtc' | 'killer'
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
 export type Leg = Omit<
@@ -77,17 +50,6 @@ export interface GameController {
   getGameState(): GameState
   recordHit(segment: Segment): void
   recordMiss(): void
-}
-
-export const getMinPlayerCount = (gameType: GameType) => {
-  switch (gameType) {
-    case 'killer':
-      return 2
-    case 'rtc':
-      return 1
-    case 'x01':
-      return 1
-  }
 }
 
 export const multiplierToString = (m: Multiplier) => {

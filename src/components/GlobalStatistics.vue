@@ -54,7 +54,7 @@
 import { ref } from 'vue'
 import { useStatsStore, UserStat } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
-import { GameType, GameTypeNames } from '@/types/game'
+import { GameType, GameTypeNames } from '@/games/games'
 
 const statsStore = useStatsStore()
 

@@ -6,7 +6,6 @@ import {
   GameController,
   getVisitsOfUser,
   getTypeAttribute,
-  getGamePoints,
   Leg,
   GameState,
 } from '@/types/game'
@@ -15,6 +14,7 @@ import {
   getResultsOfFirstToWinGame,
   getSegmentText,
 } from '@/games/generic'
+import { getGamePoints } from './games'
 
 export const getX01Controller = (game: Game): GameController => {
   return {

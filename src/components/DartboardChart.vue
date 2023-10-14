@@ -5,8 +5,9 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue'
 import { Chart } from 'chart.js'
-import { GameType, Visit } from '@/types/game'
+import { Visit } from '@/types/game'
 import { rtcStats } from '@/games/rtc'
+import { GameType } from '@/games/games'
 
 const props = defineProps<{
   visits: Visit[]

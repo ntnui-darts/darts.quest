@@ -5,13 +5,13 @@ import {
   Visit,
   getVisitsOfUser,
   getTypeAttribute,
-  getGamePoints,
 } from '@/types/game'
 import {
   getGenericController,
   getResultsOfFirstToWinGame,
 } from '@/games/generic'
 import { useGameStore } from '@/stores/game'
+import { getGamePoints } from './games'
 
 export type RtcController = GameController & { getSequence(): number[] }
 

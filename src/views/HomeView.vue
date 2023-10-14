@@ -51,19 +51,22 @@
 <script lang="ts" setup>
 import ReloadView from '@/components/ReloadView.vue'
 import { router } from '@/router'
-import { GameType, Leg, GameTypeNames, getMinPlayerCount } from '@/types/game'
+import { Leg } from '@/types/game'
 import { useUsersStore } from '@/stores/users'
 import { nanoid } from 'nanoid'
 import { onMounted, ref } from 'vue'
 import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
-import X01OptionsInput from '@/components/X01OptionsInput.vue'
-import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
-import KillerOptionsInput from '@/components/KillerOptionsInput.vue'
 import PlayerSelection, {
   UserCurrentInfo,
 } from '@/components/PlayerSelection.vue'
 import { useAuthStore } from '@/stores/auth'
+import {
+  getMinPlayerCount,
+  getOptionsComponent,
+  GameTypeNames,
+  GameType,
+} from '@/games/games'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
@@ -85,17 +88,6 @@ onMounted(() => {
     useModalStore().push(ReloadView, {}, {})
   }
 })
-
-const getOptionsComponent = (type: GameType) => {
-  switch (type) {
-    case 'x01':
-      return X01OptionsInput
-    case 'rtc':
-      return RtcOptionsInput
-    case 'killer':
-      return KillerOptionsInput
-  }
-}
 
 const selectGameType = (type: GameType) => {
   if (gameType.value == type) return

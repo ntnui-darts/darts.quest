@@ -1,34 +1,28 @@
-import X01GameInputVue from '@/components/X01GameInput.vue'
-import RtcGameInputVue from '@/components/RtcGameInput.vue'
-import KillerGameInputVue from '@/components/KillerGameInput.vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useStatsStore } from './stats'
 import { supabase } from '@/supabase'
 import {
-  Game,
+  Game as GameData,
   Segment,
   Visit,
   getLegOfUser,
   GameController,
-  getTypeAttribute,
   GameState,
   getVisitsOfUser,
 } from '@/types/game'
-import { getX01Controller } from '@/games/x01'
-import { getRtcController } from '@/games/rtc'
-import { getRtcRandomController } from '@/games/rtc-random'
-import { getKillerController } from '@/games/killer'
-import { Component } from 'vue'
 import { useUsersStore } from './users'
+import { getGameController } from '@/games/games'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
-    game: null as Game | null,
+    game: null as GameData | null,
+    gameState: null as GameState | null,
+
     walkOn: null as string | null,
     walkOnTime: 0,
+
     // Don't access controller directly, use getController()
     _controller: null as GameController | null,
-    gameState: null as GameState | null,
   }),
 
   actions: {
@@ -54,36 +48,11 @@ export const useGameStore = defineStore('game', {
     getController(): GameController {
       if (!this.game) throw Error()
       if (this.game != this._controller?.game) {
-        switch (this.game.type) {
-          case 'x01':
-            this._controller = getX01Controller(this.game)
-            break
-          case 'rtc':
-            if (getTypeAttribute(this.game, 'random', false)) {
-              this._controller = getRtcRandomController(this.game)
-            } else {
-              this._controller = getRtcController(this.game)
-            }
-            break
-          case 'killer':
-            this._controller = getKillerController(this.game)
-            break
-        }
+        this._controller = getGameController(this.game)
       }
       return this._controller
     },
-    getInputComponent(): Component {
-      if (!this.game) throw Error()
-      switch (this.game.type) {
-        case 'x01':
-          return X01GameInputVue
-        case 'rtc':
-          return RtcGameInputVue
-        case 'killer':
-          return KillerGameInputVue
-      }
-    },
-    setCurrentGame(game: Game) {
+    setCurrentGame(game: GameData) {
       this.game = game
       if (this.game.legs.length == 0) throw Error()
       this.updateGameState()

@@ -35,7 +35,7 @@
       </button>
     </div>
     <component
-      :is="gameStore.getInputComponent()"
+      :is="getInputComponent(gameStore.game.type)"
       @hit="gameStore.getController().recordHit($event)"
       @miss="gameStore.getController().recordMiss()"
       @undo="gameStore.undoScore()"
@@ -68,6 +68,7 @@ import { useGameStore } from '@/stores/game'
 import DartboardChart from '@/components/DartboardChart.vue'
 import Youtube from '@/components/Youtube.vue'
 import Prompt from '@/components/Prompt.vue'
+import { getInputComponent } from '@/games/games'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
