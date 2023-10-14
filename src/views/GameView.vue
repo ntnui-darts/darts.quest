@@ -39,8 +39,8 @@
     <component
       :is="gameStore.getInputComponent()"
       @hit="gameStore.getController().recordHit($event)"
-      @miss="gameStore.getController().recordMiss"
-      @undo="gameStore.undoScore"
+      @miss="gameStore.getController().recordMiss()"
+      @undo="gameStore.undoScore()"
     ></component>
   </div>
   <div v-if="gameStore.game && somePlayersFinished">

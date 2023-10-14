@@ -2,7 +2,6 @@ import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import { Game, GameController, Multiplier, getGamePoints } from '@/types/game'
 import { getGenericController } from '@/games/generic'
-import { sumNumbers } from './rtc'
 
 export type KillerController = GameController & {
   getKillerPlayers: () => KillerPlayer[]
@@ -36,9 +35,9 @@ export const getKillerController = (game: Game): KillerController => {
       return useUsersStore().getUser(userId)?.name ?? 'Unknown'
     },
     getUserDisplayText(userId) {
-      const points =
-        this.getKillerPlayers().find((p) => p.userId == userId)?.points ?? 0
-      return `${points}`
+      const player = this.getKillerPlayers().find((p) => p.userId == userId)
+      if (!player) return '-'
+      return `${player.points}\t[${player.sector ?? '?'}]`
     },
     recordHit(segment) {
       if (!segment) return
@@ -98,7 +97,6 @@ export const getKillerController = (game: Game): KillerController => {
       )
       if (!player) throw Error()
       if (!player.sector) {
-        gameStore.nextUser()
         return
       }
 

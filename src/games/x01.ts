@@ -36,7 +36,7 @@ export const getX01Controller = (game: Game): GameController => {
       const visits = getVisitsOfUser(game, userId)
       const rest = getGamePoints(game) - getLegScore(visits, game)
       const avg = getAvgVisitScore(visits, game).toFixed(1)
-      return `${rest} (${avg})`
+      return `${rest}\t(${avg})`
     },
   }
 }
