@@ -35,50 +35,52 @@
     />
   </div>
   <DartboardChart
-    :visits="
-      legs
-        .filter((leg) => leg.type == 'x01')
-        .map((leg) => leg.visits)
-        .flat()
-    "
+    :visits="x01Visits"
     :width="300"
     :height="300"
     stat-type="x01"
     title="X01"
   ></DartboardChart>
   <DartboardChart
-    :visits="
-      legs
-        .filter((leg) => leg.type == 'rtc')
-        .map((leg) => leg.visits)
-        .flat()
-    "
+    :visits="rtcVisits"
     :width="300"
     :height="300"
     stat-type="rtc"
     title="RTC"
   ></DartboardChart>
-  <h3>X01 Number of Visits</h3>
+  <div class="row spaced" style="align-items: center">
+    <h3>X01 Number of Visits</h3>
+    <button
+      style="flex: 0 1"
+      :class="{ selected: smooth }"
+      @click="smooth = !smooth"
+    >
+      Smooth
+    </button>
+  </div>
   <LegHistoryChart
     :legs="legs"
     :y="(leg) => leg.visits.length"
     :group-by-type="true"
+    :smooth="smooth"
   ></LegHistoryChart>
   <h3>First 9 Average</h3>
   <LegHistoryChart
-    :legs="legs.filter((leg) => leg.type == 'x01')"
+    :legs="x01Legs"
     :y="(leg) => getFirst9Avg(leg.visits, leg)"
     :group-by-type="false"
+    :smooth="true"
   ></LegHistoryChart>
   <h3>RTC Hit rate</h3>
   <LegHistoryChart
-    :legs="legs.filter((leg) => leg.type == 'rtc')"
+    :legs="rtcLegs"
     :y="
       (leg) =>
         rtcStats(leg.visits).filter((x) => x != 0).length /
         leg.visits.flat().length
     "
     :group-by-type="false"
+    :smooth="true"
   ></LegHistoryChart>
   <br />
   <br />
@@ -103,6 +105,7 @@ const statsStore = useStatsStore()
 const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
+const smooth = ref(false)
 
 const addDays = (date: Date, days: number) => {
   const result = new Date(date)
@@ -115,6 +118,11 @@ const setLastDays = (days: 7 | 30 | 365) => {
   startDate.value = toYyyyMmDd(addDays(new Date(), -days))
   selected.value = days
 }
+
+const x01Legs = computed(() => legs.value.filter((leg) => leg.type == 'x01'))
+const x01Visits = computed(() => x01Legs.value.map((leg) => leg.visits).flat())
+const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
+const rtcVisits = computed(() => rtcLegs.value.map((leg) => leg.visits).flat())
 
 onMounted(() => {
   setLastDays(365)

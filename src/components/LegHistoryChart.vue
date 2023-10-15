@@ -14,6 +14,7 @@ const props = defineProps<{
   legs: Leg[]
   y: (leg: Leg) => number
   groupByType: boolean
+  smooth: boolean
 }>()
 
 const chartElement = ref<HTMLCanvasElement | null>(null)
@@ -37,13 +38,14 @@ const getDatasetsGroupedByType = () => {
       [3, 'Triple'],
     ] as const) {
       const legs = legsOfType(type, finishType)
+      const points = legs.map((leg) => ({
+        x: new Date(leg.createdAt),
+        y: props.y(leg),
+      }))
       if (legs.length > 0) {
         datasets.push({
           label: `${type} ${finishTypeText}`,
-          data: legs.map((leg) => ({
-            x: new Date(leg.createdAt),
-            y: props.y(leg),
-          })),
+          data: props.smooth ? smooth(points) : points,
         })
       }
     }
@@ -127,7 +129,7 @@ onMounted(() => {
 })
 
 watch(
-  () => props.legs,
+  () => [props.legs, props.smooth],
   () => buildChart()
 )
 </script>
