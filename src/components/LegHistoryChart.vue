@@ -69,7 +69,6 @@ const smooth = (points: Point[]) => {
       const weight = 1 / distance
       sumWeights += weight
       y += b.y * weight
-      console.log(weight)
     }
     smoothed.push({ x: a.x, y: y / sumWeights })
   }

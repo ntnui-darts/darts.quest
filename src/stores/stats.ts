@@ -66,12 +66,13 @@ export const useStatsStore = defineStore('stats', {
       let min501DoubleVisits = null as number | null
       let maxX01VisitScore = 0
       let maxX01First9Avg = 0
+      let avgX01First9AvgLast10 = 0
       let maxX01DoubleCheckout = 0
       let max501DoubleVisits = 0
       let avgRtcHitRateLast10 = 0
       let avg501DoubleVisitsLast10 = 0
       let avg301DoubleVisitsLast10 = 0
-      let avgKillerResult = 0
+      let avgKillerWinRateLast10 = 0
 
       const finishedLegs = this.legs.filter((leg) => leg.finish)
       const rtcLegs = finishedLegs.filter((leg) => leg.type == 'rtc')
@@ -86,6 +87,12 @@ export const useStatsStore = defineStore('stats', {
         (leg) =>
           leg.type == 'x01' && getTypeAttribute<number>(leg, 'finish', 1) == 2
       )
+      if (x01DoubleLegs.length > 0) {
+        avgX01First9AvgLast10 =
+          sumNumbers(
+            x01DoubleLegs.map((leg) => getFirst9Avg(leg.visits, leg))
+          ) / x01DoubleLegs.length
+      }
       const x01Games = this.games.filter((leg) => leg.type == 'x01')
       const _501DoubleLegsLast10 = x01DoubleLegs
         .filter((leg) => getTypeAttribute<number>(leg, 'startScore', 0) == 501)
@@ -104,18 +111,19 @@ export const useStatsStore = defineStore('stats', {
           _301DoubleLegsLast10.length
       }
       const killerGames = this.games.filter((leg) => leg.type == 'killer')
-      if (killerGames.length > 0) {
-        avgKillerResult =
+      const killerGamesLast10 = killerGames.slice(-10)
+      if (killerGamesLast10.length > 0) {
+        avgKillerWinRateLast10 =
           sumNumbers(
-            killerGames.map((game) => {
+            killerGamesLast10.map((game) => {
               let index = game.result.indexOf(userId)
-              if (index < 0) return 0
+              if (index < 0 || game.players.length < 2) return 0
               return (
-                (2 * game.players.length - game.result.length - 1 - index) /
-                (Math.max(game.players.length, 2) - 1)
+                (2 * game.players.length - game.result.length - index - 1) /
+                (game.players.length - 1)
               )
             })
-          ) / killerGames.length
+          ) / killerGamesLast10.length
       }
 
       finishedLegs.forEach((leg) => {
@@ -174,28 +182,30 @@ export const useStatsStore = defineStore('stats', {
         }
       })
       const userStat = {
+        userId,
         maxRtcStreak,
         minRtcVisits,
         min301DoubleVisits,
         min501DoubleVisits,
         maxX01VisitScore,
         maxX01First9Avg,
+        avgX01First9AvgLast10,
         maxX01DoubleCheckout,
         max501DoubleVisits,
         avgRtcHitRateLast10,
         avg301DoubleVisitsLast10,
         avg501DoubleVisitsLast10,
-        avgKillerResult,
+        avgKillerWinRateLast10,
         numRtcGames: rtcGames.length,
         numX01Games: x01Games.length,
         numKillerGames: killerGames.length,
-      }
+      } satisfies Database['public']['Tables']['statistics']['Row']
       const userStatPrev = await supabase
         .from('statistics')
         .select('*')
         .eq('userId', userId)
       if (!userStatPrev.data?.length) {
-        await supabase.from('statistics').insert({ userId, ...userStat })
+        await supabase.from('statistics').insert(userStat)
       } else {
         await supabase.from('statistics').update(userStat).eq('userId', userId)
       }

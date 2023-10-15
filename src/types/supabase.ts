@@ -102,8 +102,9 @@ export interface Database {
         Row: {
           avg301DoubleVisitsLast10: number | null
           avg501DoubleVisitsLast10: number | null
-          avgKillerResult: number
+          avgKillerWinRateLast10: number | null
           avgRtcHitRateLast10: number
+          avgX01First9AvgLast10: number | null
           max501DoubleVisits: number
           maxRtcStreak: number
           maxX01DoubleCheckout: number
@@ -120,8 +121,9 @@ export interface Database {
         Insert: {
           avg301DoubleVisitsLast10?: number | null
           avg501DoubleVisitsLast10?: number | null
-          avgKillerResult?: number
+          avgKillerWinRateLast10?: number | null
           avgRtcHitRateLast10: number
+          avgX01First9AvgLast10?: number | null
           max501DoubleVisits?: number
           maxRtcStreak?: number
           maxX01DoubleCheckout?: number
@@ -138,8 +140,9 @@ export interface Database {
         Update: {
           avg301DoubleVisitsLast10?: number | null
           avg501DoubleVisitsLast10?: number | null
-          avgKillerResult?: number
+          avgKillerWinRateLast10?: number | null
           avgRtcHitRateLast10?: number
+          avgX01First9AvgLast10?: number | null
           max501DoubleVisits?: number
           maxRtcStreak?: number
           maxX01DoubleCheckout?: number

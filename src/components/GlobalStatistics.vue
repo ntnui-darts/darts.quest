@@ -82,6 +82,16 @@ const getStats = (
               userStats: sort(statsStore.userStats, 'numX01Games', 0, false),
             },
             {
+              key: 'avgX01First9AvgLast10',
+              text: 'Average First 9 Avg Last 10 Games',
+              userStats: sort(
+                statsStore.userStats,
+                'avgX01First9AvgLast10',
+                0,
+                false
+              ),
+            },
+            {
               key: 'maxX01First9Avg',
               text: 'Highest First 9 Average',
               userStats: sort(
@@ -125,7 +135,7 @@ const getStats = (
             },
             {
               key: 'min301DoubleVisits',
-              text: 'Fastest [# Visits]',
+              text: 'Fastest # Visits',
               userStats: sort(
                 statsStore.userStats,
                 'min301DoubleVisits',
@@ -146,7 +156,7 @@ const getStats = (
             },
             {
               key: 'min501DoubleVisits',
-              text: 'Fastest [# Visits]',
+              text: 'Fastest # Visits',
               userStats: sort(
                 statsStore.userStats,
                 'min501DoubleVisits',
@@ -155,7 +165,7 @@ const getStats = (
             },
             {
               key: 'max501DoubleVisits',
-              text: 'Slowest [# Visits]',
+              text: 'Slowest # Visits',
               userStats: sort(
                 statsStore.userStats,
                 'max501DoubleVisits',
@@ -202,9 +212,14 @@ const getStats = (
           userStats: sort(statsStore.userStats, 'numKillerGames', 0, false),
         },
         {
-          key: 'avgKillerResult',
-          text: 'Win Rate [%]',
-          userStats: sort(statsStore.userStats, 'avgKillerResult', 0, false),
+          key: 'avgKillerWinRateLast10',
+          text: 'Win Rate Last 10 Games',
+          userStats: sort(
+            statsStore.userStats,
+            'avgKillerWinRateLast10',
+            0,
+            false
+          ),
           transform: (n) => Math.round(n * 10000) / 100 + ' %',
         },
       ]
