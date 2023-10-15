@@ -111,7 +111,7 @@ export const useStatsStore = defineStore('stats', {
               let index = game.result.indexOf(userId)
               if (index < 0) return 0
               return (
-                (game.players.length - 1 - index) /
+                (2 * game.players.length - game.result.length - 1 - index) /
                 (Math.max(game.players.length, 2) - 1)
               )
             })
