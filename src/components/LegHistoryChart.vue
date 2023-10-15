@@ -86,7 +86,7 @@ const buildChart = async () => {
               y: props.y(leg),
             }))
           ),
-          borderColor: '#ff6384',
+          borderColor: 'rgb(19, 221, 97)',
         },
         {
           label: `All`,
