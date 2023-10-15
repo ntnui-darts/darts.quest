@@ -31,7 +31,7 @@ export const getX01Controller = (game: Game): GameController => {
 
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
-          const visits = game.legs.find((leg) => leg.userId == userId)?.visits
+          const visits = getVisitsOfUser(game, userId, false)
           const avg = getAvgVisitScore(
             game.legs.find((leg) => leg.userId == userId)?.visits ?? [],
             game,
