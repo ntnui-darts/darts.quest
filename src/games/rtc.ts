@@ -88,6 +88,23 @@ const getVisitScore = (game: Game, visit: Visit) => {
 const numbers = [
   20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5,
 ]
+
+export const rtcHitRate = (visits: Visit[]) => {
+  const segments = visits.flat()
+  if (!segments.length) return 0
+  return sectorsHit(visits) / segments.length
+}
+
+export const sectorsHit = (visits: Visit[]) => {
+  const sectors = new Set()
+  visits.flat().forEach((s) => {
+    if (s && s.sector > 0) {
+      sectors.add(s.sector)
+    }
+  })
+  return sectors.size
+}
+
 export const rtcStats = (visits: Visit[]) => {
   const visitsFlat = visits.flat()
   let count = 0

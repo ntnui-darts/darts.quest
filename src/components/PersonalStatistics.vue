@@ -74,11 +74,7 @@
   <h3>RTC Hit rate</h3>
   <LegHistoryChart
     :legs="rtcLegs"
-    :y="
-      (leg) =>
-        rtcStats(leg.visits).filter((x) => x != 0).length /
-        leg.visits.flat().length
-    "
+    :y="(leg) => rtcHitRate(leg.visits)"
     :group-by-type="false"
     :smooth="true"
   ></LegHistoryChart>
@@ -96,7 +92,7 @@ import DartboardChart from '@/components/DartboardChart.vue'
 import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { useStatsStore } from '@/stores/stats'
 import { getFirst9Avg } from '@/games/x01'
-import { rtcStats } from '@/games/rtc'
+import { rtcHitRate } from '@/games/rtc'
 import { ref, computed, onMounted } from 'vue'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]

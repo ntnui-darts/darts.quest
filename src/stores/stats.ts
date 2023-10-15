@@ -4,7 +4,7 @@ import { DbGame, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
-import { sumNumbers } from '@/games/rtc'
+import { rtcHitRate, sumNumbers } from '@/games/rtc'
 
 export type UserStat = Database['public']['Tables']['statistics']['Row']
 
@@ -73,17 +73,16 @@ export const useStatsStore = defineStore('stats', {
       let avg301DoubleVisitsLast10 = 0
       let avgKillerResult = 0
 
-      const legs = this.legs.filter((leg) => leg.finish)
-      const rtcLegs = legs.filter((leg) => leg.type == 'rtc')
+      const finishedLegs = this.legs.filter((leg) => leg.finish)
+      const rtcLegs = finishedLegs.filter((leg) => leg.type == 'rtc')
       const rtcGames = this.games.filter((leg) => leg.type == 'rtc')
       const rtcLegsLast10 = rtcLegs.slice(-10)
       if (rtcLegsLast10.length > 0) {
         avgRtcHitRateLast10 =
-          sumNumbers(
-            rtcLegsLast10.map((leg) => 20 / (leg.visits.flat().length || 1))
-          ) / rtcLegsLast10.length
+          sumNumbers(rtcLegsLast10.map((leg) => rtcHitRate(leg.visits))) /
+          rtcLegsLast10.length
       }
-      const x01DoubleLegs = legs.filter(
+      const x01DoubleLegs = finishedLegs.filter(
         (leg) =>
           leg.type == 'x01' && getTypeAttribute<number>(leg, 'finish', 1) == 2
       )
@@ -112,14 +111,14 @@ export const useStatsStore = defineStore('stats', {
               let index = game.result.indexOf(userId)
               if (index < 0) return 0
               return (
-                (game.result.length - 1 - index) /
+                (game.players.length - 1 - index) /
                 (Math.max(game.players.length, 2) - 1)
               )
             })
           ) / killerGames.length
       }
 
-      legs.forEach((leg) => {
+      finishedLegs.forEach((leg) => {
         switch (leg.type) {
           case 'rtc':
             const fastMode = getTypeAttribute<boolean>(leg, 'fast', false)
