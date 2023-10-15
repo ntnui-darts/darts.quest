@@ -1,5 +1,7 @@
 <template>
-  <canvas ref="chartElement"></canvas>
+  <div style="width: auto; height: 500px">
+    <canvas ref="chartElement"></canvas>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -110,6 +112,7 @@ const buildChart = async () => {
       datasets,
     },
     options: {
+      maintainAspectRatio: false,
       scales: {
         x: {
           type: 'time',
