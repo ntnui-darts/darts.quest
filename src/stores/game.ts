@@ -104,10 +104,8 @@ export const useGameStore = defineStore('game', {
       for (let leg of this.game.legs) {
         if (this.game.result.includes(leg.userId)) {
           leg.finish = true
-          while (leg.visits.at(-1)?.every((s) => s == null)) {
-            leg.visits.pop()
-          }
         }
+        leg.visits = leg.visits.filter((v) => !v.every((s) => s == null))
         await supabase.from('legs').insert({ ...leg, type: leg.type })
       }
       await supabase.from('games').insert({
