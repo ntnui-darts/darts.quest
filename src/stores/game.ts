@@ -50,7 +50,7 @@ export const useGameStore = defineStore('game', {
       if (
         this.game &&
         this.gameState.player &&
-        getVisitsOfUser(this.game, this.gameState.player).length <= 1
+        getVisitsOfUser(this.game, this.gameState.player).length == 0
       ) {
         const user = useUsersStore().getUser(this.gameState.player)
         if (user) {
