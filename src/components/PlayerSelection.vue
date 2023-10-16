@@ -3,12 +3,24 @@
   <div class="col" v-auto-animate>
     <button
       v-for="user in selectedUsers"
+      :style="{
+        opacity: user == draggedUser ? 0.3 : user == hoverUser ? 0.6 : 1,
+      }"
       :draggable="true"
       :key="user.id"
       :id="user.id"
       @click="editUser(user)"
-      @dragenter.prevent="dragUser(draggedUser, user)"
       @dragstart="draggedUser = user"
+      @dragenter="hoverUser = user"
+      @dragend="
+        () => {
+          draggedUser = null
+          hoverUser = null
+        }
+      "
+      @drop="dragUser(draggedUser, user)"
+      @dragover.prevent
+      @dragenter.prevent
     >
       {{ user.name }}
     </button>
@@ -48,6 +60,7 @@ const usersStore = useUsersStore()
 
 const selectedUsers = ref<UserCurrentInfo[]>(props.players)
 const draggedUser = ref<UserCurrentInfo | null>(null)
+const hoverUser = ref<UserCurrentInfo | null>(null)
 
 const clearPlayers = () => {
   if (!usersStore.getCurrentUser || selectedUsers.value.length == 1) {
@@ -100,6 +113,7 @@ const dragUser = (from: UserCurrentInfo | null, to: UserCurrentInfo) => {
   const toIndex = selectedUsers.value.indexOf(to)
   selectedUsers.value[fromIndex] = to
   selectedUsers.value[toIndex] = from
+  draggedUser.value = null
   emit('update', selectedUsers.value)
 }
 
@@ -116,6 +130,6 @@ watch(
 
 onMounted(() => {
   // https://www.npmjs.com/package/mobile-drag-drop#:~:text=If%20you%27re%20targeting%20iOS%20Safari%2010.x%20and%20higher
-  window.addEventListener('touchmove', function () {}, { passive: false })
+  window.addEventListener('touchmove', () => {}, { passive: false })
 })
 </script>
