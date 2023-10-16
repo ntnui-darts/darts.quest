@@ -42,7 +42,6 @@ export interface GameState {
   playersLeft: string[]
   getUserResultText(userId: string): string
   getUserDisplayText(userId: string): string
-  getSegmentText(segment?: Segment | null): string
 }
 
 export interface GameController {
@@ -50,6 +49,7 @@ export interface GameController {
   getGameState(): GameState
   recordHit(segment: Segment): void
   recordMiss(): void
+  getSegmentText(segment?: Segment | null): string
 }
 
 export const multiplierToString = (m: Multiplier) => {

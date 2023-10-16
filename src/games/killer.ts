@@ -1,7 +1,7 @@
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import { Game, GameController, Multiplier, getVisitsOfUser } from '@/types/game'
-import { getGenericController, getSegmentText } from '@/games/generic'
+import { getGenericController } from '@/games/generic'
 import { getGamePoints } from './games'
 
 export type KillerController = GameController & {
@@ -31,8 +31,6 @@ export const getKillerController = (game: Game): KillerController => {
     getGameState() {
       const gameState = getGameState(game, _players)
       return {
-        getSegmentText,
-
         ...gameState,
 
         getUserResultText(userId) {

@@ -6,12 +6,18 @@ import {
   Visit,
   getVisitsOfUser,
   multiplierToString,
-  Segment,
 } from '@/types/game'
 
 export const getGenericController = (game: Game) => {
   return {
     game,
+
+    getSegmentText(segment) {
+      if (!segment) return '-'
+      if (!segment.multiplier || segment.multiplier == 1)
+        return segment.sector.toString()
+      return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
+    },
 
     recordHit(segment) {
       if (!segment) return
@@ -22,13 +28,6 @@ export const getGenericController = (game: Game) => {
       useGameStore().saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
   } satisfies Partial<GameController>
-}
-
-export const getSegmentText = (segment?: Segment | null) => {
-  if (!segment) return '-'
-  if (!segment.multiplier || segment.multiplier == 1)
-    return segment.sector.toString()
-  return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
 }
 
 type State = {

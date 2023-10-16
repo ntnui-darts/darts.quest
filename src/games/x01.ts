@@ -12,7 +12,6 @@ import {
 import {
   getGenericController,
   getResultsOfFirstToWinGame,
-  getSegmentText,
 } from '@/games/generic'
 import { getGamePoints } from './games'
 
@@ -26,8 +25,6 @@ export const getX01Controller = (game: Game): GameController => {
           game,
           (game, visits) => getLegScore(visits, game) == getGamePoints(game)
         ),
-
-        getSegmentText,
 
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'

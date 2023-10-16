@@ -41,11 +41,11 @@ export const getRtcController = (game: Game): RtcController => {
           const score = getRtcLegScore(game, getVisitsOfUser(game, userId))
           return `${sequence.at(score)}`
         },
-
-        getSegmentText(segment) {
-          return segment ? `${segment.sector}` : '-'
-        },
       }
+    },
+
+    getSegmentText(segment) {
+      return segment ? `${segment.sector}` : '-'
     },
 
     getSequence() {
