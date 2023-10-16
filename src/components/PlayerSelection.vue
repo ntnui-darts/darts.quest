@@ -50,7 +50,11 @@ const selectedUsers = ref<UserCurrentInfo[]>(props.players)
 const draggedUser = ref<UserCurrentInfo | null>(null)
 
 const clearPlayers = () => {
-  selectedUsers.value = []
+  if (!usersStore.getCurrentUser || selectedUsers.value.length == 1) {
+    selectedUsers.value = []
+  } else {
+    selectedUsers.value = [usersStore.getCurrentUser]
+  }
   emit('update', selectedUsers.value)
 }
 
