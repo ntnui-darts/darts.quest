@@ -1,7 +1,11 @@
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import { Game, GameController, Multiplier, getVisitsOfUser } from '@/types/game'
-import { getGenericController } from '@/games/generic'
+import {
+  SimulationState,
+  getGenericController,
+  nextState,
+} from '@/games/generic'
 import { getGamePoints } from './games'
 
 export type KillerController = GameController & {
@@ -16,7 +20,7 @@ export type KillerPlayer = {
 
 export const getKillerController = (game: Game): KillerController => {
   const gameStore = useGameStore()
-  const _players: KillerPlayer[] = game.players.map((userId) => ({
+  const killers: KillerPlayer[] = game.players.map((userId) => ({
     userId,
     sector: null,
     points: 0,
@@ -25,22 +29,22 @@ export const getKillerController = (game: Game): KillerController => {
     ...getGenericController(game),
 
     getKillerPlayers() {
-      return _players
+      return killers
     },
 
     getGameState() {
-      const gameState = getGameState(game, _players)
+      const gameState = simulateKiller(game, killers)
       return {
         ...gameState,
 
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
-          const player = gameState.allPlayers.find((p) => p.userId == userId)
+          const player = gameState.killers.find((p) => p.userId == userId)
           return `${name}, ${player?.points} points`
         },
 
         getUserDisplayText(userId) {
-          const player = gameState.allPlayers.find((p) => p.userId == userId)
+          const player = gameState.killers.find((p) => p.userId == userId)
           if (!player) return '-'
           return `${player.points}\t[${player.sector ?? '?'}]`
         },
@@ -48,11 +52,11 @@ export const getKillerController = (game: Game): KillerController => {
     },
 
     recordHit(segment) {
-      const player = _players.find(
-        (p) => p.userId == gameStore.gameState?.userId
+      const player = killers.find(
+        (p) => p.userId == gameStore.gameState?.player
       )
       if (!player) throw Error()
-      const playerHit = _players.find((p) => p.sector == segment.sector)
+      const playerHit = killers.find((p) => p.sector == segment.sector)
       if (!player.sector) {
         if (playerHit) {
           return // sector already taken
@@ -65,8 +69,8 @@ export const getKillerController = (game: Game): KillerController => {
     },
 
     recordMiss() {
-      const player = _players.find(
-        (p) => p.userId == gameStore.gameState?.userId
+      const player = killers.find(
+        (p) => p.userId == gameStore.gameState?.player
       )
       if (!player) throw Error()
       if (!player.sector) {
@@ -78,104 +82,87 @@ export const getKillerController = (game: Game): KillerController => {
   }
 }
 
-const getGameState = (game: Game, _players: KillerPlayer[]) => {
-  const results: string[] = []
-  const allPlayers = _players.toSorted(
-    (a, b) => (b.sector ?? 0) - (a.sector ?? 0)
-  )
-  allPlayers.map((p) => (p.points = 0))
-  const playersLeft = [...allPlayers]
-  let visitIndex = 0
-  const gamePoints = getGamePoints(game)
-  let userId: null | string = null
-  let prevUserId: null | string = null
+export const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
+  killers.forEach((k) => (k.points = 0))
 
-  for (let i = 0; i < allPlayers.length; i++) {
-    if (!allPlayers[i].sector) {
+  for (let i = 0; i < killers.length; i++) {
+    if (!killers[i].sector) {
       return {
-        userId: allPlayers[i].userId,
-        results,
-        allPlayers,
-        prevUserId,
-        playersLeft: allPlayers.map((p) => p.userId),
+        player: killers[i].userId,
+        prevPlayer: null,
+        rank: [],
+        playersLeft: killers.map((p) => p.userId),
+        killers,
       }
     }
-    prevUserId = allPlayers[i].userId
   }
-  prevUserId = null
 
-  while (playersLeft.length) {
-    for (let i = 0; i < playersLeft.length; i++) {
-      const player = playersLeft[i]
-      const visits = getVisitsOfUser(game, player.userId)
-      const visit = visits.at(visitIndex)
+  let state: SimulationState = {
+    player: null,
+    prevPlayer: null,
+    visitIndex: 0,
+    rank: [],
+  }
+  const gamePoints = getGamePoints(game)
+  const players = killers
+    .toSorted((a, b) => (b.sector ?? 0) - (a.sector ?? 0))
+    .map((k) => k.userId)
 
-      const kill = (p: KillerPlayer) => {
-        results.unshift(p.userId)
-        const index = playersLeft.indexOf(p)
-        playersLeft.splice(index, 1)
-        if (index <= i) i -= 1
-      }
+  while (true) {
+    state = nextState(players, state)
+    if (!state.player) {
+      break // all players have finished
+    }
+    const killersLeft = () =>
+      killers.filter((k) => !state.rank.includes(k.userId))
+    const killer = killersLeft().find((k) => k.userId == state.player)
+    if (!killer) {
+      throw Error()
+    }
 
-      if (results.length == allPlayers.length - 1) {
-        kill(player)
-        // TODO: Fix
-        userId = player.userId
-        prevUserId = player.userId
-        break
-      }
+    const visit = getVisitsOfUser(game, state.player).at(state.visitIndex)
+    if (!visit) break
 
-      if (!userId && visit?.some((s) => s == null)) userId = player.userId
-      if (!userId) {
-        prevUserId = player.userId
-      }
+    for (const segment of visit) {
+      if (!segment) break
+      const playerHit = killersLeft().find((p) => p.sector == segment.sector)
+      if (!playerHit) continue
 
-      if (
-        player.points == 0 &&
-        playersLeft.some((p) => p.points == gamePoints)
-      ) {
-        kill(player)
-        continue
-      }
+      if (state.player == playerHit.userId) {
+        playerHit.points += segment.multiplier
 
-      if (!visit) {
-        playersLeft.splice(i, 1)
-        i -= 1
-        continue
-      }
-
-      for (const segment of visit) {
-        if (!segment) {
+        if (playerHit.points > gamePoints) {
+          state.rank.unshift(state.player)
           break
+        } else if (playerHit.points == gamePoints) {
+          killersLeft().forEach((k) => {
+            if (k.points == 0) {
+              state.rank.unshift(k.userId)
+            }
+          })
         }
-        const playerHit = playersLeft.find((p) => p.sector == segment.sector)
+      } else if (killer.points == gamePoints) {
+        playerHit.points -= segment.multiplier
 
-        if (!playerHit) continue
-
-        if (player == playerHit) {
-          playerHit.points += segment.multiplier
-
-          if (playerHit.points > gamePoints) {
-            kill(player)
-          }
-        } else if (player.points == gamePoints) {
-          playerHit.points -= segment.multiplier
-
-          if (playerHit.points < 0) {
-            kill(playerHit)
-          }
+        if (playerHit.points <= 0) {
+          state.rank.unshift(playerHit.userId)
         }
       }
     }
-    visitIndex += 1
+
+    if (state.rank.length >= players.length - 1) {
+      state.rank.unshift(state.player)
+      continue
+    }
+
+    if (state.rank.includes(state.player)) continue
+
+    if (visit.includes(null)) break
   }
+
   return {
-    results,
-    userId,
-    allPlayers,
-    prevUserId,
-    playersLeft: allPlayers
-      .map((p) => p.userId)
-      .filter((id) => !results.includes(id)),
+    ...state,
+    killers,
+    playersLeft: players.filter((p) => !state.rank.includes(p)),
   }
 }

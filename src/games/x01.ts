@@ -9,10 +9,7 @@ import {
   Leg,
   GameState,
 } from '@/types/game'
-import {
-  getGenericController,
-  getResultsOfFirstToWinGame,
-} from '@/games/generic'
+import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { getGamePoints } from './games'
 
 export const getX01Controller = (game: Game): GameController => {
@@ -21,7 +18,7 @@ export const getX01Controller = (game: Game): GameController => {
 
     getGameState() {
       return {
-        ...getResultsOfFirstToWinGame(
+        ...simulateFirstToWinGame(
           game,
           (game, visits) => getLegScore(visits, game) == getGamePoints(game)
         ),

@@ -20,7 +20,7 @@
     <div class="grid-users" style="grid-template-columns: 1fr 1fr">
       <button
         v-for="userId in gameStore.gameState?.playersLeft ?? []"
-        :class="{ selected: gameStore.gameState?.userId == userId }"
+        :class="{ selected: gameStore.gameState?.player == userId }"
         @click="showChart(userId)"
       >
         {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
@@ -44,13 +44,12 @@
     ></component>
   </div>
   <div v-if="gameStore.game && somePlayersFinished">
-    <!-- TODO -->
-    <!-- <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
+    <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
       &#x232B;
-    </button> -->
+    </button>
     <h2>Results</h2>
     <ol>
-      <li v-for="id in gameStore.gameState?.results">
+      <li v-for="id in gameStore.gameState?.rank">
         {{ gameStore.gameState?.getUserResultText(id) }}
       </li>
     </ol>
@@ -80,11 +79,11 @@ const loadingStore = useLoadingStore()
 const allPlayersFinished = computed(
   () =>
     (gameStore.game?.legs.length ?? 0) ==
-    (gameStore.gameState?.results.length ?? 0)
+    (gameStore.gameState?.rank.length ?? 0)
 )
 
 const somePlayersFinished = computed(
-  () => (gameStore.gameState?.results.length ?? 0) > 0
+  () => (gameStore.gameState?.rank.length ?? 0) > 0
 )
 
 const displayVisit = computed(() => {

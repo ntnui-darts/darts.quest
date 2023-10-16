@@ -74,9 +74,8 @@ const updatePlayers = () => {
   players.value =
     (useGameStore().getController() as KillerController)
       .getKillerPlayers()
-      .filter(
-        (player) => !gameStore.gameState?.results.includes(player.userId)
-      ) ?? []
+      .filter((player) => !gameStore.gameState?.rank.includes(player.userId)) ??
+    []
 }
 
 onMounted(() => {

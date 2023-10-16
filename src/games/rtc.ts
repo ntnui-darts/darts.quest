@@ -6,10 +6,7 @@ import {
   getVisitsOfUser,
   getTypeAttribute,
 } from '@/types/game'
-import {
-  getGenericController,
-  getResultsOfFirstToWinGame,
-} from '@/games/generic'
+import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { useGameStore } from '@/stores/game'
 import { getGamePoints } from './games'
 
@@ -26,7 +23,7 @@ export const getRtcController = (game: Game): RtcController => {
     getGameState() {
       const sequence = this.getSequence()
       return {
-        ...getResultsOfFirstToWinGame(
+        ...simulateFirstToWinGame(
           game,
           (game, visits) => getRtcLegScore(game, visits) == getGamePoints(game)
         ),
@@ -55,7 +52,7 @@ export const getRtcController = (game: Game): RtcController => {
     recordHit(segment) {
       const score = getRtcLegScore(
         game,
-        getVisitsOfUser(game, useGameStore().gameState?.userId)
+        getVisitsOfUser(game, useGameStore().gameState?.player)
       )
       const sector = this.getSequence().at(score)
       if (!sector) throw Error()

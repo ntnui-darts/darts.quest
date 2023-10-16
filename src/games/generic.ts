@@ -30,47 +30,53 @@ export const getGenericController = (game: Game) => {
   } satisfies Partial<GameController>
 }
 
-type State = {
+export type SimulationState = {
   prevPlayer: null | string
   player: null | string
   visitIndex: number
+  rank: string[]
 }
-export const getResultsOfFirstToWinGame = (
+
+export const nextState = (
+  players: string[],
+  prevState: SimulationState
+): SimulationState => {
+  const state = { ...prevState }
+  if (!state.player)
+    return {
+      prevPlayer: null,
+      player: players[0],
+      visitIndex: 0,
+      rank: [],
+    }
+  state.prevPlayer = state.player
+  if (state.rank.length == players.length) {
+    state.player = null
+    return state
+  }
+  const index = players.indexOf(state.player)
+  const nextIndex = (index + 1) % players.length
+  if (nextIndex == 0) state.visitIndex += 1
+  state.player = players[nextIndex]
+  if (state.rank.includes(state.player)) {
+    return nextState(players, state)
+  }
+  return state
+}
+
+export const simulateFirstToWinGame = (
   game: Game,
   winCondition: (game: Game, visits: Visit[]) => boolean
 ) => {
-  const results: string[] = []
-  const players = [...game.players]
-  let state: State = {
+  let state: SimulationState = {
     player: null,
     prevPlayer: null,
     visitIndex: 0,
-  }
-  const nextState = (prevState: State): State => {
-    const state = { ...prevState }
-    if (!state.player)
-      return {
-        prevPlayer: null,
-        player: players[0],
-        visitIndex: 0,
-      }
-    if (results.length == players.length) {
-      state.player = null
-      return state
-    }
-    state.prevPlayer = state.player
-    const index = players.indexOf(state.player)
-    const nextIndex = (index + 1) % players.length
-    if (nextIndex == 0) state.visitIndex += 1
-    state.player = players[nextIndex]
-    if (results.includes(state.player)) {
-      return nextState(state)
-    }
-    return state
+    rank: [],
   }
 
   while (true) {
-    state = nextState(state)
+    state = nextState(game.players, state)
     if (!state.player) {
       break // all players have finished
     }
@@ -78,7 +84,7 @@ export const getResultsOfFirstToWinGame = (
     const visits = allVisits.slice(0, state.visitIndex + 1)
 
     if (winCondition(game, visits)) {
-      results.push(state.player)
+      state.rank.push(state.player)
       continue
     }
 
@@ -87,9 +93,7 @@ export const getResultsOfFirstToWinGame = (
   }
 
   return {
-    results,
-    userId: state.player,
-    prevUserId: state.prevPlayer,
-    playersLeft: game.players.filter((p) => !results.includes(p)),
+    ...state,
+    playersLeft: game.players.filter((p) => !state.rank.includes(p)),
   }
 }

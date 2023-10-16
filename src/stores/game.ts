@@ -49,10 +49,10 @@ export const useGameStore = defineStore('game', {
       this.walkOnEndTime = 0
       if (
         this.game &&
-        this.gameState.userId &&
-        getVisitsOfUser(this.game, this.gameState.userId).length <= 1
+        this.gameState.player &&
+        getVisitsOfUser(this.game, this.gameState.player).length <= 1
       ) {
-        const user = useUsersStore().getUser(this.gameState.userId)
+        const user = useUsersStore().getUser(this.gameState.player)
         if (user) {
           this.walkOn = user.walkOn
           this.walkOnTime = user.walkOnTime
@@ -66,8 +66,8 @@ export const useGameStore = defineStore('game', {
     saveScore(segment: Segment) {
       if (!this.game) throw Error()
       if (!this.getCurrentLeg) throw Error()
-      if (!this.gameState?.userId) throw Error('No current user')
-      if (this.gameState.results.includes(this.gameState.userId))
+      if (!this.gameState?.player) throw Error('No current user')
+      if (this.gameState.rank.includes(this.gameState.player))
         throw Error('User has already finished')
 
       if (this.getCurrentLeg.visits.length == 0) {
@@ -90,10 +90,10 @@ export const useGameStore = defineStore('game', {
       if (!this.game) throw Error()
       if (!this.gameState) throw Error()
 
-      let userId = this.gameState.userId
+      let userId = this.gameState.player
       let visit = this.getCurrentVisit
-      if (!visit || visit.every((s) => s != null)) {
-        userId = this.gameState.prevUserId
+      if (!userId || !visit || visit.every((s) => s != null)) {
+        userId = this.gameState.prevPlayer
       }
       if (!userId) return
 
@@ -116,7 +116,7 @@ export const useGameStore = defineStore('game', {
 
     async saveGame() {
       if (!this.game) throw Error()
-      this.game.result = this.updateGameState().results
+      this.game.result = this.updateGameState().rank
       for (let leg of this.game.legs) {
         if (this.game.result.includes(leg.userId)) {
           leg.finish = true
@@ -146,8 +146,9 @@ export const useGameStore = defineStore('game', {
     },
 
     getCurrentLeg: (state) => {
-      if (!state.game || !state.gameState?.userId) throw Error()
-      return getLegOfUser(state.game, state.gameState?.userId)
+      if (!state.game) throw Error()
+      if (!state.gameState?.player) return null
+      return getLegOfUser(state.game, state.gameState?.player)
     },
   },
 })
