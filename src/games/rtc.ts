@@ -33,7 +33,7 @@ export const getRtcController = (game: Game): RtcController => {
 
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
-          const visits = getVisitsOfUser(game, userId, false)
+          const visits = getVisitsOfUser(game, userId)
           return `${name}, ${visits?.length} visits`
         },
 
