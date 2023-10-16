@@ -21,6 +21,13 @@
     type="number"
     @change="updateWalkOnTime"
   />
+  <label for="videoId">Walk-on Video End Time</label>
+  <input
+    id="walkOnEnd"
+    :value="usersStore.getCurrentUser?.walkOnEndTime"
+    type="number"
+    @change="updateWalkOnEndTime"
+  />
   <button @click="router.push({ name: 'password' })">Change Password</button>
   <div class="row">
     <button v-if="changed" id="discard" @click="discardChanges">
@@ -62,6 +69,13 @@ const updateWalkOnTime = (e: Event) => {
   const el = e.target as HTMLInputElement
   if (!usersStore.getCurrentUser) return
   usersStore.getCurrentUser.walkOnTime = el.valueAsNumber
+  changed.value = true
+}
+
+const updateWalkOnEndTime = (e: Event) => {
+  const el = e.target as HTMLInputElement
+  if (!usersStore.getCurrentUser) return
+  usersStore.getCurrentUser.walkOnEndTime = el.valueAsNumber
   changed.value = true
 }
 

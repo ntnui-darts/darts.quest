@@ -4,6 +4,7 @@
       v-if="gameStore.walkOn"
       :video-id="gameStore.walkOn"
       :start-time="gameStore.walkOnTime"
+      :end-time="gameStore.walkOnEndTime"
     >
     </Youtube>
   </div>
