@@ -6,6 +6,8 @@
       :key="user.id"
       :id="user.id"
       @click="editUser(user)"
+      @dragstart="draggedUser = user"
+      @dragend="dragUser(draggedUser, user)"
     >
       {{ user.name }}
     </button>
@@ -44,6 +46,7 @@ const emit = defineEmits<{
 const usersStore = useUsersStore()
 
 const selectedUsers = ref<UserCurrentInfo[]>(props.players)
+const draggedUser = ref<UserCurrentInfo | null>(null)
 
 const clearPlayers = () => {
   selectedUsers.value = []
@@ -84,6 +87,16 @@ const editUser = (user: UserCurrentInfo) => {
     }
   )
   emit('update', selectedUsers.value)
+}
+
+const dragUser = (from: UserCurrentInfo | null, to: UserCurrentInfo) => {
+  if (!from) return
+  const fromIndex = selectedUsers.value.indexOf(from)
+  if (fromIndex >= 0) {
+    selectedUsers.value.splice(fromIndex, 1)
+  }
+  const toIndex = selectedUsers.value.indexOf(to)
+  selectedUsers.value.splice(toIndex, 0, from)
 }
 
 watch(

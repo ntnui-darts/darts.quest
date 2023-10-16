@@ -29,7 +29,7 @@
     </div>
     <div class="row">
       <button
-        v-for="(segment, i) in gameStore.getCurrentVisit ?? [null, null, null]"
+        v-for="(segment, i) in displayVisit"
         :class="{ outlined: i == gameStore.getNumberOfThrows }"
       >
         {{ gameStore.gameState?.getSegmentText(segment) }}
@@ -85,6 +85,14 @@ const allPlayersFinished = computed(
 const somePlayersFinished = computed(
   () => (gameStore.gameState?.results.length ?? 0) > 0
 )
+
+const displayVisit = computed(() => {
+  const leg = gameStore.getCurrentLeg
+  const visit = leg?.visits.at(-1)
+  if (!leg || !visit) return [null, null, null]
+  if (!leg.finish && visit.every((s) => s != null)) return [null, null, null]
+  return visit
+})
 
 onMounted(() => {
   if (!gameStore.game) {

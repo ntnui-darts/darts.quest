@@ -61,13 +61,24 @@ export const useGameStore = defineStore('game', {
     },
 
     saveScore(segment: Segment) {
-      if (!this.game || !this.getCurrentLeg) throw Error()
+      if (!this.game) throw Error()
+      if (!this.getCurrentLeg) throw Error()
       if (!this.gameState?.userId) throw Error('No current user')
       if (this.gameState.results.includes(this.gameState.userId))
         throw Error('User has already finished')
-      if (!this.getCurrentVisit) throw Error()
-      const index = this.getCurrentVisit.indexOf(null)
-      this.getCurrentVisit[index] = segment
+
+      if (this.getCurrentLeg.visits.length == 0) {
+        this.getCurrentLeg.visits.push([null, null, null])
+      }
+      let visit = this.getCurrentLeg.visits.at(-1)
+      if (!visit) throw Error()
+      let index = visit.indexOf(null)
+      if (index < 0) {
+        visit = [null, null, null]
+        this.getCurrentLeg.visits.push(visit)
+        index = 0
+      }
+      visit[index] = segment
       this.updateGameState()
       this.saveToLocalStorage()
     },
@@ -75,24 +86,26 @@ export const useGameStore = defineStore('game', {
     undoScore() {
       if (!this.game) throw Error()
       if (!this.gameState) throw Error()
+
       let userId = this.gameState.userId
       let visit = this.getCurrentVisit
-      if (visit?.every((s) => s == null)) {
+      if (!visit || visit.every((s) => s != null)) {
         userId = this.gameState.prevUserId
-        if (userId) {
-          const leg = getLegOfUser(this.game, userId)
-          if (visit.every((s) => s == null)) {
-            leg.visits.pop()
-          }
-          visit = leg.visits.at(-1) ?? null
-        }
       }
-      if (!visit) return
+      if (!userId) return
+
+      const leg = getLegOfUser(this.game, userId)
+      visit = leg?.visits.at(-1) ?? null
+      if (!leg || !visit) return
+
       for (let i = visit.length - 1; i >= 0; i--) {
         if (visit.at(i) != null) {
           visit[i] = null
           break
         }
+      }
+      if (visit[0] == null) {
+        leg.visits.pop()
       }
       this.updateGameState()
       this.saveToLocalStorage()
@@ -105,7 +118,6 @@ export const useGameStore = defineStore('game', {
         if (this.game.result.includes(leg.userId)) {
           leg.finish = true
         }
-        leg.visits = leg.visits.filter((v) => !v.every((s) => s == null))
         await supabase.from('legs').insert({ ...leg, type: leg.type })
       }
       await supabase.from('games').insert({
@@ -123,13 +135,7 @@ export const useGameStore = defineStore('game', {
 
   getters: {
     getCurrentVisit(): Visit | null {
-      const leg = this.getCurrentLeg
-      if (!leg) throw Error()
-      return leg.visits.at(-1)!
-    },
-
-    getCurrentVisits(): Visit[] {
-      return this.getCurrentLeg?.visits ?? []
+      return this.getCurrentLeg?.visits.at(-1) ?? null
     },
 
     getNumberOfThrows(): number | null {
@@ -137,7 +143,7 @@ export const useGameStore = defineStore('game', {
     },
 
     getCurrentLeg: (state) => {
-      if (!state.game || !state.gameState?.userId) return null
+      if (!state.game || !state.gameState?.userId) throw Error()
       return getLegOfUser(state.game, state.gameState?.userId)
     },
   },

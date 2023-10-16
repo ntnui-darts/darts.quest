@@ -53,7 +53,10 @@ export const getRtcController = (game: Game): RtcController => {
     },
 
     recordHit(segment) {
-      const score = getRtcLegScore(game, useGameStore().getCurrentVisits)
+      const score = getRtcLegScore(
+        game,
+        getVisitsOfUser(game, useGameStore().gameState?.userId)
+      )
       const sector = this.getSequence().at(score)
       if (!sector) throw Error()
       useGameStore().saveScore({ multiplier: segment.multiplier, sector })

@@ -57,23 +57,13 @@ export const multiplierToString = (m: Multiplier) => {
 }
 
 export const getLegOfUser = (game: Game, userId: string) => {
-  const leg = game.legs.find((leg) => leg.userId == userId)
-  if (!leg) throw Error()
-  if (leg.visits.length == 0 || leg.visits.at(-1)?.[2] != null) {
-    leg.visits.push([null, null, null])
-  }
-  return leg
+  return game.legs.find((leg) => leg.userId == userId)
 }
 
-export const getVisitsOfUser = (
-  game: Game,
-  userId?: string | null,
-  includeEmpty = true
-) => {
+export const getVisitsOfUser = (game: Game, userId?: string | null) => {
   if (!userId) return []
   const leg = getLegOfUser(game, userId)
   if (!leg) return []
-  if (!includeEmpty) return leg.visits.filter((v) => !v.every((s) => s == null))
   return leg.visits
 }
 
