@@ -171,6 +171,7 @@ export interface Database {
           id: string
           name: string
           walkOn: string | null
+          walkOnEndTime: number
           walkOnTime: number
         }
         Insert: {
@@ -178,6 +179,7 @@ export interface Database {
           id?: string
           name?: string
           walkOn?: string | null
+          walkOnEndTime?: number
           walkOnTime?: number
         }
         Update: {
@@ -185,6 +187,7 @@ export interface Database {
           id?: string
           name?: string
           walkOn?: string | null
+          walkOnEndTime?: number
           walkOnTime?: number
         }
         Relationships: []

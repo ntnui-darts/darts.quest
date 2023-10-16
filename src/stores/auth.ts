@@ -59,6 +59,7 @@ export const useAuthStore = defineStore('auth', {
         id: user.id,
         walkOn: user.walkOn,
         walkOnTime: user.walkOnTime,
+        walkOnEndTime: user.walkOnEndTime,
       } satisfies Partial<User>
       if (prevName.data?.length == 0) {
         await supabase.from('users').insert(copy)
