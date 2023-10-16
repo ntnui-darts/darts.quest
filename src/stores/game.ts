@@ -20,6 +20,7 @@ export const useGameStore = defineStore('game', {
 
     walkOn: null as string | null,
     walkOnTime: 0,
+    walkOnEndTime: 0,
 
     // Don't access controller directly, use getController()
     _controller: null as GameController | null,
@@ -45,6 +46,7 @@ export const useGameStore = defineStore('game', {
 
       this.walkOn = null
       this.walkOnTime = 0
+      this.walkOnEndTime = 0
       if (
         this.game &&
         this.gameState.userId &&
@@ -54,6 +56,7 @@ export const useGameStore = defineStore('game', {
         if (user) {
           this.walkOn = user.walkOn
           this.walkOnTime = user.walkOnTime
+          this.walkOnEndTime = user.walkOnEndTime
         }
       }
 
