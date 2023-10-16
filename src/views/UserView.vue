@@ -8,20 +8,20 @@
     @change="updateName"
   />
   <p>Mail Address: {{ usersStore.getCurrentUser?.email }}</p>
-  <label for="videoId">Walk-on Youtube Id</label>
+  <label for="videoId">Walk-on Youtube URL</label>
   <input
     id="walkOn"
     :value="usersStore.getCurrentUser?.walkOn"
     @change="updateWalkOn"
   />
-  <label for="videoId">Walk-on Video Start Time</label>
+  <label for="videoId">Walk-on Video Start Time (s)</label>
   <input
     id="walkOnStart"
     :value="usersStore.getCurrentUser?.walkOnTime"
     type="number"
     @change="updateWalkOnTime"
   />
-  <label for="videoId">Walk-on Video End Time</label>
+  <label for="videoId">Walk-on Video End Time (s)</label>
   <input
     id="walkOnEnd"
     :value="usersStore.getCurrentUser?.walkOnEndTime"
