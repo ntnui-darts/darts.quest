@@ -7,8 +7,8 @@
       :key="user.id"
       :id="user.id"
       @click="editUser(user)"
+      @dragenter.prevent="dragUser(draggedUser, user)"
       @dragstart="draggedUser = user"
-      @dragenter="dragUser(draggedUser, user)"
     >
       {{ user.name }}
     </button>
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { User, useUsersStore } from '@/stores/users'
 import { useModalStore } from '@/stores/modal'
 import PlayerSearch from './PlayerSearch.vue'
@@ -109,4 +109,9 @@ watch(
   },
   { immediate: true }
 )
+
+onMounted(() => {
+  // https://www.npmjs.com/package/mobile-drag-drop#:~:text=If%20you%27re%20targeting%20iOS%20Safari%2010.x%20and%20higher
+  window.addEventListener('touchmove', function () {}, { passive: false })
+})
 </script>
