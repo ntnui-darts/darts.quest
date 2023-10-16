@@ -44,7 +44,7 @@ const searchResultUsers = computed(() => {
     .filter((user) =>
       user.name.toLowerCase().includes(searchText.value.toLowerCase())
     )
-    .slice(0, 10)
+    .slice(0, 40)
 })
 
 onMounted(() => {
