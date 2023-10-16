@@ -5,9 +5,9 @@
 
 <script lang="ts" setup>
 import { router } from '@/router'
-// import { migrateScoreOfX01ToTypeAttr } from '@/admin/migration-type-x01'
+// import { fixLegsWithNullVisits } from '@/admin/fix-legs-with-null'
 
 const migrate = () => {
-  // migrateScoreOfX01ToTypeAttr()
+  // fixLegsWithNullVisits()
 }
 </script>
