@@ -3,11 +3,12 @@
   <div class="col" v-auto-animate>
     <button
       v-for="user in selectedUsers"
+      :draggable="true"
       :key="user.id"
       :id="user.id"
       @click="editUser(user)"
       @dragstart="draggedUser = user"
-      @dragend="dragUser(draggedUser, user)"
+      @dragenter="dragUser(draggedUser, user)"
     >
       {{ user.name }}
     </button>
@@ -92,11 +93,10 @@ const editUser = (user: UserCurrentInfo) => {
 const dragUser = (from: UserCurrentInfo | null, to: UserCurrentInfo) => {
   if (!from) return
   const fromIndex = selectedUsers.value.indexOf(from)
-  if (fromIndex >= 0) {
-    selectedUsers.value.splice(fromIndex, 1)
-  }
   const toIndex = selectedUsers.value.indexOf(to)
-  selectedUsers.value.splice(toIndex, 0, from)
+  selectedUsers.value[fromIndex] = to
+  selectedUsers.value[toIndex] = from
+  emit('update', selectedUsers.value)
 }
 
 watch(
