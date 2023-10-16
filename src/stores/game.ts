@@ -66,22 +66,18 @@ export const useGameStore = defineStore('game', {
     saveScore(segment: Segment) {
       if (!this.game) throw Error()
       if (!this.getCurrentLeg) throw Error()
+      if (!this.gameState) throw Error()
       if (!this.gameState?.player) throw Error('No current user')
       if (this.gameState.rank.includes(this.gameState.player))
         throw Error('User has already finished')
 
-      if (this.getCurrentLeg.visits.length == 0) {
-        this.getCurrentLeg.visits.push([null, null, null])
+      const visit = this.getCurrentLeg.visits.at(-1)
+      const index = visit?.indexOf(null)
+      if (!visit || !index || index < 0) {
+        this.getCurrentLeg.visits.push([segment, null, null])
+      } else {
+        visit[index] = segment
       }
-      let visit = this.getCurrentLeg.visits.at(-1)
-      if (!visit) throw Error()
-      let index = visit.indexOf(null)
-      if (index < 0) {
-        visit = [null, null, null]
-        this.getCurrentLeg.visits.push(visit)
-        index = 0
-      }
-      visit[index] = segment
       this.updateGameState()
       this.saveToLocalStorage()
     },
