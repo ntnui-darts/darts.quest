@@ -5,12 +5,17 @@
       v-for="user in selectedUsers"
       :key="user.id"
       :id="user.id"
-      @click="toggleUser(user)"
+      @click="editUser(user)"
     >
       {{ user.name }}
     </button>
-    <div class="row">
-      <div style="flex: 2"></div>
+    <div
+      class="row"
+      id="player-selection-buttons"
+      key="player-selection-buttons"
+    >
+      <button style="flex: 1" @click="clearPlayers">Clear Players</button>
+      <div style="flex: 1"></div>
       <button style="flex: 1" @click="searchForPlayer">+ Add Player</button>
     </div>
   </div>
@@ -28,13 +33,22 @@ export type UserCurrentInfo = User & {
   beers?: number
 }
 
+const props = defineProps<{
+  players: UserCurrentInfo[]
+}>()
+
 const emit = defineEmits<{
   update: [players: UserCurrentInfo[]]
 }>()
 
 const usersStore = useUsersStore()
 
-const selectedUsers = ref<UserCurrentInfo[]>([])
+const selectedUsers = ref<UserCurrentInfo[]>(props.players)
+
+const clearPlayers = () => {
+  selectedUsers.value = []
+  emit('update', selectedUsers.value)
+}
 
 const searchForPlayer = () => {
   useModalStore().push(
@@ -50,7 +64,7 @@ const searchForPlayer = () => {
   )
 }
 
-const toggleUser = (user: UserCurrentInfo) => {
+const editUser = (user: UserCurrentInfo) => {
   useModalStore().push(
     PlayerOptions,
     { user, leftButtonText: 'Remove' },
