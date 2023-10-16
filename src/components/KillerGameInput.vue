@@ -35,7 +35,16 @@
     >
       0
     </button>
-    <button @click="emit('undo')">&#x232B;</button>
+    <button
+      @click="
+        () => {
+          emit('undo')
+          updatePlayers()
+        }
+      "
+    >
+      &#x232B;
+    </button>
   </div>
 </template>
 

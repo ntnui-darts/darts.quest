@@ -123,7 +123,21 @@ export const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
     const visit = getVisitsOfUser(game, state.player).at(state.visitIndex)
     if (!visit) break
 
+    const winIfAlone = () => {
+      if (
+        state.player &&
+        !state.rank.includes(state.player) &&
+        state.rank.length >= players.length - 1
+      ) {
+        state.rank.unshift(state.player)
+        return true
+      }
+      return false
+    }
+
     for (const segment of visit) {
+      if (winIfAlone()) break
+
       if (!segment) break
       const playerHit = killersLeft().find((p) => p.sector == segment.sector)
       if (!playerHit) continue
@@ -150,11 +164,7 @@ export const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
       }
     }
 
-    if (state.rank.length >= players.length - 1) {
-      state.rank.unshift(state.player)
-      continue
-    }
-
+    winIfAlone()
     if (state.rank.includes(state.player)) continue
 
     if (visit.includes(null)) break
