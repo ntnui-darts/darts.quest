@@ -15,7 +15,5 @@ const props = defineProps<{
   endTime: number
 }>()
 
-const parsedVideoId = computed(() => {
-  parseYoutube(props.videoId)
-})
+const parsedVideoId = computed(() => parseYoutube(props.videoId))
 </script>
