@@ -12,6 +12,7 @@ import {
 } from '@/types/game'
 import { useUsersStore } from './users'
 import { getGameController } from '@/games/games'
+import { getX01VisitScore } from '@/games/x01'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -80,6 +81,12 @@ export const useGameStore = defineStore('game', {
       }
       this.updateGameState()
       this.saveToLocalStorage()
+
+      if (visit && this.game.type == 'x01' && index == 2) {
+        const score = getX01VisitScore(visit)
+        if (!score) speak('No score!')
+        else speak(`${score}!`)
+      }
     },
 
     undoScore() {
@@ -148,6 +155,14 @@ export const useGameStore = defineStore('game', {
     },
   },
 })
+
+const speak = (text: string) => {
+  const utterance = new SpeechSynthesisUtterance()
+  utterance.text = text
+  utterance.voice = window.speechSynthesis.getVoices()[0]
+  window.speechSynthesis.cancel()
+  window.speechSynthesis.speak(utterance)
+}
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useGameStore, import.meta.hot))
