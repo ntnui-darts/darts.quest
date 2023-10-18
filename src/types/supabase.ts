@@ -103,7 +103,9 @@ export interface Database {
           avg301DoubleVisitsLast10: number | null
           avg501DoubleVisitsLast10: number | null
           avgKillerWinRateLast10: number | null
-          avgRtcHitRateLast10: number
+          avgRtcDoubleHitRateLast10: number | null
+          avgRtcSingleHitRateLast10: number | null
+          avgRtcTripleHitRateLast10: number | null
           avgX01First9AvgLast10: number | null
           max501DoubleVisits: number
           maxRtcStreak: number
@@ -122,7 +124,9 @@ export interface Database {
           avg301DoubleVisitsLast10?: number | null
           avg501DoubleVisitsLast10?: number | null
           avgKillerWinRateLast10?: number | null
-          avgRtcHitRateLast10: number
+          avgRtcDoubleHitRateLast10?: number | null
+          avgRtcSingleHitRateLast10?: number | null
+          avgRtcTripleHitRateLast10?: number | null
           avgX01First9AvgLast10?: number | null
           max501DoubleVisits?: number
           maxRtcStreak?: number
@@ -141,7 +145,9 @@ export interface Database {
           avg301DoubleVisitsLast10?: number | null
           avg501DoubleVisitsLast10?: number | null
           avgKillerWinRateLast10?: number | null
-          avgRtcHitRateLast10?: number
+          avgRtcDoubleHitRateLast10?: number | null
+          avgRtcSingleHitRateLast10?: number | null
+          avgRtcTripleHitRateLast10?: number | null
           avgX01First9AvgLast10?: number | null
           max501DoubleVisits?: number
           maxRtcStreak?: number

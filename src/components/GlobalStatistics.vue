@@ -5,7 +5,7 @@
     <button
       v-for="(name, type) in GameTypeNames"
       :class="{ selected: gameType == type }"
-      @click="gameType = type"
+      @click="selectGameType(type)"
     >
       {{ name }}
     </button>
@@ -13,6 +13,15 @@
   <div v-if="gameType == 'x01'" class="row options">
     <button
       v-for="option in (['General', '301 Double', '501 Double'] as const)"
+      :class="{ selected: subCategory == option }"
+      @click="subCategory = option"
+    >
+      {{ option }}
+    </button>
+  </div>
+  <div v-if="gameType == 'rtc'" class="row options">
+    <button
+      v-for="option in (['General', 'Single', 'Double', 'Triple'] as const)"
       :class="{ selected: subCategory == option }"
       @click="subCategory = option"
     >
@@ -58,9 +67,20 @@ import { GameType, GameTypeNames } from '@/games/games'
 
 const statsStore = useStatsStore()
 
-type SubCategory = 'General' | '301 Double' | '501 Double'
+type SubCategory =
+  | 'General'
+  | '301 Double'
+  | '501 Double'
+  | 'Single'
+  | 'Double'
+  | 'Triple'
 const gameType = ref<GameType>('x01')
 const subCategory = ref<SubCategory>('General')
+
+const selectGameType = (type: GameType) => {
+  gameType.value = type
+  subCategory.value = 'General'
+}
 
 const getStats = (
   gameType: GameType,
@@ -174,36 +194,74 @@ const getStats = (
               ),
             },
           ]
+        default:
+          return []
       }
     case 'rtc':
-      return [
-        {
-          key: 'numRtcGames',
-          text: 'Number of Games',
-          userStats: sort(statsStore.userStats, 'numRtcGames', 0, false),
-        },
-        {
-          key: 'avgRtcHitRateLast10',
-          text: 'Average Hit Rate Last 10 Games',
-          userStats: sort(
-            statsStore.userStats,
-            'avgRtcHitRateLast10',
-            0,
-            false
-          ),
-          transform: (n) => Math.round(n * 1000) / 10 + ' %',
-        },
-        {
-          key: 'minRtcVisits',
-          text: 'Fewest Visits',
-          userStats: sort(statsStore.userStats, 'minRtcVisits', Infinity),
-        },
-        {
-          key: 'maxRtcStreak',
-          text: 'Longest Streak',
-          userStats: sort(statsStore.userStats, 'maxRtcStreak', 0, false),
-        },
-      ]
+      switch (subCategory) {
+        case 'General':
+          return [
+            {
+              key: 'numRtcGames',
+              text: 'Number of Games',
+              userStats: sort(statsStore.userStats, 'numRtcGames', 0, false),
+            },
+            {
+              key: 'minRtcVisits',
+              text: 'Fewest Visits',
+              userStats: sort(statsStore.userStats, 'minRtcVisits', Infinity),
+            },
+            {
+              key: 'maxRtcStreak',
+              text: 'Longest Streak',
+              userStats: sort(statsStore.userStats, 'maxRtcStreak', 0, false),
+            },
+          ]
+        case 'Single':
+          return [
+            {
+              key: 'avgRtcSingleHitRateLast10',
+              text: 'Average Hit Rate Last 10 Games',
+              userStats: sort(
+                statsStore.userStats,
+                'avgRtcSingleHitRateLast10',
+                0,
+                false
+              ),
+              transform: (n) => Math.round(n * 1000) / 10 + ' %',
+            },
+          ]
+        case 'Double':
+          return [
+            {
+              key: 'avgRtcDoubleHitRateLast10',
+              text: 'Average Hit Rate Last 10 Games',
+              userStats: sort(
+                statsStore.userStats,
+                'avgRtcDoubleHitRateLast10',
+                0,
+                false
+              ),
+              transform: (n) => Math.round(n * 1000) / 10 + ' %',
+            },
+          ]
+        case 'Triple':
+          return [
+            {
+              key: 'avgRtcTripleHitRateLast10',
+              text: 'Average Hit Rate Last 10 Games',
+              userStats: sort(
+                statsStore.userStats,
+                'avgRtcTripleHitRateLast10',
+                0,
+                false
+              ),
+              transform: (n) => Math.round(n * 1000) / 10 + ' %',
+            },
+          ]
+        default:
+          return []
+      }
     case 'killer':
       return [
         {

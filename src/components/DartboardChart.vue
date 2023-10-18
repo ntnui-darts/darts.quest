@@ -88,3 +88,9 @@ const buildChart = () => {
   }
 }
 </script>
+
+<style>
+canvas {
+  margin-top: 5%;
+}
+</style>

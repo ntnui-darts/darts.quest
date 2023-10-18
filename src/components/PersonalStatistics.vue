@@ -34,6 +34,16 @@
       @change="selected = 'other'"
     />
   </div>
+  <h2>X01</h2>
+  <div class="row options">
+    <button
+      v-for="option in ['All', '301', '501', '701']"
+      :class="{ selected: startScore == option }"
+      @click="startScore = option"
+    >
+      {{ option }}
+    </button>
+  </div>
   <DartboardChart
     :visits="x01Visits"
     :width="300"
@@ -41,6 +51,16 @@
     stat-type="x01"
     title="X01"
   ></DartboardChart>
+  <h2>Round the Clock</h2>
+  <div class="row options">
+    <button
+      v-for="(option, i) in ['All', '1', '2', '3']"
+      :class="{ selected: rtcMode == option }"
+      @click="rtcMode = option"
+    >
+      {{ ['All', 'Single', 'Double', 'Triple'][i] }}
+    </button>
+  </div>
   <DartboardChart
     :visits="rtcVisits"
     :width="300"
@@ -94,6 +114,7 @@ import { useStatsStore } from '@/stores/stats'
 import { getFirst9Avg } from '@/games/x01'
 import { rtcHitRate } from '@/games/rtc'
 import { ref, computed, onMounted } from 'vue'
+import { getTypeAttribute } from '@/types/game'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
@@ -102,6 +123,8 @@ const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
 const smooth = ref(false)
+const rtcMode = ref('All')
+const startScore = ref('All')
 
 const addDays = (date: Date, days: number) => {
   const result = new Date(date)
@@ -116,9 +139,27 @@ const setLastDays = (days: 7 | 30 | 365) => {
 }
 
 const x01Legs = computed(() => legs.value.filter((leg) => leg.type == 'x01'))
-const x01Visits = computed(() => x01Legs.value.map((leg) => leg.visits).flat())
+const x01Visits = computed(() =>
+  x01Legs.value
+    .filter(
+      (leg) =>
+        startScore.value == 'All' ||
+        getTypeAttribute(leg, 'startScore', '') == startScore.value
+    )
+    .map((leg) => leg.visits)
+    .flat()
+)
 const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
-const rtcVisits = computed(() => rtcLegs.value.map((leg) => leg.visits).flat())
+const rtcVisits = computed(() =>
+  rtcLegs.value
+    .filter(
+      (leg) =>
+        rtcMode.value == 'All' ||
+        getTypeAttribute(leg, 'mode', '') == rtcMode.value
+    )
+    .map((leg) => leg.visits)
+    .flat()
+)
 
 onMounted(() => {
   setLastDays(365)

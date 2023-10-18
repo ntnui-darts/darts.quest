@@ -69,7 +69,9 @@ export const useStatsStore = defineStore('stats', {
       let avgX01First9AvgLast10 = 0
       let maxX01DoubleCheckout = 0
       let max501DoubleVisits = 0
-      let avgRtcHitRateLast10 = 0
+      let avgRtcSingleHitRateLast10 = 0
+      let avgRtcDoubleHitRateLast10 = 0
+      let avgRtcTripleHitRateLast10 = 0
       let avg501DoubleVisitsLast10 = 0
       let avg301DoubleVisitsLast10 = 0
       let avgKillerWinRateLast10 = 0
@@ -77,11 +79,32 @@ export const useStatsStore = defineStore('stats', {
       const finishedLegs = this.legs.filter((leg) => leg.finish)
       const rtcLegs = finishedLegs.filter((leg) => leg.type == 'rtc')
       const rtcGames = this.games.filter((leg) => leg.type == 'rtc')
-      const rtcLegsLast10 = rtcLegs.slice(-10)
-      if (rtcLegsLast10.length > 0) {
-        avgRtcHitRateLast10 =
-          sumNumbers(rtcLegsLast10.map((leg) => rtcHitRate(leg.visits))) /
-          rtcLegsLast10.length
+      const rtcSingleLegs = rtcLegs.filter(
+        (leg) => getTypeAttribute<number>(leg, 'mode', 1) == 1
+      )
+      const rtcDoubleLegs = rtcLegs.filter(
+        (leg) => getTypeAttribute<number>(leg, 'mode', 1) == 2
+      )
+      const rtcTripleLegs = rtcLegs.filter(
+        (leg) => getTypeAttribute<number>(leg, 'mode', 1) == 3
+      )
+      const rtcSingleLegsLast10 = rtcSingleLegs.slice(-10)
+      if (rtcSingleLegsLast10.length > 0) {
+        avgRtcSingleHitRateLast10 =
+          sumNumbers(rtcSingleLegsLast10.map((leg) => rtcHitRate(leg.visits))) /
+          rtcSingleLegsLast10.length
+      }
+      const rtcDoubleLegsLast10 = rtcDoubleLegs.slice(-10)
+      if (rtcDoubleLegsLast10.length > 0) {
+        avgRtcDoubleHitRateLast10 =
+          sumNumbers(rtcDoubleLegsLast10.map((leg) => rtcHitRate(leg.visits))) /
+          rtcDoubleLegsLast10.length
+      }
+      const rtcTripleLegsLast10 = rtcTripleLegs.slice(-10)
+      if (rtcTripleLegsLast10.length > 0) {
+        avgRtcTripleHitRateLast10 =
+          sumNumbers(rtcTripleLegsLast10.map((leg) => rtcHitRate(leg.visits))) /
+          rtcTripleLegsLast10.length
       }
       const x01Legs = finishedLegs.filter((leg) => leg.type == 'x01')
       const x01DoubleLegs = x01Legs.filter(
@@ -193,7 +216,9 @@ export const useStatsStore = defineStore('stats', {
         avgX01First9AvgLast10,
         maxX01DoubleCheckout,
         max501DoubleVisits,
-        avgRtcHitRateLast10,
+        avgRtcSingleHitRateLast10,
+        avgRtcDoubleHitRateLast10,
+        avgRtcTripleHitRateLast10,
         avg301DoubleVisitsLast10,
         avg501DoubleVisitsLast10,
         avgKillerWinRateLast10,
