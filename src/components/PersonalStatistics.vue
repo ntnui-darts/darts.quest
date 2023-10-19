@@ -55,14 +55,14 @@
   <div class="row options">
     <button
       v-for="(option, i) in ['All', '1', '2', '3']"
-      :class="{ selected: rtcMode == option }"
-      @click="rtcMode = option"
+      :class="{ selected: rtcModeDartboard == option }"
+      @click="rtcModeDartboard = option"
     >
       {{ ['All', 'Single', 'Double', 'Triple'][i] }}
     </button>
   </div>
   <DartboardChart
-    :visits="rtcVisits"
+    :visits="rtcVisitsDartboard"
     :width="300"
     :height="300"
     stat-type="rtc"
@@ -92,8 +92,17 @@
     :smooth="true"
   ></LegHistoryChart>
   <h3>RTC Hit rate</h3>
+  <div class="row options">
+    <button
+      v-for="(option, i) in ['1', '2', '3']"
+      :class="{ selected: rtcModeHistory == option }"
+      @click="rtcModeHistory = option"
+    >
+      {{ ['Single', 'Double', 'Triple'][i] }}
+    </button>
+  </div>
   <LegHistoryChart
-    :legs="rtcLegs"
+    :legs="rtcLegsHistory"
     :y="(leg) => rtcHitRate(leg.visits)"
     :group-by-type="false"
     :smooth="true"
@@ -123,7 +132,8 @@ const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
 const smooth = ref(false)
-const rtcMode = ref('All')
+const rtcModeHistory = ref('1')
+const rtcModeDartboard = ref('1')
 const startScore = ref('All')
 
 const addDays = (date: Date, days: number) => {
@@ -150,12 +160,17 @@ const x01Visits = computed(() =>
     .flat()
 )
 const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
-const rtcVisits = computed(() =>
+const rtcLegsHistory = computed(() =>
+  rtcLegs.value.filter(
+    (leg) => getTypeAttribute(leg, 'mode', '') == rtcModeHistory.value
+  )
+)
+const rtcVisitsDartboard = computed(() =>
   rtcLegs.value
     .filter(
       (leg) =>
-        rtcMode.value == 'All' ||
-        getTypeAttribute(leg, 'mode', '') == rtcMode.value
+        rtcModeDartboard.value == 'All' ||
+        getTypeAttribute(leg, 'mode', '') == rtcModeDartboard.value
     )
     .map((leg) => leg.visits)
     .flat()

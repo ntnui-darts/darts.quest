@@ -76,7 +76,7 @@ const smooth = (points: Point[]) => {
 }
 
 const buildChart = async () => {
-  if (!chartElement.value || props.legs.length == 0) return
+  if (!chartElement.value) return
 
   const datasets = props.groupByType
     ? getDatasetsGroupedByType()
