@@ -48,21 +48,23 @@ export const getX01Controller = (game: Game): GameController => {
     recordHit(segment) {
       if (!segment) return
       const gameStore = useGameStore()
-      if (!gameStore.game || !gameStore.gameState?.player) return
+      const player = gameStore.gameState?.player
+      const visit = gameStore.getCurrentVisit
+      if (!gameStore.game || !player) return
       const prevScore = getX01LegScore(
-        getVisitsOfUser(gameStore.game, gameStore.gameState?.player),
+        getVisitsOfUser(gameStore.game, player),
         gameStore.game
       )
       gameStore.saveScore(segment)
-      if (segment.sector > 0 && gameStore.getCurrentVisit) {
+      if (segment.sector > 0 && visit) {
         const score = getX01LegScore(
-          getVisitsOfUser(gameStore.game, gameStore.gameState?.player),
+          getVisitsOfUser(gameStore.game, player),
           gameStore.game
         )
         if (score <= prevScore) {
-          for (let i = 0; i < gameStore.getCurrentVisit.length; i++) {
-            if (!gameStore.getCurrentVisit[i]) {
-              gameStore.getCurrentVisit[i] = { multiplier: 0, sector: 0 }
+          for (let i = 0; i < visit.length; i++) {
+            if (!visit[i]) {
+              visit[i] = { multiplier: 0, sector: 0 }
             }
           }
           speak('Bust!')
