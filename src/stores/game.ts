@@ -13,6 +13,7 @@ import {
 import { useUsersStore } from './users'
 import { getGameController } from '@/games/games'
 import { getX01VisitScore } from '@/games/x01'
+import { speak } from '@/functions/speak'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -161,17 +162,6 @@ export const useGameStore = defineStore('game', {
     },
   },
 })
-
-const speak = (text: string) => {
-  const utterance = new SpeechSynthesisUtterance()
-  utterance.text = text
-  const defaultVoice = window.speechSynthesis.getVoices().find((v) => v.default)
-  if (defaultVoice) {
-    utterance.voice = defaultVoice
-  }
-  window.speechSynthesis.cancel()
-  window.speechSynthesis.speak(utterance)
-}
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useGameStore, import.meta.hot))

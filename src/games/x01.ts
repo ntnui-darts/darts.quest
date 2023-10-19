@@ -11,6 +11,8 @@ import {
 } from '@/types/game'
 import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { getGamePoints } from './games'
+import { useGameStore } from '@/stores/game'
+import { speak } from '@/functions/speak'
 
 export const getX01Controller = (game: Game): GameController => {
   return {
@@ -20,7 +22,7 @@ export const getX01Controller = (game: Game): GameController => {
       return {
         ...simulateFirstToWinGame(
           game,
-          (game, visits) => getLegScore(visits, game) == getGamePoints(game)
+          (game, visits) => getX01LegScore(visits, game) == getGamePoints(game)
         ),
 
         getUserResultText(userId) {
@@ -36,16 +38,42 @@ export const getX01Controller = (game: Game): GameController => {
 
         getUserDisplayText(userId) {
           const visits = getVisitsOfUser(game, userId)
-          const rest = getGamePoints(game) - getLegScore(visits, game)
+          const rest = getGamePoints(game) - getX01LegScore(visits, game)
           const avg = getAvgVisitScore(visits, game).toFixed(1)
           return `${rest}\t(${avg})`
         },
       } satisfies GameState
     },
+
+    recordHit(segment) {
+      if (!segment) return
+      const gameStore = useGameStore()
+      if (!gameStore.game || !gameStore.gameState?.player) return
+      const prevScore = getX01LegScore(
+        getVisitsOfUser(gameStore.game, gameStore.gameState?.player),
+        gameStore.game
+      )
+      gameStore.saveScore(segment)
+      if (segment.sector > 0 && gameStore.getCurrentVisit) {
+        const score = getX01LegScore(
+          getVisitsOfUser(gameStore.game, gameStore.gameState?.player),
+          gameStore.game
+        )
+        if (score <= prevScore) {
+          for (let i = 0; i < gameStore.getCurrentVisit.length; i++) {
+            if (!gameStore.getCurrentVisit[i]) {
+              gameStore.getCurrentVisit[i] = { multiplier: 0, sector: 0 }
+            }
+          }
+          speak('Bust!')
+        }
+      }
+      gameStore.updateGameState()
+    },
   }
 }
 
-const getLegScore = (
+export const getX01LegScore = (
   visits: Visit[],
   game: Game | Leg,
   includeUnfinished = true
@@ -82,7 +110,7 @@ const getAvgVisitScore = (
     ? visits.length
     : visits.filter((visit) => !visit.includes(null)).length
   if (!count) return 0
-  return getLegScore(visits, game, includeUnfinished) / count
+  return getX01LegScore(visits, game, includeUnfinished) / count
 }
 
 export const getFirst9Avg = (visits: Visit[] | null, game: Game | Leg) => {
