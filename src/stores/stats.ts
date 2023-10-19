@@ -4,7 +4,7 @@ import { DbGame, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
-import { getRtcHitRate, sumNumbers } from '@/games/rtc'
+import { getMaxStreak, getRtcHitRate, sumNumbers } from '@/games/rtc'
 
 export type UserStat = Database['public']['Tables']['statistics']['Row']
 
@@ -159,15 +159,7 @@ export const useStatsStore = defineStore('stats', {
             const fastMode = getTypeAttribute<boolean>(leg, 'fast', false)
             if (fastMode) return
             minRtcVisits = Math.min(minRtcVisits ?? Infinity, leg.visits.length)
-            let currentRtcStreak = 0
-            leg.visits.flat().forEach((s) => {
-              if (s != null && s.sector != 0) {
-                currentRtcStreak += 1
-                maxRtcStreak = Math.max(maxRtcStreak, currentRtcStreak)
-              } else {
-                currentRtcStreak = 0
-              }
-            })
+            maxRtcStreak = Math.max(maxRtcStreak, getMaxStreak(leg.visits))
             break
           case 'x01':
             const startScore = getTypeAttribute<number>(leg, 'startScore', 0)
@@ -276,4 +268,46 @@ export const roundToTwoDecimals = (n: number) => {
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useStatsStore, import.meta.hot))
+}
+
+export const insertLegStatistics = async (leg: Leg) => {
+  const segments = leg.visits.flat().filter((s) => s != null)
+  const darts = segments.length
+
+  switch (leg.type) {
+    case 'x01':
+      const maxVisitScore = Math.max(
+        0,
+        ...leg.visits.map((v) => getX01VisitScore(v))
+      )
+      const first9Avg = getFirst9Avg(leg.visits, leg)
+      const lastVisit = leg.visits.at(-1)
+      const checkout = lastVisit ? getX01VisitScore(lastVisit) : 0
+      await supabase.from('statistics_x01').insert({
+        legId: leg.id,
+        darts,
+        maxVisitScore,
+        first9Avg,
+        checkout,
+      })
+      break
+
+    case 'rtc':
+      const maxStreak = getMaxStreak(leg.visits)
+      const hitRate = getRtcHitRate(leg.visits)
+      await supabase.from('statistics_rtc').insert({
+        legId: leg.id,
+        darts,
+        maxStreak,
+        hitRate,
+      })
+      break
+
+    case 'killer':
+      await supabase.from('statistics_killer').insert({
+        legId: leg.id,
+        darts,
+      })
+      break
+  }
 }

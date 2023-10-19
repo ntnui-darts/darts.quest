@@ -91,6 +91,12 @@ export interface Database {
         }
         Relationships: [
           {
+            foreignKeyName: "legs_gameId_fkey"
+            columns: ["gameId"]
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "legs_userId_fkey"
             columns: ["userId"]
             referencedRelation: "users"
@@ -167,6 +173,87 @@ export interface Database {
             foreignKeyName: "statistics_userId_fkey"
             columns: ["userId"]
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      statistics_killer: {
+        Row: {
+          darts: number | null
+          legId: string
+        }
+        Insert: {
+          darts?: number | null
+          legId: string
+        }
+        Update: {
+          darts?: number | null
+          legId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistics_killer_legId_fkey"
+            columns: ["legId"]
+            referencedRelation: "legs"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      statistics_rtc: {
+        Row: {
+          darts: number | null
+          hitRate: number | null
+          legId: string
+          maxStreak: number | null
+        }
+        Insert: {
+          darts?: number | null
+          hitRate?: number | null
+          legId: string
+          maxStreak?: number | null
+        }
+        Update: {
+          darts?: number | null
+          hitRate?: number | null
+          legId?: string
+          maxStreak?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistics_rtc_legId_fkey"
+            columns: ["legId"]
+            referencedRelation: "legs"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      statistics_x01: {
+        Row: {
+          checkout: number | null
+          darts: number | null
+          first9Avg: number | null
+          legId: string
+          maxVisitScore: number | null
+        }
+        Insert: {
+          checkout?: number | null
+          darts?: number | null
+          first9Avg?: number | null
+          legId: string
+          maxVisitScore?: number | null
+        }
+        Update: {
+          checkout?: number | null
+          darts?: number | null
+          first9Avg?: number | null
+          legId?: string
+          maxVisitScore?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistics_x01_legId_fkey"
+            columns: ["legId"]
+            referencedRelation: "legs"
             referencedColumns: ["id"]
           }
         ]

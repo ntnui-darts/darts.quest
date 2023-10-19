@@ -129,3 +129,17 @@ export const rtcStats = (visits: Visit[]) => {
     .map((_, i) => hitCountList[i] / (hitCountList[i] + missCountList[i]))
     .map((x) => (Number.isNaN(x) ? 0 : x))
 }
+
+export const getMaxStreak = (visits: Visit[]) => {
+  let currentRtcStreak = 0
+  let maxRtcStreak = 0
+  visits.flat().forEach((s) => {
+    if (s != null && s.sector != 0) {
+      currentRtcStreak += 1
+      maxRtcStreak = Math.max(maxRtcStreak, currentRtcStreak)
+    } else {
+      currentRtcStreak = 0
+    }
+  })
+  return maxRtcStreak
+}

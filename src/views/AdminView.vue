@@ -4,10 +4,10 @@
 </template>
 
 <script lang="ts" setup>
+// import { migrateToStatisticsPerLeg } from '@/admin/migration-statistics-per-leg'
 import { router } from '@/router'
-// import { fixLegsWithNullVisits } from '@/admin/fix-legs-with-null'
 
 const migrate = () => {
-  // fixLegsWithNullVisits()
+  // migrateToStatisticsPerLeg()
 }
 </script>
