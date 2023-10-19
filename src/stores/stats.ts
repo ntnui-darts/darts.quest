@@ -4,7 +4,7 @@ import { DbGame, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
-import { rtcHitRate, sumNumbers } from '@/games/rtc'
+import { getRtcHitRate, sumNumbers } from '@/games/rtc'
 
 export type UserStat = Database['public']['Tables']['statistics']['Row']
 
@@ -91,20 +91,23 @@ export const useStatsStore = defineStore('stats', {
       const rtcSingleLegsLast10 = rtcSingleLegs.slice(-10)
       if (rtcSingleLegsLast10.length > 0) {
         avgRtcSingleHitRateLast10 =
-          sumNumbers(rtcSingleLegsLast10.map((leg) => rtcHitRate(leg.visits))) /
-          rtcSingleLegsLast10.length
+          sumNumbers(
+            rtcSingleLegsLast10.map((leg) => getRtcHitRate(leg.visits))
+          ) / rtcSingleLegsLast10.length
       }
       const rtcDoubleLegsLast10 = rtcDoubleLegs.slice(-10)
       if (rtcDoubleLegsLast10.length > 0) {
         avgRtcDoubleHitRateLast10 =
-          sumNumbers(rtcDoubleLegsLast10.map((leg) => rtcHitRate(leg.visits))) /
-          rtcDoubleLegsLast10.length
+          sumNumbers(
+            rtcDoubleLegsLast10.map((leg) => getRtcHitRate(leg.visits))
+          ) / rtcDoubleLegsLast10.length
       }
       const rtcTripleLegsLast10 = rtcTripleLegs.slice(-10)
       if (rtcTripleLegsLast10.length > 0) {
         avgRtcTripleHitRateLast10 =
-          sumNumbers(rtcTripleLegsLast10.map((leg) => rtcHitRate(leg.visits))) /
-          rtcTripleLegsLast10.length
+          sumNumbers(
+            rtcTripleLegsLast10.map((leg) => getRtcHitRate(leg.visits))
+          ) / rtcTripleLegsLast10.length
       }
       const x01Legs = finishedLegs.filter((leg) => leg.type == 'x01')
       const x01DoubleLegs = x01Legs.filter(
@@ -262,6 +265,14 @@ export const useStatsStore = defineStore('stats', {
     },
   },
 })
+
+export const toPercentage = (n: number) => {
+  return Math.round(n * 1000) / 10 + ' %'
+}
+
+export const roundToTwoDecimals = (n: number) => {
+  return Math.round(n * 100) / 100
+}
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useStatsStore, import.meta.hot))

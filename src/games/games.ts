@@ -56,7 +56,10 @@ export const getGameDisplayName = (game?: Game | Leg | null) => {
   }
 }
 
-export const getGamePoints = (game: Game | Leg) => {
+export const getGamePoints = (game: {
+  type: GameType
+  typeAttributes: string[]
+}) => {
   switch (game.type) {
     case 'rtc':
       return 20

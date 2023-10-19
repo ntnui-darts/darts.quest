@@ -21,7 +21,7 @@
       <button
         v-for="userId in gameStore.gameState?.playersLeft ?? []"
         :class="{ selected: gameStore.gameState?.player == userId }"
-        @click="showChart(userId)"
+        @click="clickUser(userId)"
       >
         {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
         <br />
@@ -60,15 +60,15 @@
 </template>
 
 <script lang="ts" setup>
+import Youtube from '@/components/Youtube.vue'
+import Prompt from '@/components/Prompt.vue'
+import InGameSummary from '@/components/InGameSummary.vue'
 import { onMounted, computed } from 'vue'
 import { router } from '@/router'
 import { useUsersStore } from '@/stores/users'
 import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
-import DartboardChart from '@/components/DartboardChart.vue'
-import Youtube from '@/components/Youtube.vue'
-import Prompt from '@/components/Prompt.vue'
 import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { getLegOfUser } from '@/types/game'
 
@@ -139,15 +139,12 @@ const saveGame = async () => {
   })
 }
 
-const showChart = (userId: string) => {
+const clickUser = (userId: string) => {
   if (!gameStore.game) return
   const leg = getLegOfUser(gameStore.game, userId)
-  if (!leg) return
-  useModalStore().push(
-    DartboardChart,
-    { visits: leg.visits, statType: leg.type },
-    {}
-  )
+  const user = usersStore.getUser(userId)
+  if (!leg || !user) return
+  useModalStore().push(InGameSummary, { leg, user }, {})
 }
 </script>
 

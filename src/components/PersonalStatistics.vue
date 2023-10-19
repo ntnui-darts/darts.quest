@@ -103,7 +103,7 @@
   </div>
   <LegHistoryChart
     :legs="rtcLegsHistory"
-    :y="(leg) => rtcHitRate(leg.visits)"
+    :y="(leg) => getRtcHitRate(leg.visits)"
     :group-by-type="false"
     :smooth="true"
   ></LegHistoryChart>
@@ -121,7 +121,7 @@ import DartboardChart from '@/components/DartboardChart.vue'
 import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { useStatsStore } from '@/stores/stats'
 import { getFirst9Avg } from '@/games/x01'
-import { rtcHitRate } from '@/games/rtc'
+import { getRtcHitRate } from '@/games/rtc'
 import { ref, computed, onMounted } from 'vue'
 import { getTypeAttribute } from '@/types/game'
 

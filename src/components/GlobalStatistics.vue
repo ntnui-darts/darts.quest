@@ -44,7 +44,7 @@
             {{
               stat.transform
                 ? stat.transform(userStat[stat.key] ?? 0)
-                : Math.round((userStat[stat.key] ?? 0) * 100) / 100
+                : roundToTwoDecimals(userStat[stat.key] ?? 0)
             }}
           </td>
         </tr>
@@ -61,7 +61,12 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useStatsStore, UserStat } from '@/stores/stats'
+import {
+  useStatsStore,
+  UserStat,
+  toPercentage,
+  roundToTwoDecimals,
+} from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import { GameType, GameTypeNames } from '@/games/games'
 
@@ -228,7 +233,7 @@ const getStats = (
                 0,
                 false
               ),
-              transform: (n) => Math.round(n * 1000) / 10 + ' %',
+              transform: toPercentage,
             },
           ]
         case 'Double':
@@ -242,7 +247,7 @@ const getStats = (
                 0,
                 false
               ),
-              transform: (n) => Math.round(n * 1000) / 10 + ' %',
+              transform: toPercentage,
             },
           ]
         case 'Triple':
@@ -256,7 +261,7 @@ const getStats = (
                 0,
                 false
               ),
-              transform: (n) => Math.round(n * 1000) / 10 + ' %',
+              transform: toPercentage,
             },
           ]
         default:
@@ -278,7 +283,7 @@ const getStats = (
             0,
             false
           ),
-          transform: (n) => Math.round(n * 10000) / 100 + ' %',
+          transform: toPercentage,
         },
       ]
   }

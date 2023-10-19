@@ -6,11 +6,10 @@ import {
   GameController,
   getVisitsOfUser,
   getTypeAttribute,
-  Leg,
   GameState,
 } from '@/types/game'
 import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
-import { getGamePoints } from './games'
+import { GameType, getGamePoints } from './games'
 import { useGameStore } from '@/stores/game'
 import { speak } from '@/functions/speak'
 
@@ -77,7 +76,10 @@ export const getX01Controller = (game: Game): GameController => {
 
 export const getX01LegScore = (
   visits: Visit[],
-  game: Game | Leg,
+  game: {
+    type: GameType
+    typeAttributes: string[]
+  },
   includeUnfinished = true
 ) => {
   let score = 0
@@ -102,9 +104,12 @@ export const getX01LegScore = (
   return score
 }
 
-const getAvgVisitScore = (
+export const getAvgVisitScore = (
   visits: Visit[] | null,
-  game: Game | Leg,
+  game: {
+    type: GameType
+    typeAttributes: string[]
+  },
   includeUnfinished = false
 ) => {
   if (!visits || visits.length == 0) return 0
@@ -115,7 +120,13 @@ const getAvgVisitScore = (
   return getX01LegScore(visits, game, includeUnfinished) / count
 }
 
-export const getFirst9Avg = (visits: Visit[] | null, game: Game | Leg) => {
+export const getFirst9Avg = (
+  visits: Visit[] | null,
+  game: {
+    type: GameType
+    typeAttributes: string[]
+  }
+) => {
   if (!visits) return 0
   const first9 = visits.slice(0, 3)
   return getAvgVisitScore(first9, game, true)
