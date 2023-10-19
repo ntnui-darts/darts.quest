@@ -39,7 +39,8 @@ export type SimulationState = {
 
 export const nextState = (
   players: string[],
-  prevState: SimulationState
+  prevState: SimulationState,
+  prevIndex: number | null = null
 ): SimulationState => {
   const state = { ...prevState }
   if (!state.player)
@@ -54,13 +55,16 @@ export const nextState = (
     state.player = null
     return state
   }
-  const index = players.indexOf(state.player)
+
+  const index = prevIndex ?? players.indexOf(state.player)
   const nextIndex = (index + 1) % players.length
   if (nextIndex == 0) state.visitIndex += 1
-  state.player = players[nextIndex]
-  if (state.rank.includes(state.player)) {
-    return nextState(players, state)
+  const nextPlayer = players[nextIndex]
+
+  if (state.rank.includes(nextPlayer)) {
+    return nextState(players, state, nextIndex)
   }
+  state.player = players[nextIndex]
   return state
 }
 
