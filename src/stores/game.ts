@@ -68,8 +68,9 @@ export const useGameStore = defineStore('game', {
       if (!this.game) throw Error()
       if (!this.getCurrentLeg) throw Error()
       if (!this.gameState) throw Error()
-      if (!this.gameState?.player) throw Error('No current user')
-      if (this.gameState.rank.includes(this.gameState.player))
+      const player = this.gameState?.player
+      if (!player) throw Error('No current user')
+      if (this.gameState.rank.includes(player))
         throw Error('User has already finished')
 
       const visit = this.getCurrentLeg.visits.at(-1)
@@ -79,14 +80,19 @@ export const useGameStore = defineStore('game', {
       } else {
         visit[index] = segment
       }
-      this.updateGameState()
-      this.saveToLocalStorage()
 
-      if (visit && this.game.type == 'x01' && index == 2) {
+      if (
+        visit &&
+        this.game.type == 'x01' &&
+        (index == 2 || this.game.result.includes(player))
+      ) {
         const score = getX01VisitScore(visit)
         if (!score) speak('No score!')
         else speak(`${score}!`)
       }
+
+      this.updateGameState()
+      this.saveToLocalStorage()
     },
 
     undoScore() {
@@ -159,7 +165,10 @@ export const useGameStore = defineStore('game', {
 const speak = (text: string) => {
   const utterance = new SpeechSynthesisUtterance()
   utterance.text = text
-  utterance.voice = window.speechSynthesis.getVoices()[0]
+  const defaultVoice = window.speechSynthesis.getVoices().find((v) => v.default)
+  if (defaultVoice) {
+    utterance.voice = defaultVoice
+  }
   window.speechSynthesis.cancel()
   window.speechSynthesis.speak(utterance)
 }
