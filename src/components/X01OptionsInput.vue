@@ -32,10 +32,15 @@
 </template>
 
 <script lang="ts" setup>
+import { getTypeAttribute } from '@/types/game'
 import { ref, onMounted } from 'vue'
 
-const finish = ref<1 | 2 | 3>(2)
-const startScore = ref<301 | 501 | 701>(301)
+const props = defineProps<{ typeAttributes: string[] }>()
+
+const finish = ref<1 | 2 | 3>(getTypeAttribute<1 | 2 | 3>(props, 'finish', 2))
+const startScore = ref<301 | 501 | 701>(
+  getTypeAttribute<301 | 501 | 701>(props, 'startScore', 501)
+)
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]

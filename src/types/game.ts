@@ -68,7 +68,7 @@ export const getVisitsOfUser = (game: Game, userId?: string | null) => {
 }
 
 export const getTypeAttribute = <T>(
-  data: Game | Leg,
+  data: { typeAttributes: string[] },
   name: string,
   _default: T
 ) => {

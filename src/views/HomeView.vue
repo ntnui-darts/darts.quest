@@ -24,6 +24,7 @@
         v-if="getOptionsComponent(homeStore.gameType)"
         :is="getOptionsComponent(homeStore.gameType)"
         :key="homeStore.gameType"
+        :type-attributes="homeStore.typeAttributes"
         @update="homeStore.typeAttributes = $event"
       ></component>
     </div>

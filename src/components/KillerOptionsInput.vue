@@ -5,6 +5,8 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
 
+defineProps<{ typeAttributes: string[] }>()
+
 const emit = defineEmits<{
   update: [typeAttributes: string[]]
 }>()
