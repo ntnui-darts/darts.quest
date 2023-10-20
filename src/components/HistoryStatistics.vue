@@ -1,13 +1,28 @@
 <template>
   <h2>Game Type</h2>
-  <div class="row options">
-    <button
-      v-for="(name, type) in GameTypeNames"
-      :class="{ selected: gameType == type }"
-      @click="gameType = type"
-    >
-      {{ name }}
-    </button>
+  <div
+    class="col"
+    style="gap: 0; background-color: rgb(43, 43, 43); border-radius: 0.5em"
+  >
+    <div class="row options">
+      <button
+        v-for="(name, type) in GameTypeNames"
+        :class="{ selected: type == gameType }"
+        style="font-size: larger"
+        @click="gameType = type"
+      >
+        {{ name }}
+      </button>
+    </div>
+    <div v-auto-animate class="col" style="padding: 1em">
+      <component
+        v-if="getOptionsComponent(gameType)"
+        :is="getOptionsComponent(gameType)"
+        :key="gameType"
+        :type-attributes="typeAttributes"
+        @update="typeAttributes = $event"
+      ></component>
+    </div>
   </div>
   <div v-if="gameType == 'rtc'">
     <h2>RTC Hit Rate</h2>
@@ -30,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { GameType, GameTypeNames } from '@/games/games'
+import { GameType, GameTypeNames, getOptionsComponent } from '@/games/games'
 import Chart from './Chart.vue'
 import { useStatsStore } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
@@ -40,6 +55,23 @@ const statsStore = useStatsStore()
 const userStore = useUsersStore()
 
 const gameType = ref<GameType>('x01')
+const typeAttributes = ref<string[]>([])
+
+const rtcStats = computed(() =>
+  statsStore.rtcStats.filter((stat) =>
+    typeAttributes.value.every((ta) => stat.legs.typeAttributes.includes(ta))
+  )
+)
+const x01Stats = computed(() =>
+  statsStore.x01Stats.filter((stat) =>
+    typeAttributes.value.every((ta) => stat.legs.typeAttributes.includes(ta))
+  )
+)
+const killerStats = computed(() =>
+  statsStore.killerStats.filter((stat) =>
+    typeAttributes.value.every((ta) => stat.legs.typeAttributes.includes(ta))
+  )
+)
 
 const rtcUsers = computed(() =>
   Array.from(new Set(statsStore.rtcStats.map((s) => s.legs.userId)))
@@ -47,7 +79,7 @@ const rtcUsers = computed(() =>
 const rtcHitRateDataset = computed(() => {
   return rtcUsers.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: statsStore.rtcStats
+    data: rtcStats.value
       .filter((s) => s.legs.userId == user)
       .map((stat) => ({ x: new Date(stat.legs.createdAt), y: stat.hitRate })),
   }))
@@ -55,7 +87,7 @@ const rtcHitRateDataset = computed(() => {
 const rtcStreakDataset = computed(() => {
   return rtcUsers.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: statsStore.rtcStats
+    data: rtcStats.value
       .filter((s) => s.legs.userId == user)
       .map((stat) => ({ x: new Date(stat.legs.createdAt), y: stat.maxStreak })),
   }))
@@ -67,7 +99,7 @@ const x01Users = computed(() =>
 const x01First9AvgDataset = computed(() => {
   return x01Users.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: statsStore.x01Stats
+    data: x01Stats.value
       .filter((s) => s.legs.userId == user)
       .map((stat) => ({ x: new Date(stat.legs.createdAt), y: stat.first9Avg })),
   }))
@@ -75,7 +107,7 @@ const x01First9AvgDataset = computed(() => {
 const x01CheckoutDataset = computed(() => {
   return x01Users.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: statsStore.x01Stats
+    data: x01Stats.value
       .filter((s) => s.legs.userId == user)
       .map((stat) => ({
         x: new Date(stat.legs.createdAt),
@@ -86,7 +118,7 @@ const x01CheckoutDataset = computed(() => {
 const x01MaxVisitScoreDataset = computed(() => {
   return x01Users.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: statsStore.x01Stats
+    data: x01Stats.value
       .filter((s) => s.legs.userId == user)
       .map((stat) => ({
         x: new Date(stat.legs.createdAt),
@@ -101,7 +133,7 @@ const killerUsers = computed(() =>
 const killerDartsDataset = computed(() => {
   return killerUsers.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: statsStore.killerStats
+    data: killerStats.value
       .filter((s) => s.legs.userId == user)
       .map((stat) => ({
         x: new Date(stat.legs.createdAt),
