@@ -127,6 +127,11 @@ export const useGameStore = defineStore('game', {
     async saveGame() {
       if (!this.game) throw Error()
       this.game.result = this.updateGameState().rank
+      await supabase.from('games').insert({
+        ...this.game,
+        legs: this.game.legs.map((leg) => leg.id),
+        type: this.game.type,
+      })
       for (let leg of this.game.legs) {
         if (this.game.result.includes(leg.userId)) {
           leg.finish = true
@@ -134,11 +139,6 @@ export const useGameStore = defineStore('game', {
         await supabase.from('legs').insert({ ...leg, type: leg.type })
         await insertLegStatistics(leg)
       }
-      await supabase.from('games').insert({
-        ...this.game,
-        legs: this.game.legs.map((leg) => leg.id),
-        type: this.game.type,
-      })
       useStatsStore().fetchAll()
     },
 
