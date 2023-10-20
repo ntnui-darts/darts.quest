@@ -23,6 +23,14 @@ export type RtcStat = Database['public']['Tables']['statistics_rtc']['Row'] &
 export type KillerStat =
   Database['public']['Tables']['statistics_killer']['Row'] & LegJoin
 
+const compareCreatedAt = (a: { createdAt: string }, b: { createdAt: string }) =>
+  new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+
+const compareLegsCreatedAt = (
+  a: { legs: { createdAt: string } },
+  b: { legs: { createdAt: string } }
+) => new Date(a.legs.createdAt).getTime() - new Date(b.legs.createdAt).getTime()
+
 export const useStatsStore = defineStore('stats', {
   state: () => ({
     legs: [] as Leg[],
@@ -46,10 +54,7 @@ export const useStatsStore = defineStore('stats', {
       if (!id) return
       const legs = await supabase.from('legs').select('*').eq('userId', id)
       if (legs.data) {
-        this.legs = (legs.data as Leg[]).toSorted(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        )
+        this.legs = (legs.data as Leg[]).toSorted(compareCreatedAt)
       }
     },
 
@@ -61,10 +66,7 @@ export const useStatsStore = defineStore('stats', {
         .select('*')
         .contains('players', [id])
       if (games.data) {
-        this.games = games.data.toSorted(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        )
+        this.games = games.data.toSorted(compareCreatedAt)
       }
     },
 
@@ -77,21 +79,25 @@ export const useStatsStore = defineStore('stats', {
         .from('statistics_x01')
         .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
       if (x01Stats.data) {
-        this.x01Stats = x01Stats.data.filter((s) => s.legs != null) as X01Stat[]
+        this.x01Stats = (
+          x01Stats.data.filter((s) => s.legs != null) as X01Stat[]
+        ).toSorted(compareLegsCreatedAt)
       }
       const rtcStats = await supabase
         .from('statistics_rtc')
         .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
       if (rtcStats.data) {
-        this.rtcStats = rtcStats.data.filter((s) => s.legs != null) as RtcStat[]
+        this.rtcStats = (
+          rtcStats.data.filter((s) => s.legs != null) as RtcStat[]
+        ).toSorted(compareLegsCreatedAt)
       }
       const killerStats = await supabase
         .from('statistics_killer')
         .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
       if (killerStats.data) {
-        this.killerStats = killerStats.data.filter(
-          (s) => s.legs != null
-        ) as KillerStat[]
+        this.killerStats = (
+          killerStats.data.filter((s) => s.legs != null) as KillerStat[]
+        ).toSorted(compareLegsCreatedAt)
       }
     },
 
