@@ -17,8 +17,16 @@ export const migrateToStatisticsPerLeg = async () => {
   if (!legsResponse.data) throw Error()
   const legs = legsResponse.data as Leg[]
   legs.forEach(async (leg) => {
-    await insertLegStatistics(leg)
-    console.log(`Updated leg ${leg.id}`)
+    const prev = await supabase
+      .from('statistics_' + leg.type)
+      .select('id')
+      .eq('id', leg.id)
+    if (prev.data?.length == 0) {
+      await insertLegStatistics(leg)
+      console.log(`Updated leg ${leg.id}`)
+    } else {
+      console.log(`Already there.`)
+    }
   })
   console.log('Completed migration of legs')
 }
