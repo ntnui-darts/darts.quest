@@ -180,20 +180,20 @@ export interface Database {
       statistics_killer: {
         Row: {
           darts: number | null
-          legId: string
+          id: string
         }
         Insert: {
           darts?: number | null
-          legId: string
+          id: string
         }
         Update: {
           darts?: number | null
-          legId?: string
+          id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "statistics_killer_legId_fkey"
-            columns: ["legId"]
+            foreignKeyName: "statistics_killer_id_fkey"
+            columns: ["id"]
             referencedRelation: "legs"
             referencedColumns: ["id"]
           }
@@ -203,25 +203,25 @@ export interface Database {
         Row: {
           darts: number | null
           hitRate: number | null
-          legId: string
+          id: string
           maxStreak: number | null
         }
         Insert: {
           darts?: number | null
           hitRate?: number | null
-          legId: string
+          id: string
           maxStreak?: number | null
         }
         Update: {
           darts?: number | null
           hitRate?: number | null
-          legId?: string
+          id?: string
           maxStreak?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "statistics_rtc_legId_fkey"
-            columns: ["legId"]
+            foreignKeyName: "statistics_rtc_id_fkey"
+            columns: ["id"]
             referencedRelation: "legs"
             referencedColumns: ["id"]
           }
@@ -232,27 +232,27 @@ export interface Database {
           checkout: number | null
           darts: number | null
           first9Avg: number | null
-          legId: string
+          id: string
           maxVisitScore: number | null
         }
         Insert: {
           checkout?: number | null
           darts?: number | null
           first9Avg?: number | null
-          legId: string
+          id: string
           maxVisitScore?: number | null
         }
         Update: {
           checkout?: number | null
           darts?: number | null
           first9Avg?: number | null
-          legId?: string
+          id?: string
           maxVisitScore?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "statistics_x01_legId_fkey"
-            columns: ["legId"]
+            foreignKeyName: "statistics_x01_id_fkey"
+            columns: ["id"]
             referencedRelation: "legs"
             referencedColumns: ["id"]
           }

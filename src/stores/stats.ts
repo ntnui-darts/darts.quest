@@ -7,12 +7,30 @@ import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
 import { getMaxStreak, getRtcHitRate, sumNumbers } from '@/games/rtc'
 
 export type UserStat = Database['public']['Tables']['statistics']['Row']
+type LegJoin = {
+  legs: {
+    id: string
+    createdAt: string
+    typeAttributes: string[]
+    userId: string
+    finish: boolean
+  }
+}
+export type X01Stat = Database['public']['Tables']['statistics_x01']['Row'] &
+  LegJoin
+export type RtcStat = Database['public']['Tables']['statistics_rtc']['Row'] &
+  LegJoin
+export type KillerStat =
+  Database['public']['Tables']['statistics_killer']['Row'] & LegJoin
 
 export const useStatsStore = defineStore('stats', {
   state: () => ({
     legs: [] as Leg[],
     games: [] as DbGame[],
     userStats: [] as UserStat[],
+    x01Stats: [] as X01Stat[],
+    rtcStats: [] as RtcStat[],
+    killerStats: [] as KillerStat[],
   }),
 
   actions: {
@@ -20,7 +38,7 @@ export const useStatsStore = defineStore('stats', {
       await this.fetchGames()
       await this.fetchLegs()
       await this.recalculatePersonalStats()
-      await this.fetchUserStats()
+      await this.fetchStats()
     },
 
     async fetchLegs() {
@@ -50,10 +68,30 @@ export const useStatsStore = defineStore('stats', {
       }
     },
 
-    async fetchUserStats() {
+    async fetchStats() {
       const userStats = await supabase.from('statistics').select('*')
       if (userStats.data) {
         this.userStats = userStats.data
+      }
+      const x01Stats = await supabase
+        .from('statistics_x01')
+        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+      if (x01Stats.data) {
+        this.x01Stats = x01Stats.data.filter((s) => s.legs != null) as X01Stat[]
+      }
+      const rtcStats = await supabase
+        .from('statistics_rtc')
+        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+      if (rtcStats.data) {
+        this.rtcStats = rtcStats.data.filter((s) => s.legs != null) as RtcStat[]
+      }
+      const killerStats = await supabase
+        .from('statistics_killer')
+        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+      if (killerStats.data) {
+        this.killerStats = killerStats.data.filter(
+          (s) => s.legs != null
+        ) as KillerStat[]
       }
     },
 
@@ -284,7 +322,7 @@ export const insertLegStatistics = async (leg: Leg) => {
       const lastVisit = leg.visits.at(-1)
       const checkout = lastVisit ? getX01VisitScore(lastVisit) : 0
       await supabase.from('statistics_x01').insert({
-        legId: leg.id,
+        id: leg.id,
         darts,
         maxVisitScore,
         first9Avg,
@@ -296,7 +334,7 @@ export const insertLegStatistics = async (leg: Leg) => {
       const maxStreak = getMaxStreak(leg.visits)
       const hitRate = getRtcHitRate(leg.visits)
       await supabase.from('statistics_rtc').insert({
-        legId: leg.id,
+        id: leg.id,
         darts,
         maxStreak,
         hitRate,
@@ -305,7 +343,7 @@ export const insertLegStatistics = async (leg: Leg) => {
 
     case 'killer':
       await supabase.from('statistics_killer').insert({
-        legId: leg.id,
+        id: leg.id,
         darts,
       })
       break
