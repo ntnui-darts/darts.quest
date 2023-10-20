@@ -57,19 +57,30 @@ const userStore = useUsersStore()
 const gameType = ref<GameType>('x01')
 const typeAttributes = ref<string[]>([])
 
+const checkTypeAttribute = (ta: string, typeAttributes: string[]) =>
+  typeAttributes.includes(ta) ||
+  (ta.endsWith(':false') &&
+    !typeAttributes.includes(`${ta.split(':')[0]}:true`))
+
 const rtcStats = computed(() =>
   statsStore.rtcStats.filter((stat) =>
-    typeAttributes.value.every((ta) => stat.legs.typeAttributes.includes(ta))
+    typeAttributes.value.every((ta) =>
+      checkTypeAttribute(ta, stat.legs.typeAttributes)
+    )
   )
 )
 const x01Stats = computed(() =>
   statsStore.x01Stats.filter((stat) =>
-    typeAttributes.value.every((ta) => stat.legs.typeAttributes.includes(ta))
+    typeAttributes.value.every((ta) =>
+      checkTypeAttribute(ta, stat.legs.typeAttributes)
+    )
   )
 )
 const killerStats = computed(() =>
   statsStore.killerStats.filter((stat) =>
-    typeAttributes.value.every((ta) => stat.legs.typeAttributes.includes(ta))
+    typeAttributes.value.every((ta) =>
+      checkTypeAttribute(ta, stat.legs.typeAttributes)
+    )
   )
 )
 
