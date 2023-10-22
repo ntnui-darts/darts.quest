@@ -28,7 +28,7 @@ export interface Database {
           result: string[]
           type: string
           typeAttributes?: string[]
-          userId?: string
+          userId: string
         }
         Update: {
           createdAt?: string
@@ -113,6 +113,7 @@ export interface Database {
           avgRtcSingleHitRateLast10: number | null
           avgRtcTripleHitRateLast10: number | null
           avgX01First9AvgLast10: number | null
+          max301DoubleVisits: number
           max501DoubleVisits: number
           maxRtcStreak: number
           maxX01DoubleCheckout: number
@@ -134,6 +135,7 @@ export interface Database {
           avgRtcSingleHitRateLast10?: number | null
           avgRtcTripleHitRateLast10?: number | null
           avgX01First9AvgLast10?: number | null
+          max301DoubleVisits?: number
           max501DoubleVisits?: number
           maxRtcStreak?: number
           maxX01DoubleCheckout?: number
@@ -155,6 +157,7 @@ export interface Database {
           avgRtcSingleHitRateLast10?: number | null
           avgRtcTripleHitRateLast10?: number | null
           avgX01First9AvgLast10?: number | null
+          max301DoubleVisits?: number
           max501DoubleVisits?: number
           maxRtcStreak?: number
           maxX01DoubleCheckout?: number

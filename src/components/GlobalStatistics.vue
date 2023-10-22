@@ -167,6 +167,16 @@ const getStats = (
                 Infinity
               ),
             },
+            {
+              key: 'max301DoubleVisits',
+              text: 'Slowest # Visits',
+              userStats: sort(
+                statsStore.userStats,
+                'max301DoubleVisits',
+                0,
+                false
+              ),
+            },
           ]
         case '501 Double':
           return [

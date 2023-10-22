@@ -112,6 +112,7 @@ export const useStatsStore = defineStore('stats', {
       let maxX01First9Avg = 0
       let avgX01First9AvgLast10 = 0
       let maxX01DoubleCheckout = 0
+      let max301DoubleVisits = 0
       let max501DoubleVisits = 0
       let avgRtcSingleHitRateLast10 = 0
       let avgRtcDoubleHitRateLast10 = 0
@@ -213,6 +214,10 @@ export const useStatsStore = defineStore('stats', {
                 min301DoubleVisits ?? Infinity,
                 leg.visits.length
               )
+              max301DoubleVisits = Math.max(
+                max301DoubleVisits,
+                leg.visits.length
+              )
             }
             if (startScore == 501 && finishType == 2) {
               min501DoubleVisits = Math.min(
@@ -255,6 +260,7 @@ export const useStatsStore = defineStore('stats', {
         avgX01First9AvgLast10,
         maxX01DoubleCheckout,
         max501DoubleVisits,
+        max301DoubleVisits,
         avgRtcSingleHitRateLast10,
         avgRtcDoubleHitRateLast10,
         avgRtcTripleHitRateLast10,
