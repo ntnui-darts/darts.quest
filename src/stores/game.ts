@@ -11,7 +11,7 @@ import {
   getVisitsOfUser,
 } from '@/types/game'
 import { useUsersStore } from './users'
-import { getGameController } from '@/games/games'
+import { getGameController, getGameDisplayName } from '@/games/games'
 import { getX01VisitScore } from '@/games/x01'
 import { speak } from '@/functions/speak'
 
@@ -32,6 +32,8 @@ export const useGameStore = defineStore('game', {
     setCurrentGame(game: GameData) {
       this.game = game
       if (this.game.legs.length == 0) throw Error()
+      speak(getGameDisplayName(this.game))
+
       this.updateGameState()
     },
 
