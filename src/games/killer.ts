@@ -120,9 +120,6 @@ export const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
       throw Error()
     }
 
-    const visit = getVisitsOfUser(game, state.player).at(state.visitIndex)
-    if (!visit) break
-
     const winIfAlone = () => {
       if (
         state.player &&
@@ -134,6 +131,9 @@ export const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
       }
       return false
     }
+
+    const visit = getVisitsOfUser(game, state.player).at(state.visitIndex)
+    if (winIfAlone() || !visit) break
 
     for (const segment of visit) {
       if (winIfAlone()) break
