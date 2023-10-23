@@ -25,12 +25,16 @@
     </div>
   </div>
   <div v-if="gameType == 'rtc'">
+    <h2>Number of Games</h2>
+    <Chart :datasets="rtcNumberOfGamesDataset"></Chart>
     <h2>RTC Hit Rate</h2>
     <Chart :datasets="rtcHitRateDataset"></Chart>
     <h2>RTC Streak</h2>
     <Chart :datasets="rtcStreakDataset"></Chart>
   </div>
   <div v-if="gameType == 'x01'">
+    <h2>Number of Games</h2>
+    <Chart :datasets="x01NumberOfGamesDataset"></Chart>
     <h2>First 9 Average</h2>
     <Chart :datasets="x01First9AvgDataset"></Chart>
     <h2>Checkout</h2>
@@ -39,6 +43,8 @@
     <Chart :datasets="x01MaxVisitScoreDataset"></Chart>
   </div>
   <div v-if="gameType == 'killer'">
+    <h2>Number of Games</h2>
+    <Chart :datasets="killerNumberOfGamesDataset"></Chart>
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
   </div>
@@ -87,6 +93,17 @@ const killerStats = computed(() =>
 const rtcUsers = computed(() =>
   Array.from(new Set(statsStore.rtcStats.map((s) => s.legs.userId)))
 )
+const rtcNumberOfGamesDataset = computed(() => {
+  return rtcUsers.value.map((user) => {
+    let y = 1
+    return {
+      label: userStore.getUser(user)?.name ?? 'Unknown',
+      data: rtcStats.value
+        .filter((s) => s.legs.userId == user)
+        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
+    }
+  })
+})
 const rtcHitRateDataset = computed(() => {
   return rtcUsers.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
@@ -107,6 +124,17 @@ const rtcStreakDataset = computed(() => {
 const x01Users = computed(() =>
   Array.from(new Set(statsStore.x01Stats.map((s) => s.legs.userId)))
 )
+const x01NumberOfGamesDataset = computed(() => {
+  return x01Users.value.map((user) => {
+    let y = 1
+    return {
+      label: userStore.getUser(user)?.name ?? 'Unknown',
+      data: x01Stats.value
+        .filter((s) => s.legs.userId == user)
+        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
+    }
+  })
+})
 const x01First9AvgDataset = computed(() => {
   return x01Users.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
@@ -141,6 +169,17 @@ const x01MaxVisitScoreDataset = computed(() => {
 const killerUsers = computed(() =>
   Array.from(new Set(statsStore.killerStats.map((s) => s.legs.userId)))
 )
+const killerNumberOfGamesDataset = computed(() => {
+  return killerUsers.value.map((user) => {
+    let y = 1
+    return {
+      label: userStore.getUser(user)?.name ?? 'Unknown',
+      data: killerStats.value
+        .filter((s) => s.legs.userId == user)
+        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
+    }
+  })
+})
 const killerDartsDataset = computed(() => {
   return killerUsers.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
