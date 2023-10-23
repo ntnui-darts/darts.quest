@@ -48,13 +48,14 @@ export const getX01Controller = (game: Game): GameController => {
       if (!segment) return
       const gameStore = useGameStore()
       const player = gameStore.gameState?.player
-      const visit = gameStore.getCurrentVisit
+      let visit = gameStore.getCurrentVisit
       if (!gameStore.game || !player) return
       const prevScore = getX01LegScore(
         getVisitsOfUser(gameStore.game, player),
         gameStore.game
       )
       gameStore.saveScore(segment)
+      visit = gameStore.getCurrentVisit
       if (segment.sector > 0 && visit) {
         const score = getX01LegScore(
           getVisitsOfUser(gameStore.game, player),
