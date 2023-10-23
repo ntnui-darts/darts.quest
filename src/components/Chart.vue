@@ -48,10 +48,12 @@ const smoothPoints = (points: Point[]) => {
 const buildChart = async () => {
   if (!chartElement.value) return
 
-  const datasets = props.datasets.map((dataset) => ({
-    label: dataset.label,
-    data: smoothEnabled.value ? smoothPoints(dataset.data) : dataset.data,
-  }))
+  const datasets = props.datasets
+    .filter((data) => data.data.length > 0)
+    .map((dataset) => ({
+      label: dataset.label,
+      data: smoothEnabled.value ? smoothPoints(dataset.data) : dataset.data,
+    }))
 
   if (chart) {
     chart.data.datasets = datasets
