@@ -92,6 +92,16 @@ export const useGameStore = defineStore('game', {
         else speak(`${score}!`)
       }
 
+      if (
+        visit &&
+        this.game.type == 'rtc' &&
+        (index == 2 || this.game.result.includes(player))
+      ) {
+        const score = visit.filter((v) => v && v.sector > 0).length
+        if (!score) speak('No score!')
+        else speak(`${score}!`)
+      }
+
       this.updateGameState()
       this.saveToLocalStorage()
     },

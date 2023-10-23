@@ -65,6 +65,7 @@ import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 import { useAuthStore } from '@/stores/auth'
 import { getOptionsComponent, GameTypeNames } from '@/games/games'
+import { speak } from '@/functions/speak'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
@@ -88,8 +89,10 @@ const onPlay = () => {
   if (homeStore.players.length == 0) return
   if (!homeStore.gameType) return
   if (!usersStore.getCurrentUser) return
-  const gameId = nanoid()
 
+  speak(`Let's play ${homeStore.gameType}!`)
+
+  const gameId = nanoid()
   gameStore.setCurrentGame({
     id: gameId,
     userId: usersStore.getCurrentUser.id,
