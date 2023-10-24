@@ -27,7 +27,7 @@ const props = withDefaults(
 )
 
 const chartElement = ref<HTMLCanvasElement | null>(null)
-const smoothEnabled = ref(false)
+const smoothEnabled = ref(props.showSmoothButton)
 let chart: Chart<any> | null = null
 
 const buildChart = async () => {
