@@ -1,6 +1,7 @@
 <template>
   <div style="position: relative; width: auto; height: 500px">
     <button
+      v-if="showSmoothButton"
       style="position: absolute; right: 0; top: -3em"
       :class="{ selected: smoothEnabled }"
       @click="smoothEnabled = !smoothEnabled"
@@ -15,35 +16,19 @@
 import { watch, ref, onMounted } from 'vue'
 import { Chart, ChartDataset } from 'chart.js'
 import 'chartjs-adapter-date-fns'
+import { Point, smoothPoints } from './chart'
 
-type Point = { x: Date; y: number | null }
-const props = defineProps<{
-  datasets: ChartDataset<'line', Point[]>[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    datasets: ChartDataset<'line', Point[]>[]
+    showSmoothButton: boolean
+  }>(),
+  { showSmoothButton: true }
+)
 
 const chartElement = ref<HTMLCanvasElement | null>(null)
 const smoothEnabled = ref(false)
 let chart: Chart<any> | null = null
-
-const smoothPoints = (points: Point[]) => {
-  const smoothed: Point[] = []
-
-  for (const a of points) {
-    let sumWeights = 0
-    let y = 0
-    for (const b of points) {
-      const distance = Math.max(
-        1,
-        Math.pow(Math.abs(a.x.getTime() - b.x.getTime()) / 5e7, 2)
-      )
-      const weight = 1 / distance
-      sumWeights += weight
-      y += (b.y ?? 0) * weight
-    }
-    smoothed.push({ x: a.x, y: y / sumWeights })
-  }
-  return smoothed
-}
 
 const buildChart = async () => {
   if (!chartElement.value) return
@@ -51,7 +36,7 @@ const buildChart = async () => {
   const datasets = props.datasets
     .filter((data) => data.data.length > 0)
     .map((dataset) => ({
-      label: dataset.label,
+      ...dataset,
       data: smoothEnabled.value ? smoothPoints(dataset.data) : dataset.data,
     }))
 

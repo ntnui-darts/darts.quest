@@ -68,28 +68,19 @@
     stat-type="rtc"
     title="RTC"
   ></DartboardChart>
-  <div class="row spaced" style="align-items: center">
-    <h3>X01 Number of Visits</h3>
-    <button
-      style="flex: 0 1"
-      :class="{ selected: smooth }"
-      @click="smooth = !smooth"
-    >
-      Smooth
-    </button>
-  </div>
+  <h3>X01 Number of Visits</h3>
   <LegHistoryChart
     :legs="legs"
     :y="(leg) => leg.visits.length"
     :group-by-type="true"
-    :smooth="smooth"
+    :show-smooth-button="true"
   ></LegHistoryChart>
   <h3>First 9 Average</h3>
   <LegHistoryChart
     :legs="x01Legs"
     :y="(leg) => getFirst9Avg(leg.visits, leg)"
     :group-by-type="false"
-    :smooth="true"
+    :show-smooth-button="false"
   ></LegHistoryChart>
   <h3>RTC Hit rate</h3>
   <div class="row options">
@@ -105,7 +96,7 @@
     :legs="rtcLegsHistory"
     :y="(leg) => getRtcHitRate(leg.visits)"
     :group-by-type="false"
-    :smooth="true"
+    :show-smooth-button="false"
   ></LegHistoryChart>
   <br />
   <br />
@@ -131,7 +122,6 @@ const statsStore = useStatsStore()
 const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
-const smooth = ref(false)
 const rtcModeHistory = ref('1')
 const rtcModeDartboard = ref('1')
 const startScore = ref('All')
