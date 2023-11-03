@@ -16,25 +16,42 @@
     Quit
   </button>
   <h3>{{ getGameDisplayName(gameStore.game) }}</h3>
+
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
-    <div class="grid-users" style="grid-template-columns: 1fr 1fr">
-      <button
-        v-for="userId in gameStore.gameState?.playersLeft ?? []"
-        :class="{ selected: gameStore.gameState?.player == userId }"
-        @click="clickUser(userId)"
-      >
-        {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
-        <br />
-        {{ gameStore.gameState?.getUserDisplayText(userId) }}
-      </button>
-    </div>
-    <div class="row">
-      <button
-        v-for="(segment, i) in displayVisit"
-        :class="{ outlined: i == (gameStore.getNumberOfThrows ?? 0) }"
-      >
-        {{ gameStore.getController().getSegmentText(segment) }}
-      </button>
+    <div
+      class="col"
+      style="
+        background-color: rgb(43, 43, 43);
+        border-radius: 0.5em;
+        padding: 1em 0;
+        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.253);
+        margin-bottom: 2em;
+        overflow: hidden;
+        gap: 1.5em;
+      "
+    >
+      <div class="row" style="overflow: auto; padding: 0 1em">
+        <button
+          v-for="userId in gameStore.gameState?.playersLeft ?? []"
+          :class="{ selected: gameStore.gameState?.player == userId }"
+          :key="userId"
+          :id="userId"
+          style="min-width: 150px"
+          @click="clickUser(userId)"
+        >
+          {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
+          <br />
+          {{ gameStore.gameState?.getUserDisplayText(userId) }}
+        </button>
+      </div>
+      <div class="row" style="margin: 0 1em">
+        <button
+          v-for="(segment, i) in displayVisit"
+          :class="{ outlined: i == (gameStore.getNumberOfThrows ?? 0) }"
+        >
+          {{ gameStore.getController().getSegmentText(segment) }}
+        </button>
+      </div>
     </div>
     <component
       :is="getInputComponent(gameStore.game.type)"
@@ -63,7 +80,7 @@
 import Youtube from '@/components/Youtube.vue'
 import Prompt from '@/components/Prompt.vue'
 import InGameSummary from '@/components/InGameSummary.vue'
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, watch } from 'vue'
 import { router } from '@/router'
 import { useUsersStore } from '@/stores/users'
 import { useLoadingStore } from '@/stores/loading'
@@ -146,6 +163,16 @@ const clickUser = (userId: string) => {
   if (!leg || !user) return
   useModalStore().push(InGameSummary, { leg, user }, {})
 }
+
+watch(
+  () => gameStore.gameState?.player,
+  (userId) => {
+    if (userId) {
+      const btn = document.getElementById(userId)
+      btn?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+)
 </script>
 
 <style scoped>
