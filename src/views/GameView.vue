@@ -108,10 +108,18 @@ const somePlayersFinished = computed(
 )
 
 const displayVisit = computed(() => {
-  const leg = gameStore.getCurrentLeg
+  if (!gameStore.game || !gameStore.gameState?.player) return [null, null, null]
+  const leg = getLegOfUser(gameStore.game, gameStore.gameState?.player)
   const visit = leg?.visits.at(-1)
-  if (!leg || !visit) return [null, null, null]
-  return visit
+  if (
+    (!visit || visit?.indexOf(null) == -1) &&
+    gameStore.gameState?.prevPlayer
+  ) {
+    const leg = getLegOfUser(gameStore.game, gameStore.gameState?.prevPlayer)
+    const visit = leg?.visits.at(-1)
+    return visit ?? [null, null, null]
+  }
+  return visit ?? [null, null, null]
 })
 
 onMounted(() => {
