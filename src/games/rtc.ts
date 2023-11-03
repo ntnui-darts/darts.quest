@@ -9,6 +9,7 @@ import {
 import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { useGameStore } from '@/stores/game'
 import { getGamePoints } from './games'
+import { speak } from '@/functions/speak'
 
 export type RtcController = GameController & { getSequence(): number[] }
 
@@ -61,6 +62,12 @@ export const getRtcController = (game: Game): RtcController => {
       const sector = this.getSequence().at(score)
       if (!sector) throw Error()
       useGameStore().saveScore({ multiplier: segment.multiplier, sector })
+    },
+
+    speakVisit(visit) {
+      const score = visit.filter((v) => v && v.sector > 0).length
+      if (!score) speak('No score!')
+      else speak(`${score}!`)
     },
   }
 }

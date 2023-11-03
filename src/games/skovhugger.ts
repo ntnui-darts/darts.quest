@@ -13,6 +13,7 @@ import {
   nextState,
 } from '@/games/generic'
 import { getSegmentScore } from './x01'
+import { speak } from '@/functions/speak'
 
 export const getSkovhuggerController = (game: Game): GameController => {
   return {
@@ -53,6 +54,12 @@ export const getSkovhuggerController = (game: Game): GameController => {
           return 'Round: ' + rounds[gameState.visitIndex]
         },
       }
+    },
+
+    speakVisit(visit, leg) {
+      const score = getSkovhuggerVisitScore(visit, leg.visits.length - 1)
+      if (!score) speak('No score!')
+      else speak(`${score}!`)
     },
   }
 }
@@ -113,32 +120,35 @@ export const getSkovhuggerScore = (visits: Visit[]) => {
 
   for (let i = 0; i < visits.length; i++) {
     const visit = visits[i]
-    let subscore = 0
-
-    if (!(i in targets)) {
-      break
-    }
-
-    for (const s of visit) {
-      if (s && targets[i](s)) {
-        subscore += getSegmentScore(s)
-      }
-    }
-    switch (i) {
-      case 8:
-        if (subscore != 41) {
-          subscore = 0
-        }
-        break
-    }
-    if (subscore > 0) {
-      score += subscore
+    const visitScore = getSkovhuggerVisitScore(visit, i)
+    if (visitScore > 0) {
+      score += visitScore
     } else {
       if (visit.includes(null)) {
         return score
       }
       score = Math.ceil(score / 2)
     }
+  }
+
+  return score
+}
+
+const getSkovhuggerVisitScore = (visit: Visit, visitIndex: number) => {
+  let score = 0
+
+  if (!(visitIndex in targets)) {
+    return 0
+  }
+
+  for (const s of visit) {
+    if (s && targets[visitIndex](s)) {
+      score += getSegmentScore(s)
+    }
+  }
+
+  if (visitIndex == 8 && score != 41) {
+    score = 0
   }
 
   return score
