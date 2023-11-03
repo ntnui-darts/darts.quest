@@ -46,7 +46,12 @@
       <div class="row" style="margin: 0 1em">
         <button
           v-for="(segment, i) in displayVisit"
-          :class="{ outlined: i == displayVisit.indexOf(null) }"
+          :class="{
+            outlined:
+              i == displayVisit.indexOf(null) ||
+              (displayVisit.indexOf(null) == -1 && i == 0),
+          }"
+          :disabled="displayVisit.indexOf(null) == -1"
         >
           {{ gameStore.getController().getSegmentText(segment) }}
         </button>
@@ -106,7 +111,6 @@ const displayVisit = computed(() => {
   const leg = gameStore.getCurrentLeg
   const visit = leg?.visits.at(-1)
   if (!leg || !visit) return [null, null, null]
-  if (!leg.finish && visit.every((s) => s != null)) return [null, null, null]
   return visit
 })
 
