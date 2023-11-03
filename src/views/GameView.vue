@@ -188,7 +188,7 @@ watch(
   (userId) => {
     if (userId) {
       const btn = document.getElementById(userId)
-      btn?.scrollIntoView({ behavior: 'smooth' })
+      btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
     }
   }
 )
