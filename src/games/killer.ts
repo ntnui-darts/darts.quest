@@ -83,6 +83,8 @@ export const getKillerController = (game: Game): KillerController => {
 
       gameStore.saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
+
+    speakVisit() {},
   }
 }
 

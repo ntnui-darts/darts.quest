@@ -12,7 +12,6 @@ import {
 } from '@/types/game'
 import { useUsersStore } from './users'
 import { getGameController, getGameDisplayName } from '@/games/games'
-import { getX01VisitScore } from '@/games/x01'
 import { speak } from '@/functions/speak'
 
 export const useGameStore = defineStore('game', {
@@ -76,32 +75,20 @@ export const useGameStore = defineStore('game', {
       if (this.gameState.rank.includes(player))
         throw Error('User has already finished')
 
-      const visit = this.getCurrentLeg.visits.at(-1)
+      let visit = this.getCurrentLeg.visits.at(-1)
       const index = visit?.indexOf(null)
       if (!visit || !index || index < 0) {
-        this.getCurrentLeg.visits.push([segment, null, null])
+        visit = [segment, null, null]
+        this.getCurrentLeg.visits.push(visit)
       } else {
         visit[index] = segment
       }
 
       if (
         visit &&
-        this.game.type == 'x01' &&
-        (index == 2 || this.game.result.includes(player))
+        (!visit.includes(null) || this.game.result.includes(player))
       ) {
-        const score = getX01VisitScore(visit)
-        if (!score) speak('No score!')
-        else speak(`${score}!`)
-      }
-
-      if (
-        visit &&
-        this.game.type == 'rtc' &&
-        (index == 2 || this.game.result.includes(player))
-      ) {
-        const score = visit.filter((v) => v && v.sector > 0).length
-        if (!score) speak('No score!')
-        else speak(`${score}!`)
+        this.getController().speakVisit(visit, this.getCurrentLeg)
       }
 
       this.updateGameState()

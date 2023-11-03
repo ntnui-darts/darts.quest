@@ -76,6 +76,12 @@ export const getX01Controller = (game: Game): GameController => {
       }
       gameStore.updateGameState()
     },
+
+    speakVisit(visit) {
+      const score = getX01VisitScore(visit)
+      if (!score) speak('No score!')
+      else speak(`${score}!`)
+    },
   }
 }
 

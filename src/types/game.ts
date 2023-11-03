@@ -51,6 +51,7 @@ export interface GameController {
   recordHit(segment: Segment): void
   recordMiss(): void
   getSegmentText(segment?: Segment | null): string
+  speakVisit(visit: Visit, leg: Leg): void
 }
 
 export const multiplierToString = (m: Multiplier) => {
