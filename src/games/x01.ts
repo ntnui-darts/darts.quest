@@ -42,7 +42,7 @@ export const getX01Controller = (game: Game): GameController => {
           return `${rest}\t(${avg})`
         },
 
-        getTitleSuffix() {
+        getTopRightText() {
           return ''
         },
       } satisfies GameState

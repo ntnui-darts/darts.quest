@@ -49,7 +49,7 @@ export const getKillerController = (game: Game): KillerController => {
           return `${player.points}\t[${player.sector ?? '?'}]`
         },
 
-        getTitleSuffix() {
+        getTopRightText() {
           return ''
         },
       }

@@ -34,7 +34,7 @@ export const getSkovhuggerController = (game: Game): GameController => {
           return `${score}`
         },
 
-        getTitleSuffix() {
+        getTopRightText() {
           const rounds = [
             '13',
             '14',
@@ -50,7 +50,7 @@ export const getSkovhuggerController = (game: Game): GameController => {
             'Bull',
           ]
           if (gameState.visitIndex >= rounds.length) return ''
-          return ', Round: ' + rounds[gameState.visitIndex]
+          return 'Round: ' + rounds[gameState.visitIndex]
         },
       }
     },
