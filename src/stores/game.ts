@@ -164,10 +164,6 @@ export const useGameStore = defineStore('game', {
       return this.getCurrentLeg?.visits.at(-1) ?? null
     },
 
-    getNumberOfThrows(): number | null {
-      return this.getCurrentVisit?.findIndex((s) => s == null) ?? null
-    },
-
     getCurrentLeg: (state) => {
       if (!state.game) throw Error()
       if (!state.gameState?.player) return null
