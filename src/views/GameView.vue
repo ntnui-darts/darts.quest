@@ -36,7 +36,7 @@
           :class="{ selected: gameStore.gameState?.player == userId }"
           :key="userId"
           :id="userId"
-          style="min-width: 150px"
+          style="min-width: 135px"
           @click="clickUser(userId)"
         >
           {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
