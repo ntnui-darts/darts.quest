@@ -5,6 +5,7 @@ import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
 import { getMaxStreak, getRtcHitRate, sumNumbers } from '@/games/rtc'
+import { getSkovhuggerScore } from '@/games/skovhugger'
 
 export type UserStat = Database['public']['Tables']['statistics']['Row']
 type LegJoin = {
@@ -22,6 +23,8 @@ export type RtcStat = Database['public']['Tables']['statistics_rtc']['Row'] &
   LegJoin
 export type KillerStat =
   Database['public']['Tables']['statistics_killer']['Row'] & LegJoin
+export type SkovhuggerStat =
+  Database['public']['Tables']['statistics_skovhugger']['Row'] & LegJoin
 
 const compareCreatedAt = (a: { createdAt: string }, b: { createdAt: string }) =>
   new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -39,6 +42,7 @@ export const useStatsStore = defineStore('stats', {
     x01Stats: [] as X01Stat[],
     rtcStats: [] as RtcStat[],
     killerStats: [] as KillerStat[],
+    skovhuggerStats: [] as SkovhuggerStat[],
   }),
 
   actions: {
@@ -97,6 +101,14 @@ export const useStatsStore = defineStore('stats', {
       if (killerStats.data) {
         this.killerStats = (
           killerStats.data.filter((s) => s.legs != null) as KillerStat[]
+        ).toSorted(compareLegsCreatedAt)
+      }
+      const skovhuggerStats = await supabase
+        .from('statistics_skovhugger')
+        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+      if (skovhuggerStats.data) {
+        this.skovhuggerStats = (
+          skovhuggerStats.data.filter((s) => s.legs != null) as SkovhuggerStat[]
         ).toSorted(compareLegsCreatedAt)
       }
     },
@@ -357,6 +369,13 @@ export const insertLegStatistics = async (leg: Leg) => {
       await supabase.from('statistics_killer').insert({
         id: leg.id,
         darts,
+      })
+      break
+
+    case 'skovhugger':
+      await supabase.from('statistics_skovhugger').insert({
+        id: leg.id,
+        score: getSkovhuggerScore(leg.visits),
       })
       break
   }

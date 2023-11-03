@@ -296,6 +296,8 @@ const getStats = (
           transform: toPercentage,
         },
       ]
+    case 'skovhugger':
+      return []
   }
 }
 

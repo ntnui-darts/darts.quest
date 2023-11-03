@@ -38,6 +38,10 @@ export const getRtcController = (game: Game): RtcController => {
           const score = getRtcLegScore(game, getVisitsOfUser(game, userId))
           return `${sequence.at(score)}`
         },
+
+        getTitleSuffix() {
+          return ''
+        },
       }
     },
 

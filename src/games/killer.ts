@@ -48,6 +48,10 @@ export const getKillerController = (game: Game): KillerController => {
           if (!player) return '-'
           return `${player.points}\t[${player.sector ?? '?'}]`
         },
+
+        getTitleSuffix() {
+          return ''
+        },
       }
     },
 
@@ -82,7 +86,7 @@ export const getKillerController = (game: Game): KillerController => {
   }
 }
 
-export const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
+const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
   killers.forEach((k) => (k.points = 0))
 
   for (let i = 0; i < killers.length; i++) {

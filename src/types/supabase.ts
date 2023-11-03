@@ -44,6 +44,7 @@ export interface Database {
           {
             foreignKeyName: "games_userId_fkey"
             columns: ["userId"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -93,12 +94,14 @@ export interface Database {
           {
             foreignKeyName: "legs_gameId_fkey"
             columns: ["gameId"]
+            isOneToOne: false
             referencedRelation: "games"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "legs_userId_fkey"
             columns: ["userId"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -175,6 +178,7 @@ export interface Database {
           {
             foreignKeyName: "statistics_userId_fkey"
             columns: ["userId"]
+            isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -197,6 +201,7 @@ export interface Database {
           {
             foreignKeyName: "statistics_killer_id_fkey"
             columns: ["id"]
+            isOneToOne: true
             referencedRelation: "legs"
             referencedColumns: ["id"]
           }
@@ -225,6 +230,30 @@ export interface Database {
           {
             foreignKeyName: "statistics_rtc_id_fkey"
             columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "legs"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      statistics_skovhugger: {
+        Row: {
+          id: string
+          score: number | null
+        }
+        Insert: {
+          id: string
+          score?: number | null
+        }
+        Update: {
+          id?: string
+          score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistics_skovhugger_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
             referencedRelation: "legs"
             referencedColumns: ["id"]
           }
@@ -256,6 +285,7 @@ export interface Database {
           {
             foreignKeyName: "statistics_x01_id_fkey"
             columns: ["id"]
+            isOneToOne: true
             referencedRelation: "legs"
             referencedColumns: ["id"]
           }

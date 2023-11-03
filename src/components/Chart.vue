@@ -21,7 +21,7 @@ import { Point, smoothPoints } from './chart'
 const props = withDefaults(
   defineProps<{
     datasets: ChartDataset<'line', Point[]>[]
-    showSmoothButton: boolean
+    showSmoothButton?: boolean
   }>(),
   { showSmoothButton: true }
 )

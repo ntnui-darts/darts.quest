@@ -2,20 +2,22 @@ import X01OptionsInput from '@/components/X01OptionsInput.vue'
 import X01GameInput from '@/components/X01GameInput.vue'
 import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
 import RtcGameInput from '@/components/RtcGameInput.vue'
-import KillerOptionsInput from '@/components/KillerOptionsInput.vue'
+import NoOptionsInput from '@/components/NoOptionsInput.vue'
 import KillerGameInput from '@/components/KillerGameInput.vue'
-import { Game, Leg, getTypeAttribute } from '@/types/game'
+import { Game, GameController, Leg, getTypeAttribute } from '@/types/game'
 import { getX01Controller } from './x01'
 import { getRtcRandomController } from './rtc-random'
 import { getKillerController } from './killer'
 import { getRtcController } from './rtc'
+import { getSkovhuggerController } from './skovhugger'
 
-export type GameType = 'x01' | 'rtc' | 'killer'
+export type GameType = 'x01' | 'rtc' | 'killer' | 'skovhugger'
 
 export const GameTypeNames = {
   x01: 'X01',
   rtc: 'Round the Clock',
   killer: 'Killer',
+  skovhugger: 'Skovhugger',
 } as const satisfies Record<GameType, string>
 
 export const getMinPlayerCount = (gameType: GameType) => {
@@ -26,10 +28,12 @@ export const getMinPlayerCount = (gameType: GameType) => {
       return 1
     case 'x01':
       return 1
+    case 'skovhugger':
+      return 1
   }
 }
 
-export const getGameDisplayName = (game?: Game | Leg | null) => {
+export const getGameDisplayName = (game?: Game | Leg | null): string => {
   if (!game) return 'Empty Game'
   switch (game.type) {
     case 'rtc':
@@ -53,13 +57,16 @@ export const getGameDisplayName = (game?: Game | Leg | null) => {
 
     case 'killer':
       return 'Killer'
+
+    case 'skovhugger':
+      return 'Skovhugger'
   }
 }
 
 export const getGamePoints = (game: {
   type: GameType
   typeAttributes: string[]
-}) => {
+}): number => {
   switch (game.type) {
     case 'rtc':
       return 20
@@ -69,10 +76,13 @@ export const getGamePoints = (game: {
 
     case 'killer':
       return 5
+
+    case 'skovhugger':
+      return 0
   }
 }
 
-export const getGameController = (game: Game) => {
+export const getGameController = (game: Game): GameController => {
   switch (game.type) {
     case 'x01':
       return getX01Controller(game)
@@ -86,6 +96,9 @@ export const getGameController = (game: Game) => {
 
     case 'killer':
       return getKillerController(game)
+
+    case 'skovhugger':
+      return getSkovhuggerController(game)
   }
 }
 
@@ -95,13 +108,15 @@ export const getOptionsComponent = (type: GameType) => {
       return X01OptionsInput
     case 'rtc':
       return RtcOptionsInput
+    case 'skovhugger':
     case 'killer':
-      return KillerOptionsInput
+      return NoOptionsInput
   }
 }
 
 export const getInputComponent = (gameType: GameType) => {
   switch (gameType) {
+    case 'skovhugger':
     case 'x01':
       return X01GameInput
     case 'rtc':
