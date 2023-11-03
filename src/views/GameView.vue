@@ -19,12 +19,11 @@
 
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div
-      class="col"
+      class="col shadow"
       style="
         background-color: rgb(43, 43, 43);
         border-radius: 0.5em;
         padding: 1em 0;
-        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.253);
         margin-bottom: 1.5em;
         overflow: hidden;
         gap: 1.5em;

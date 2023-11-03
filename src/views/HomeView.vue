@@ -6,8 +6,13 @@
   <h2>Select Game Type</h2>
 
   <div
-    class="col"
-    style="gap: 0; background-color: rgb(43, 43, 43); border-radius: 0.5em"
+    class="col shadow"
+    style="
+      gap: 0;
+      background-color: rgb(43, 43, 43);
+      border-radius: 0.5em;
+      padding-bottom: 0.5em;
+    "
   >
     <div class="row options">
       <button
@@ -37,13 +42,10 @@
   <button
     :class="{
       primary: homeStore.gameReady,
+      shadow: true,
     }"
     :disabled="!homeStore.gameReady"
-    style="
-      position: sticky;
-      bottom: 2em;
-      box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.2);
-    "
+    style="position: sticky; bottom: 2em"
     @click="onPlay"
   >
     Play

@@ -1,5 +1,5 @@
 <template>
-  <div class="modal col">
+  <div class="modal col shadow">
     <div style="position: absolute; right: 0.5em; top: 0.5em">
       <IconButton size="lg" icon="xmark" @click="modalStore.pop"></IconButton>
     </div>
@@ -27,9 +27,9 @@ defineProps<{
   position: relative;
   background-color: var(--c-background);
   border-radius: 1em;
-  box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.5);
   min-height: 25%;
   max-height: 80%;
-  padding: 2em;
+  padding: 1em 2em;
+  margin: 1em;
 }
 </style>
