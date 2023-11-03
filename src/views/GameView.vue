@@ -31,7 +31,7 @@
     <div class="row">
       <button
         v-for="(segment, i) in displayVisit"
-        :class="{ outlined: i == gameStore.getNumberOfThrows }"
+        :class="{ outlined: i == (gameStore.getNumberOfThrows ?? 0) }"
       >
         {{ gameStore.getController().getSegmentText(segment) }}
       </button>
