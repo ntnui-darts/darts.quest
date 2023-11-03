@@ -41,6 +41,10 @@ export const getX01Controller = (game: Game): GameController => {
           const avg = getAvgVisitScore(visits, game).toFixed(1)
           return `${rest}\t(${avg})`
         },
+
+        getTitleSuffix() {
+          return ''
+        },
       } satisfies GameState
     },
 
@@ -138,6 +142,6 @@ export const getX01VisitScore = (visit: Visit, includeUnfinished = true) => {
   return visit.reduce((prev, current) => prev + getSegmentScore(current), 0)
 }
 
-const getSegmentScore = (segment: Segment | null) => {
+export const getSegmentScore = (segment: Segment | null) => {
   return segment ? segment.multiplier * segment.sector : 0
 }

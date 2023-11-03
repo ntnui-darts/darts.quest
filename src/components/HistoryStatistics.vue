@@ -48,6 +48,12 @@
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
   </div>
+  <div v-if="gameType == 'skovhugger'">
+    <h2>Number of Games</h2>
+    <Chart :datasets="skovhuggerNumberOfGamesDataset"></Chart>
+    <h2>Score</h2>
+    <Chart :datasets="skovhuggerScoreDataset"></Chart>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -84,6 +90,13 @@ const x01Stats = computed(() =>
 )
 const killerStats = computed(() =>
   statsStore.killerStats.filter((stat) =>
+    typeAttributes.value.every((ta) =>
+      checkTypeAttribute(ta, stat.legs.typeAttributes)
+    )
+  )
+)
+const skovhuggerStats = computed(() =>
+  statsStore.skovhuggerStats.filter((stat) =>
     typeAttributes.value.every((ta) =>
       checkTypeAttribute(ta, stat.legs.typeAttributes)
     )
@@ -188,6 +201,32 @@ const killerDartsDataset = computed(() => {
       .map((stat) => ({
         x: new Date(stat.legs.createdAt),
         y: stat.darts,
+      })),
+  }))
+})
+
+const skovhuggerUsers = computed(() =>
+  Array.from(new Set(statsStore.skovhuggerStats.map((s) => s.legs.userId)))
+)
+const skovhuggerNumberOfGamesDataset = computed(() => {
+  return skovhuggerUsers.value.map((user) => {
+    let y = 1
+    return {
+      label: userStore.getUser(user)?.name ?? 'Unknown',
+      data: skovhuggerStats.value
+        .filter((s) => s.legs.userId == user)
+        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
+    }
+  })
+})
+const skovhuggerScoreDataset = computed(() => {
+  return skovhuggerUsers.value.map((user) => ({
+    label: userStore.getUser(user)?.name ?? 'Unknown',
+    data: skovhuggerStats.value
+      .filter((s) => s.legs.userId == user)
+      .map((stat) => ({
+        x: new Date(stat.legs.createdAt),
+        y: stat.score,
       })),
   }))
 })

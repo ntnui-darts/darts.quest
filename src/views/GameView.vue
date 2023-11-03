@@ -15,7 +15,10 @@
   >
     Quit
   </button>
-  <h3>{{ getGameDisplayName(gameStore.game) }}</h3>
+  <h3>
+    {{ getGameDisplayName(gameStore.game) }}
+    {{ gameStore.gameState?.getTitleSuffix() }}
+  </h3>
 
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div

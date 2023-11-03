@@ -42,6 +42,7 @@ export interface GameState {
   playersLeft: string[]
   getUserResultText(userId: string): string
   getUserDisplayText(userId: string): string
+  getTitleSuffix(): string
 }
 
 export interface GameController {
