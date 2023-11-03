@@ -12,13 +12,15 @@
       background-color: rgb(43, 43, 43);
       border-radius: 0.5em;
       padding-bottom: 0.5em;
+      overflow: hidden;
     "
   >
-    <div class="row options">
+    <div class="row options" style="overflow: auto">
       <button
         v-for="(name, type) in GameTypeNames"
         :class="{ selected: type == homeStore.gameType }"
-        style="font-size: larger"
+        style="font-size: larger; min-width: 140px"
+        :id="type"
         @click="homeStore.gameType = type"
       >
         {{ name }}
@@ -62,7 +64,7 @@ import { Leg } from '@/types/game'
 import { useUsersStore } from '@/stores/users'
 import { useHomeStore } from '@/stores/home'
 import { nanoid } from 'nanoid'
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 import { useAuthStore } from '@/stores/auth'
@@ -84,7 +86,20 @@ onMounted(() => {
   if (localStorage.getItem('data')) {
     useModalStore().push(ReloadView, {}, {})
   }
+  scrollGameTypeButtonIntoView()
 })
+
+watch(
+  () => homeStore.gameType,
+  () => {
+    scrollGameTypeButtonIntoView()
+  }
+)
+
+const scrollGameTypeButtonIntoView = () => {
+  const btn = document.querySelector(`button#${homeStore.gameType}`)
+  btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
+}
 
 const onPlay = () => {
   if (homeStore.players.length == 0) return
@@ -119,5 +134,3 @@ const onPlay = () => {
   router.push({ name: 'game' })
 }
 </script>
-
-<style></style>

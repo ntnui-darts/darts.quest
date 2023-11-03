@@ -15,10 +15,15 @@
   >
     Quit
   </button>
-  <h3>
-    {{ getGameDisplayName(gameStore.game) }}
-    {{ gameStore.gameState?.getTitleSuffix() }}
-  </h3>
+
+  <div class="row spaced">
+    <h3>
+      {{ getGameDisplayName(gameStore.game) }}
+    </h3>
+    <h3>
+      {{ gameStore.gameState?.getTopRightText() }}
+    </h3>
+  </div>
 
   <div v-if="gameStore.game && !allPlayersFinished" class="col">
     <div
@@ -183,7 +188,7 @@ watch(
   (userId) => {
     if (userId) {
       const btn = document.getElementById(userId)
-      btn?.scrollIntoView({ behavior: 'smooth' })
+      btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
     }
   }
 )

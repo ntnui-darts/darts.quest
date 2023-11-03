@@ -39,7 +39,7 @@ export const getRtcController = (game: Game): RtcController => {
           return `${sequence.at(score)}`
         },
 
-        getTitleSuffix() {
+        getTopRightText() {
           return ''
         },
       }
