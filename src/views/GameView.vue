@@ -51,7 +51,7 @@
               i == displayVisit.indexOf(null) ||
               (displayVisit.indexOf(null) == -1 && i == 0),
           }"
-          :disabled="displayVisit.indexOf(null) == -1"
+          :disabled="displayVisit.indexOf(null) == -1 || segment == null"
         >
           {{ gameStore.getController().getSegmentText(segment) }}
         </button>
