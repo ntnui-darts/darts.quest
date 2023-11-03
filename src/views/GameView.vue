@@ -100,6 +100,7 @@ import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { getLegOfUser } from '@/types/game'
+import { speak } from '@/functions/speak'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
@@ -191,6 +192,14 @@ watch(
       btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
     }
   }
+)
+
+watch(
+  () => gameStore.gameState?.getTopRightText(),
+  (text) => {
+    if (text) setTimeout(() => speak(text), 1000)
+  },
+  { immediate: true }
 )
 </script>
 
