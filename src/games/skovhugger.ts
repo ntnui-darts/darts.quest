@@ -115,7 +115,7 @@ export const getSkovhuggerScore = (visits: Visit[]) => {
     const visit = visits[i]
     let subscore = 0
 
-    if (!(i in targets) || visit.includes(null)) {
+    if (!(i in targets)) {
       break
     }
 
@@ -134,6 +134,9 @@ export const getSkovhuggerScore = (visits: Visit[]) => {
     if (subscore > 0) {
       score += subscore
     } else {
+      if (visit.includes(null)) {
+        return score
+      }
       score = Math.ceil(score / 2)
     }
   }
