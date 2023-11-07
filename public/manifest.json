@@ -3,7 +3,7 @@
   "name": "darts.quest",
   "icons": [
     {
-      "src": "/ntnui-darts.png",
+      "src": "/ntnui-darts-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
