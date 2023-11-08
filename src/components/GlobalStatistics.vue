@@ -296,6 +296,7 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
         },
       ]
     case 'skovhugger':
+    case 'cricket':
       return []
   }
 }
