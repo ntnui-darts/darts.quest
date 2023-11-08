@@ -4,13 +4,13 @@
   <div class="row options">
     <button
       v-for="gameType in (['x01', 'rtc', 'killer'] satisfies GameType[])"
-      :class="{ selected: gameType == gameType }"
+      :class="{ selected: selectedGameType == gameType }"
       @click="selectGameType(gameType)"
     >
       {{ GameTypeNames[gameType] }}
     </button>
   </div>
-  <div v-if="gameType == 'x01'" class="row options">
+  <div v-if="selectedGameType == 'x01'" class="row options">
     <button
       v-for="option in (['General', '301 Double', '501 Double'] as const)"
       :class="{ selected: subCategory == option }"
@@ -19,7 +19,7 @@
       {{ option }}
     </button>
   </div>
-  <div v-if="gameType == 'rtc'" class="row options">
+  <div v-if="selectedGameType == 'rtc'" class="row options">
     <button
       v-for="option in (['General', 'Single', 'Double', 'Triple'] as const)"
       :class="{ selected: subCategory == option }"
@@ -29,7 +29,7 @@
     </button>
   </div>
   <div
-    v-for="stat in getStats(gameType, subCategory)"
+    v-for="stat in getStats(selectedGameType, subCategory)"
     class="col"
     :key="stat.key"
   >
@@ -79,23 +79,22 @@ type SubCategory =
   | 'Single'
   | 'Double'
   | 'Triple'
-const gameType = ref<GameType>('x01')
+const selectedGameType = ref<GameType>('x01')
 const subCategory = ref<SubCategory>('General')
 
 const selectGameType = (type: GameType) => {
-  gameType.value = type
+  selectedGameType.value = type
   subCategory.value = 'General'
 }
 
-const getStats = (
-  gameType: GameType,
-  subCategory: SubCategory
-): {
+type Stat = {
   key: keyof Omit<UserStat, 'userId'>
   text: string
   userStats: UserStat[]
   transform?: (n: number) => string
-}[] => {
+}
+
+const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
   switch (gameType) {
     case 'x01':
       switch (subCategory) {
