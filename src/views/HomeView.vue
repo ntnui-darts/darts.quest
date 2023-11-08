@@ -1,4 +1,6 @@
 <template>
+  <InstallationPrompt></InstallationPrompt>
+
   <div class="row">
     <button @click="router.push({ name: 'user' })">My Profile</button>
     <button @click="router.push({ name: 'statistics' })">Statistics</button>
@@ -69,6 +71,7 @@ import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 import { useAuthStore } from '@/stores/auth'
 import { getOptionsComponent, GameTypeNames } from '@/games/games'
+import InstallationPrompt from '@/components/InstallationPrompt.vue'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
