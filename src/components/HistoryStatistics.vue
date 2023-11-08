@@ -1,32 +1,17 @@
 <template>
   <h2>Game Type</h2>
-  <div
-    class="col"
-    style="gap: 0; background-color: rgb(43, 43, 43); border-radius: 0.5em"
-  >
-    <div class="row options">
-      <button
-        v-for="(name, type) in GameTypeNames"
-        :class="{ selected: type == gameType }"
-        style="font-size: larger"
-        @click="gameType = type"
-      >
-        {{ name }}
-      </button>
-    </div>
-    <div v-auto-animate class="col" style="padding: 1em">
-      <component
-        v-if="getOptionsComponent(gameType)"
-        :is="getOptionsComponent(gameType)"
-        :key="gameType"
-        :type-attributes="typeAttributes"
-        @update="typeAttributes = $event"
-      ></component>
-    </div>
-  </div>
+  <GameSelection
+    :game-type="gameType"
+    :type-attributes="typeAttributes"
+    @update-game-type="gameType = $event"
+    @update-type-attributes="typeAttributes = $event"
+  ></GameSelection>
   <div v-if="gameType == 'rtc'">
     <h2>Number of Games</h2>
-    <Chart :datasets="rtcNumberOfGamesDataset"></Chart>
+    <Chart
+      :datasets="rtcNumberOfGamesDataset"
+      :show-smooth-button="false"
+    ></Chart>
     <h2>RTC Hit Rate</h2>
     <Chart :datasets="rtcHitRateDataset"></Chart>
     <h2>RTC Streak</h2>
@@ -34,7 +19,10 @@
   </div>
   <div v-if="gameType == 'x01'">
     <h2>Number of Games</h2>
-    <Chart :datasets="x01NumberOfGamesDataset"></Chart>
+    <Chart
+      :datasets="x01NumberOfGamesDataset"
+      :show-smooth-button="false"
+    ></Chart>
     <h2>First 9 Average</h2>
     <Chart :datasets="x01First9AvgDataset"></Chart>
     <h2>Checkout</h2>
@@ -44,21 +32,28 @@
   </div>
   <div v-if="gameType == 'killer'">
     <h2>Number of Games</h2>
-    <Chart :datasets="killerNumberOfGamesDataset"></Chart>
+    <Chart
+      :datasets="killerNumberOfGamesDataset"
+      :show-smooth-button="false"
+    ></Chart>
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
   </div>
   <div v-if="gameType == 'skovhugger'">
     <h2>Number of Games</h2>
-    <Chart :datasets="skovhuggerNumberOfGamesDataset"></Chart>
+    <Chart
+      :datasets="skovhuggerNumberOfGamesDataset"
+      :show-smooth-button="false"
+    ></Chart>
     <h2>Score</h2>
     <Chart :datasets="skovhuggerScoreDataset"></Chart>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { GameType, GameTypeNames, getOptionsComponent } from '@/games/games'
 import Chart from './Chart.vue'
+import GameSelection from './GameSelection.vue'
+import { GameType } from '@/games/games'
 import { useStatsStore } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import { computed, ref } from 'vue'

@@ -6,10 +6,10 @@
       Personal
     </button>
     <button :class="{ selected: tab == 'global' }" @click="tab = 'global'">
-      Global
+      Global Tables
     </button>
     <button :class="{ selected: tab == 'history' }" @click="tab = 'history'">
-      Global History [Experimental]
+      Global Graphs
     </button>
   </div>
   <PersonalStatistics v-if="tab == 'personal'"></PersonalStatistics>

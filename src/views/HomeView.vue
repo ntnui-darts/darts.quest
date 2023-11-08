@@ -6,38 +6,12 @@
     <button @click="router.push({ name: 'statistics' })">Statistics</button>
   </div>
   <h2>Select Game Type</h2>
-
-  <div
-    class="col shadow"
-    style="
-      gap: 0;
-      background-color: rgb(43, 43, 43);
-      border-radius: 0.5em;
-      padding-bottom: 0.5em;
-      overflow: hidden;
-    "
-  >
-    <div class="row options" style="overflow: auto">
-      <button
-        v-for="(name, type) in GameTypeNames"
-        :class="{ selected: type == homeStore.gameType }"
-        style="font-size: larger; min-width: 140px"
-        :id="type"
-        @click="homeStore.gameType = type"
-      >
-        {{ name }}
-      </button>
-    </div>
-    <div v-auto-animate class="col" style="padding: 1em">
-      <component
-        v-if="getOptionsComponent(homeStore.gameType)"
-        :is="getOptionsComponent(homeStore.gameType)"
-        :key="homeStore.gameType"
-        :type-attributes="homeStore.typeAttributes"
-        @update="homeStore.typeAttributes = $event"
-      ></component>
-    </div>
-  </div>
+  <GameSelection
+    :game-type="homeStore.gameType"
+    :type-attributes="homeStore.typeAttributes"
+    @update-game-type="homeStore.gameType = $event"
+    @update-type-attributes="homeStore.typeAttributes = $event"
+  ></GameSelection>
   <PlayerSelection
     :players="homeStore.players"
     @update="homeStore.players = $event"
@@ -70,8 +44,8 @@ import { onMounted, watch } from 'vue'
 import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 import { useAuthStore } from '@/stores/auth'
-import { getOptionsComponent, GameTypeNames } from '@/games/games'
 import InstallationPrompt from '@/components/InstallationPrompt.vue'
+import GameSelection from '@/components/GameSelection.vue'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
