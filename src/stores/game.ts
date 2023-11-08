@@ -142,7 +142,7 @@ export const useGameStore = defineStore('game', {
     },
 
     saveToLocalStorage() {
-      localStorage.setItem('data', JSON.stringify(this.game))
+      localStorage.setItem('game', JSON.stringify(this.game))
     },
   },
 

@@ -13,7 +13,7 @@ import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
 
 function reloadGame() {
-  const gameJson = localStorage.getItem('data')
+  const gameJson = localStorage.getItem('game')
   if (!gameJson) return
   const game = JSON.parse(gameJson) as Game
 
@@ -23,7 +23,7 @@ function reloadGame() {
 }
 
 function clearData() {
-  localStorage.removeItem('data')
+  localStorage.removeItem('game')
   useModalStore().pop()
 }
 </script>

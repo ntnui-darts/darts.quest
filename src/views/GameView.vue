@@ -138,7 +138,7 @@ onMounted(() => {
 })
 
 const quit = () => {
-  localStorage.removeItem('data')
+  localStorage.removeItem('game')
   router.push('/')
 }
 

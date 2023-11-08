@@ -6,6 +6,7 @@ import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
 import { getMaxStreak, getRtcHitRate, sumNumbers } from '@/games/rtc'
 import { getSkovhuggerScore } from '@/games/skovhugger'
+import { compareCreatedAt } from '@/functions/compare'
 
 export type UserStat = Database['public']['Tables']['statistics']['Row']
 type LegJoin = {
@@ -25,9 +26,6 @@ export type KillerStat =
   Database['public']['Tables']['statistics_killer']['Row'] & LegJoin
 export type SkovhuggerStat =
   Database['public']['Tables']['statistics_skovhugger']['Row'] & LegJoin
-
-const compareCreatedAt = (a: { createdAt: string }, b: { createdAt: string }) =>
-  new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
 
 const compareLegsCreatedAt = (
   a: { legs: { createdAt: string } },

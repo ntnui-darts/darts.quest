@@ -54,8 +54,9 @@ export const useAuthStore = defineStore('auth', {
         .select('name')
         .eq('id', this.auth.id)
       const copy = {
+        // because user from parameter may include other fields
         name: user.name,
-        created_at: user.created_at,
+        createdAt: user.createdAt,
         id: user.id,
         walkOn: user.walkOn,
         walkOnTime: user.walkOnTime,

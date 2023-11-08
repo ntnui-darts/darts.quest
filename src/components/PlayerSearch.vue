@@ -40,11 +40,19 @@ const inputElement = ref<HTMLInputElement | null>(null)
 const searchText = ref('')
 
 const searchResultUsers = computed(() => {
-  return usersStore.users
+  const idHistory = usersStore.getUserSelectionHistory()
+  const userHistory = idHistory
+    .map((id) => usersStore.getUser(id))
+    .filter((user) => !!user) as User[]
+
+  return [
+    ...userHistory,
+    ...usersStore.users.filter((user) => !idHistory.includes(user.id)),
+  ]
     .filter((user) =>
       user.name.toLowerCase().includes(searchText.value.toLowerCase())
     )
-    .slice(0, 40)
+    .slice(0, 100)
 })
 
 onMounted(() => {
@@ -58,6 +66,7 @@ const select = (user: User) => {
     {
       cancel: () => useModalStore().pop(),
       submit: (data: { beers: number; arrows: string }) => {
+        usersStore.recordUserSelection(user.id)
         emit('select', {
           ...user,
           ...data,

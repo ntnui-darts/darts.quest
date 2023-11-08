@@ -293,7 +293,7 @@ export interface Database {
       }
       users: {
         Row: {
-          created_at: string
+          createdAt: string
           id: string
           name: string
           walkOn: string | null
@@ -301,7 +301,7 @@ export interface Database {
           walkOnTime: number
         }
         Insert: {
-          created_at?: string
+          createdAt?: string
           id?: string
           name?: string
           walkOn?: string | null
@@ -309,7 +309,7 @@ export interface Database {
           walkOnTime?: number
         }
         Update: {
-          created_at?: string
+          createdAt?: string
           id?: string
           name?: string
           walkOn?: string | null

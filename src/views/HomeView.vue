@@ -83,7 +83,7 @@ onMounted(async () => {
 })
 
 onMounted(() => {
-  if (localStorage.getItem('data')) {
+  if (localStorage.getItem('game')) {
     useModalStore().push(ReloadView, {}, {})
   }
   scrollGameTypeButtonIntoView()
