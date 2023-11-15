@@ -50,7 +50,8 @@
                   userId == useAuthStore().auth?.id ? 'bold' : undefined,
               }"
             >
-              {{ i + 1 }}. {{ useUsersStore().getUser(userId)?.name }}
+              {{ i + 1 }}.
+              {{ stringMaxLength(useUsersStore().getUser(userId)?.name, 20) }}
             </td>
             <td style="text-align: end">
               {{
@@ -91,6 +92,7 @@ import { GameTypeNames } from '@/games/games'
 import type { GameType } from '@/games/games'
 import { addDays } from 'date-fns'
 import { useAuthStore } from '@/stores/auth'
+import { stringMaxLength } from '@/functions/string'
 
 const store = useStatsStore()
 
