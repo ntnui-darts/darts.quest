@@ -4,11 +4,11 @@ import { DbGame, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
-import { getMaxStreak, getRtcHitRate, sumNumbers } from '@/games/rtc'
+import { getMaxStreak, getRtcHitRate } from '@/games/rtc'
 import { getSkovhuggerScore } from '@/games/skovhugger'
 import { compareCreatedAt } from '@/functions/compare'
+import type { GameType } from '@/games/games'
 
-export type UserStat = Database['public']['Tables']['statistics']['Row']
 type LegJoin = {
   legs: {
     id: string
@@ -26,6 +26,7 @@ export type KillerStat =
   Database['public']['Tables']['statistics_killer']['Row'] & LegJoin
 export type SkovhuggerStat =
   Database['public']['Tables']['statistics_skovhugger']['Row'] & LegJoin
+type AnyStat = KillerStat | RtcStat | SkovhuggerStat | X01Stat
 
 const compareLegsCreatedAt = (
   a: { legs: { createdAt: string } },
@@ -36,7 +37,6 @@ export const useStatsStore = defineStore('stats', {
   state: () => ({
     legs: [] as Leg[],
     games: [] as DbGame[],
-    userStats: [] as UserStat[],
     x01Stats: [] as X01Stat[],
     rtcStats: [] as RtcStat[],
     killerStats: [] as KillerStat[],
@@ -47,7 +47,6 @@ export const useStatsStore = defineStore('stats', {
     async fetchAll() {
       await this.fetchGames()
       await this.fetchLegs()
-      await this.recalculatePersonalStats()
       await this.fetchStats()
     },
 
@@ -73,10 +72,6 @@ export const useStatsStore = defineStore('stats', {
     },
 
     async fetchStats() {
-      const userStats = await supabase.from('statistics').select('*')
-      if (userStats.data) {
-        this.userStats = userStats.data
-      }
       const x01Stats = await supabase
         .from('statistics_x01')
         .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
@@ -111,185 +106,111 @@ export const useStatsStore = defineStore('stats', {
       }
     },
 
-    async recalculatePersonalStats() {
-      const userId = useAuthStore().auth?.id
-      if (!userId) throw Error()
-      let maxRtcStreak = 0
-      let minRtcVisits = null as number | null
-      let min301DoubleVisits = null as number | null
-      let min501DoubleVisits = null as number | null
-      let maxX01VisitScore = 0
-      let maxX01First9Avg = 0
-      let avgX01First9AvgLast10 = 0
-      let maxX01DoubleCheckout = 0
-      let max301DoubleVisits = 0
-      let max501DoubleVisits = 0
-      let avgRtcSingleHitRateLast10 = 0
-      let avgRtcDoubleHitRateLast10 = 0
-      let avgRtcTripleHitRateLast10 = 0
-      let avg501DoubleVisitsLast10 = 0
-      let avg301DoubleVisitsLast10 = 0
-      let avgKillerWinRateLast10 = 0
+    getStats(gameType: GameType) {
+      switch (gameType) {
+        case 'killer':
+          return this.killerStats
+        case 'rtc':
+          return this.rtcStats
+        case 'skovhugger':
+          return this.skovhuggerStats
+        case 'x01':
+          return this.x01Stats
+      }
+    },
 
-      const finishedLegs = this.legs.filter((leg) => leg.finish)
-      const rtcLegs = finishedLegs.filter((leg) => leg.type == 'rtc')
-      const rtcGames = this.games.filter((leg) => leg.type == 'rtc')
-      const rtcSingleLegs = rtcLegs.filter(
-        (leg) => getTypeAttribute<number>(leg, 'mode', 1) == 1
-      )
-      const rtcDoubleLegs = rtcLegs.filter(
-        (leg) => getTypeAttribute<number>(leg, 'mode', 1) == 2
-      )
-      const rtcTripleLegs = rtcLegs.filter(
-        (leg) => getTypeAttribute<number>(leg, 'mode', 1) == 3
-      )
-      const rtcSingleLegsLast10 = rtcSingleLegs.slice(-10)
-      if (rtcSingleLegsLast10.length > 0) {
-        avgRtcSingleHitRateLast10 =
-          sumNumbers(
-            rtcSingleLegsLast10.map((leg) => getRtcHitRate(leg.visits))
-          ) / rtcSingleLegsLast10.length
-      }
-      const rtcDoubleLegsLast10 = rtcDoubleLegs.slice(-10)
-      if (rtcDoubleLegsLast10.length > 0) {
-        avgRtcDoubleHitRateLast10 =
-          sumNumbers(
-            rtcDoubleLegsLast10.map((leg) => getRtcHitRate(leg.visits))
-          ) / rtcDoubleLegsLast10.length
-      }
-      const rtcTripleLegsLast10 = rtcTripleLegs.slice(-10)
-      if (rtcTripleLegsLast10.length > 0) {
-        avgRtcTripleHitRateLast10 =
-          sumNumbers(
-            rtcTripleLegsLast10.map((leg) => getRtcHitRate(leg.visits))
-          ) / rtcTripleLegsLast10.length
-      }
-      const x01Legs = finishedLegs.filter((leg) => leg.type == 'x01')
-      const x01DoubleLegs = x01Legs.filter(
-        (leg) => getTypeAttribute<number>(leg, 'finish', 1) == 2
-      )
-      const x01LegsLast10 = x01Legs.slice(-10)
-      if (x01LegsLast10.length > 0) {
-        avgX01First9AvgLast10 =
-          sumNumbers(
-            x01LegsLast10.map((leg) => getFirst9Avg(leg.visits, leg))
-          ) / x01LegsLast10.length
-      }
-      const x01Games = this.games.filter((leg) => leg.type == 'x01')
-      const _501DoubleLegsLast10 = x01DoubleLegs
-        .filter((leg) => getTypeAttribute<number>(leg, 'startScore', 0) == 501)
-        .slice(-10)
-      if (_501DoubleLegsLast10.length > 0) {
-        avg501DoubleVisitsLast10 =
-          sumNumbers(_501DoubleLegsLast10.map((leg) => leg.visits.length)) /
-          _501DoubleLegsLast10.length
-      }
-      const _301DoubleLegsLast10 = x01DoubleLegs
-        .filter((leg) => getTypeAttribute<number>(leg, 'startScore', 0) == 301)
-        .slice(-10)
-      if (_301DoubleLegsLast10.length > 0) {
-        avg301DoubleVisitsLast10 =
-          sumNumbers(_301DoubleLegsLast10.map((leg) => leg.visits.length)) /
-          _301DoubleLegsLast10.length
-      }
-      const killerGames = this.games.filter((leg) => leg.type == 'killer')
-      const killerGamesLast10 = killerGames.slice(-10)
-      if (killerGamesLast10.length > 0) {
-        avgKillerWinRateLast10 =
-          sumNumbers(
-            killerGamesLast10.map((game) => {
-              let index = game.result.indexOf(userId)
-              if (index < 0 || game.players.length < 2) return 0
-              return (
-                (2 * game.players.length - game.result.length - index - 1) /
-                (game.players.length - 1)
-              )
-            })
-          ) / killerGamesLast10.length
-      }
+    getCompressed<T extends AnyStat>(
+      stats: T[],
+      key: keyof Omit<T, 'id' | 'legs'> | null,
+      _default: number,
+      ascending: boolean,
+      compress: (old: number, next: number, userId: string) => number
+    ) {
+      const filtered = key
+        ? stats.filter(
+            (userStat) => userStat[key] != null && userStat[key] != 0
+          )
+        : stats
 
-      finishedLegs.forEach((leg) => {
-        switch (leg.type) {
-          case 'rtc':
-            const fastMode = getTypeAttribute<boolean>(leg, 'fast', false)
-            if (fastMode) return
-            minRtcVisits = Math.min(minRtcVisits ?? Infinity, leg.visits.length)
-            maxRtcStreak = Math.max(maxRtcStreak, getMaxStreak(leg.visits))
-            break
-          case 'x01':
-            const startScore = getTypeAttribute<number>(leg, 'startScore', 0)
-            const finishType = getTypeAttribute<number>(leg, 'finish', 1)
-            if (startScore == 301 && finishType == 2) {
-              min301DoubleVisits = Math.min(
-                min301DoubleVisits ?? Infinity,
-                leg.visits.length
-              )
-              max301DoubleVisits = Math.max(
-                max301DoubleVisits,
-                leg.visits.length
-              )
-            }
-            if (startScore == 501 && finishType == 2) {
-              min501DoubleVisits = Math.min(
-                min501DoubleVisits ?? Infinity,
-                leg.visits.length
-              )
-              max501DoubleVisits = Math.max(
-                max501DoubleVisits,
-                leg.visits.length
-              )
-            }
-            const lastVisit = leg.visits.at(-1)
-            if (lastVisit && finishType == 2) {
-              maxX01DoubleCheckout = Math.max(
-                maxX01DoubleCheckout,
-                getX01VisitScore(lastVisit)
-              )
-            }
-            maxX01VisitScore = Math.max(
-              maxX01VisitScore,
-              ...leg.visits.map((v) => getX01VisitScore(v))
-            )
-            maxX01First9Avg = Math.max(
-              maxX01First9Avg,
-              getFirst9Avg(leg.visits, leg)
-            )
-            break
-          case 'killer':
-            break
+      const result: Record<string, number> = {}
+      filtered.forEach((stat) => {
+        const userId = stat.legs.userId
+        const attr = key ? stat[key] : 0
+        if (attr == null || !userId) return
+        if (typeof attr != 'number') return
+        if (!(userId in result)) {
+          result[userId] = _default
         }
+        result[userId] = compress(result[userId], attr, userId)
       })
-      const userStat = {
-        userId,
-        maxRtcStreak,
-        minRtcVisits,
-        min301DoubleVisits,
-        min501DoubleVisits,
-        maxX01VisitScore,
-        maxX01First9Avg,
-        avgX01First9AvgLast10,
-        maxX01DoubleCheckout,
-        max501DoubleVisits,
-        max301DoubleVisits,
-        avgRtcSingleHitRateLast10,
-        avgRtcDoubleHitRateLast10,
-        avgRtcTripleHitRateLast10,
-        avg301DoubleVisitsLast10,
-        avg501DoubleVisitsLast10,
-        avgKillerWinRateLast10,
-        numRtcGames: rtcGames.length,
-        numX01Games: x01Games.length,
-        numKillerGames: killerGames.length,
-      } satisfies Database['public']['Tables']['statistics']['Row']
-      const userStatPrev = await supabase
-        .from('statistics')
-        .select('*')
-        .eq('userId', userId)
-      if (!userStatPrev.data?.length) {
-        await supabase.from('statistics').insert(userStat)
-      } else {
-        await supabase.from('statistics').update(userStat).eq('userId', userId)
+
+      const sorted = Object.entries(result)
+        .sort(([, a], [, b]) => (ascending ? a - b : b - a))
+        .reduce((r, [k, v]) => ({ ...r, [k]: v }), {})
+
+      return sorted
+    },
+
+    getMax<T extends AnyStat>(stats: T[], key: keyof Omit<T, 'id' | 'legs'>) {
+      return this.getCompressed(stats, key, 0, false, (old, next) =>
+        Math.max(old, next)
+      )
+    },
+
+    getMin<T extends AnyStat>(stats: T[], key: keyof Omit<T, 'id' | 'legs'>) {
+      return this.getCompressed(stats, key, Infinity, true, (old, next) =>
+        Math.min(old, next)
+      )
+    },
+
+    getCount(stats: AnyStat[]) {
+      return this.getCompressed(stats, null, 0, false, (old) => old + 1)
+    },
+
+    getAvg<T extends AnyStat>(
+      stats: T[],
+      key: keyof Omit<T, 'id' | 'legs'>,
+      ascending = true
+    ) {
+      let nMap = new Map<string, number>()
+      let sumMap = new Map<string, number>()
+      const compress = (_: number, next: number, userId: string) => {
+        const n = (nMap.get(userId) ?? 0) + 1
+        const sum = (sumMap.get(userId) ?? 0) + next
+        nMap.set(userId, n)
+        sumMap.set(userId, sum)
+        return sum / n
       }
+      if (ascending) {
+        return this.getCompressed(stats, key, Infinity, true, compress)
+      } else {
+        return this.getCompressed(stats, key, 0, false, compress)
+      }
+    },
+
+    getX01(
+      requireFinish: boolean,
+      startScore: 301 | 501 | 701 | null,
+      finish: 1 | 2 | 3 | null
+    ) {
+      return this.x01Stats.filter(
+        (stat) =>
+          (startScore == null ||
+            getTypeAttribute<number>(stat.legs, 'startScore', 0) ==
+              startScore) &&
+          (finish == null ||
+            getTypeAttribute<number>(stat.legs, 'finish', 0) == finish) &&
+          (!requireFinish || stat.legs.finish)
+      )
+    },
+
+    getRtc(requireFinish: boolean, mode: 1 | 2 | 3 | null) {
+      return this.rtcStats.filter(
+        (stat) =>
+          (mode == null ||
+            getTypeAttribute<number>(stat.legs, 'mode', 0) == mode) &&
+          (!requireFinish || stat.legs.finish)
+      )
     },
   },
 
