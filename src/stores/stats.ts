@@ -302,8 +302,8 @@ export const toPercentage = (n: number) => {
   return Math.round(n * 1000) / 10 + ' %'
 }
 
-export const roundToTwoDecimals = (n: number) => {
-  return Math.round(n * 100) / 100
+export const roundToNDecimals = (value: number, n: number) => {
+  return Math.round(value * Math.pow(10, n)) / Math.pow(10, n)
 }
 
 if (import.meta.hot) {

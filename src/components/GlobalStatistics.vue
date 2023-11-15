@@ -3,7 +3,7 @@
   <h2>Game Type</h2>
   <div class="row options">
     <button
-      v-for="gameType in (['x01', 'rtc', 'killer'] satisfies GameType[])"
+      v-for="gameType in (['x01', 'rtc', 'killer', 'skovhugger'] satisfies GameType[])"
       :class="{ selected: selectedGameType == gameType }"
       @click="selectGameType(gameType)"
     >
@@ -50,7 +50,7 @@
                 stat.last14Days[userId]
                   ? stat.transform
                     ? stat.transform(stat.last14Days[userId]!)
-                    : roundToTwoDecimals(stat.last14Days[userId]!)
+                    : roundToNDecimals(stat.last14Days[userId]!, 2)
                   : null
               }}
             </td>
@@ -59,7 +59,7 @@
                 stat.allTime[userId]
                   ? stat.transform
                     ? stat.transform(stat.allTime[userId]!)
-                    : roundToTwoDecimals(stat.allTime[userId]!)
+                    : roundToNDecimals(stat.allTime[userId]!, 2)
                   : null
               }}
             </td>
@@ -78,7 +78,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useStatsStore, toPercentage, roundToTwoDecimals } from '@/stores/stats'
+import { useStatsStore, toPercentage, roundToNDecimals } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import { GameTypeNames } from '@/games/games'
 import type { GameType } from '@/games/games'
@@ -297,6 +297,22 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
         {
           text: 'Number of Games',
           userStats: (d) => store.getCount(store.getSkovhugger({ since: d })),
+        },
+        {
+          text: 'Average Score',
+          userStats: (d) =>
+            store.getAvg(store.getSkovhugger({ since: d }), 'score', false),
+          transform: (n) => roundToNDecimals(n, 0).toString(),
+        },
+        {
+          text: 'Highest Score',
+          userStats: (d) =>
+            store.getMax(store.getSkovhugger({ since: d }), 'score'),
+        },
+        {
+          text: 'Lowest Score',
+          userStats: (d) =>
+            store.getMin(store.getSkovhugger({ since: d }), 'score'),
         },
       ]
   }

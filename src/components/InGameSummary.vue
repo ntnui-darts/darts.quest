@@ -13,7 +13,7 @@ import { User } from '@/stores/users'
 import { computed } from 'vue'
 import { getFirst9Avg, getAvgVisitScore } from '@/games/x01'
 import { getRtcHitRate } from '@/games/rtc'
-import { roundToTwoDecimals, toPercentage } from '@/stores/stats'
+import { roundToNDecimals, toPercentage } from '@/stores/stats'
 
 const props = defineProps<{ leg: Leg; user: User }>()
 
@@ -22,11 +22,13 @@ const info = computed(() => {
     case 'x01':
       return [
         `Visits: ${props.leg.visits.length}`,
-        `Average: ${roundToTwoDecimals(
-          getAvgVisitScore(props.leg.visits, props.leg)
+        `Average: ${roundToNDecimals(
+          getAvgVisitScore(props.leg.visits, props.leg),
+          2
         )}`,
-        `First 9 average: ${roundToTwoDecimals(
-          getFirst9Avg(props.leg.visits, props.leg)
+        `First 9 average: ${roundToNDecimals(
+          getFirst9Avg(props.leg.visits, props.leg),
+          2
         )}`,
       ]
     case 'rtc':
