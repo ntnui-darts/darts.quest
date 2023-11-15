@@ -330,7 +330,7 @@ if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useStatsStore, import.meta.hot))
 }
 
-export const insertLegStatistics = async (leg: Leg) => {
+export const upsertLegStatistics = async (leg: Leg) => {
   const segments = leg.visits.flat().filter((s) => s != null)
   const darts = segments.length
 
@@ -342,8 +342,9 @@ export const insertLegStatistics = async (leg: Leg) => {
       )
       const first9Avg = getFirst9Avg(leg.visits, leg)
       const lastVisit = leg.visits.at(-1)
-      const checkout = lastVisit ? getX01VisitScore(lastVisit) : 0
-      await supabase.from('statistics_x01').insert({
+      const checkout = leg.finish && lastVisit ? getX01VisitScore(lastVisit) : 0
+
+      await supabase.from('statistics_x01').upsert({
         id: leg.id,
         darts,
         maxVisitScore,
@@ -355,7 +356,7 @@ export const insertLegStatistics = async (leg: Leg) => {
     case 'rtc':
       const maxStreak = getMaxStreak(leg.visits)
       const hitRate = getRtcHitRate(leg.visits)
-      await supabase.from('statistics_rtc').insert({
+      await supabase.from('statistics_rtc').upsert({
         id: leg.id,
         darts,
         maxStreak,
@@ -364,14 +365,14 @@ export const insertLegStatistics = async (leg: Leg) => {
       break
 
     case 'killer':
-      await supabase.from('statistics_killer').insert({
+      await supabase.from('statistics_killer').upsert({
         id: leg.id,
         darts,
       })
       break
 
     case 'skovhugger':
-      await supabase.from('statistics_skovhugger').insert({
+      await supabase.from('statistics_skovhugger').upsert({
         id: leg.id,
         score: getSkovhuggerScore(leg.visits),
       })

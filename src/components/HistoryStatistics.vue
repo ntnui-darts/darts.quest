@@ -155,7 +155,7 @@ const x01CheckoutDataset = computed(() => {
   return x01Users.value.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
     data: x01Stats.value
-      .filter((s) => s.legs.userId == user)
+      .filter((s) => s.legs.userId == user && (s.checkout ?? 0) > 0)
       .map((stat) => ({
         x: new Date(stat.legs.createdAt),
         y: stat.checkout,

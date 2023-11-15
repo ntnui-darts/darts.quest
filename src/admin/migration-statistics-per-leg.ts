@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/auth'
-import { insertLegStatistics } from '@/stores/stats'
+import { upsertLegStatistics } from '@/stores/stats'
 import { supabase } from '@/supabase'
 import { Leg } from '@/types/game'
 
@@ -17,12 +17,8 @@ export const migrateToStatisticsPerLeg = async () => {
   if (!legsResponse.data) throw Error()
   const legs = legsResponse.data as Leg[]
   legs.forEach(async (leg) => {
-    const prev = await supabase
-      .from('statistics_' + leg.type)
-      .select('id')
-      .eq('id', leg.id)
-    if (prev.data?.length == 0) {
-      await insertLegStatistics(leg)
+    if (leg.type == 'x01') {
+      await upsertLegStatistics(leg)
       console.log(`Updated leg ${leg.id}`)
     } else {
       console.log(`Already there.`)

@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { insertLegStatistics, useStatsStore } from './stats'
+import { upsertLegStatistics, useStatsStore } from './stats'
 import { supabase } from '@/supabase'
 import {
   Game as GameData,
@@ -136,7 +136,7 @@ export const useGameStore = defineStore('game', {
           leg.finish = true
         }
         await supabase.from('legs').insert({ ...leg, type: leg.type })
-        await insertLegStatistics(leg)
+        await upsertLegStatistics(leg)
       }
       useStatsStore().fetchAll()
     },

@@ -68,7 +68,8 @@ import {
   roundToTwoDecimals,
 } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
-import { GameType, GameTypeNames } from '@/games/games'
+import { GameTypeNames } from '@/games/games'
+import type { GameType } from '@/games/games'
 
 const statsStore = useStatsStore()
 
