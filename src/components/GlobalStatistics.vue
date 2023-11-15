@@ -44,7 +44,14 @@
           ])"
         >
           <tr>
-            <td>{{ i + 1 }}. {{ useUsersStore().getUser(userId)?.name }}</td>
+            <td
+              :class="{
+                highlighted:
+                  userId == useAuthStore().auth?.id ? 'bold' : undefined,
+              }"
+            >
+              {{ i + 1 }}. {{ useUsersStore().getUser(userId)?.name }}
+            </td>
             <td style="text-align: end">
               {{
                 stat.last14Days[userId]
@@ -83,6 +90,7 @@ import { useUsersStore } from '@/stores/users'
 import { GameTypeNames } from '@/games/games'
 import type { GameType } from '@/games/games'
 import { addDays } from 'date-fns'
+import { useAuthStore } from '@/stores/auth'
 
 const store = useStatsStore()
 
@@ -318,3 +326,9 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
   }
 }
 </script>
+
+<style scoped>
+.highlighted {
+  font-weight: bold;
+}
+</style>
