@@ -28,24 +28,43 @@
       {{ option }}
     </button>
   </div>
-  <div
-    v-for="stat in getStats(selectedGameType, subCategory)"
-    class="col"
-    :key="stat.text"
-  >
+  <div v-for="stat in currentStats" class="col" :key="stat.text">
     <h3>{{ stat.text }}</h3>
     <table>
       <tbody>
-        <tr v-for="(userStat, userId, i) in stat.userStats">
-          <td>{{ i + 1 }}. {{ useUsersStore().getUser(userId)?.name }}</td>
-          <td style="text-align: end">
-            {{
-              stat.transform
-                ? stat.transform(userStat ?? 0)
-                : roundToTwoDecimals(userStat ?? 0)
-            }}
-          </td>
+        <tr>
+          <th>Name</th>
+          <th>Last 14 Days</th>
+          <th>All Time</th>
         </tr>
+        <template
+          v-for="(userId, i) in new Set([
+            ...Object.keys(stat.last14Days),
+            ...Object.keys(stat.allTime),
+          ])"
+        >
+          <tr>
+            <td>{{ i + 1 }}. {{ useUsersStore().getUser(userId)?.name }}</td>
+            <td style="text-align: end">
+              {{
+                stat.last14Days[userId]
+                  ? stat.transform
+                    ? stat.transform(stat.last14Days[userId]!)
+                    : roundToTwoDecimals(stat.last14Days[userId]!)
+                  : null
+              }}
+            </td>
+            <td style="text-align: end">
+              {{
+                stat.allTime[userId]
+                  ? stat.transform
+                    ? stat.transform(stat.allTime[userId]!)
+                    : roundToTwoDecimals(stat.allTime[userId]!)
+                  : null
+              }}
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
     <div>
@@ -58,11 +77,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useStatsStore, toPercentage, roundToTwoDecimals } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import { GameTypeNames } from '@/games/games'
 import type { GameType } from '@/games/games'
+import { addDays } from 'date-fns'
 
 const store = useStatsStore()
 
@@ -81,9 +101,22 @@ const selectGameType = (type: GameType) => {
   subCategory.value = 'General'
 }
 
+const currentStats = computed(() => {
+  const stats = getStats(selectedGameType.value, subCategory.value)
+  return stats.map((stat) => {
+    const allTime = stat.userStats(new Date(0))
+    const last14Days = stat.userStats(addDays(new Date(), -14))
+    return {
+      ...stat,
+      allTime,
+      last14Days,
+    }
+  })
+})
+
 type Stat = {
   text: string
-  userStats: Record<string, number | null>
+  userStats: (since: Date) => Record<string, number | null>
   transform?: (n: number) => string
 }
 
@@ -95,53 +128,91 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           return [
             {
               text: 'Number of Games',
-              userStats: store.getCount(store.x01Stats),
+              userStats: (d) =>
+                store.getCount(
+                  store.getX01({ since: d, allowUnfinished: true })
+                ),
             },
             {
               text: 'Average First 9 Avg',
-              userStats: store.getAvg(store.x01Stats, 'first9Avg', false),
+              userStats: (d) =>
+                store.getAvg(
+                  store.getX01({ since: d, allowUnfinished: true }),
+                  'first9Avg',
+                  false
+                ),
             },
             {
               text: 'Highest First 9 Average',
-              userStats: store.getMax(store.x01Stats, 'first9Avg'),
+              userStats: (d) =>
+                store.getMax(
+                  store.getX01({ since: d, allowUnfinished: true }),
+                  'first9Avg'
+                ),
             },
             {
               text: 'Highest Double Checkout',
-              userStats: store.getMax(store.getX01(true, null, 2), 'checkout'),
+              userStats: (d) =>
+                store.getMax(store.getX01({ since: d, finish: 2 }), 'checkout'),
             },
             {
               text: 'Highest Single Visit Score',
-              userStats: store.getMax(store.x01Stats, 'maxVisitScore'),
+              userStats: (d) =>
+                store.getMax(store.getX01({ since: d }), 'maxVisitScore'),
             },
           ]
         case '301 Double':
           return [
             {
               text: 'Average # Darts',
-              userStats: store.getAvg(store.getX01(true, 301, 2), 'darts'),
+              userStats: (d) =>
+                store.getAvg(
+                  store.getX01({ since: d, startScore: 301, finish: 2 }),
+                  'darts'
+                ),
             },
             {
               text: 'Fastest # Darts',
-              userStats: store.getMin(store.getX01(true, 301, 2), 'darts'),
+              userStats: (d) =>
+                store.getMin(
+                  store.getX01({ since: d, startScore: 301, finish: 2 }),
+                  'darts'
+                ),
             },
             {
               text: 'Slowest # Darts',
-              userStats: store.getMax(store.getX01(true, 301, 2), 'darts'),
+              userStats: (d) =>
+                store.getMax(
+                  store.getX01({ since: d, startScore: 301, finish: 2 }),
+                  'darts'
+                ),
             },
           ]
         case '501 Double':
           return [
             {
               text: 'Average # Darts',
-              userStats: store.getAvg(store.getX01(true, 501, 2), 'darts'),
+              userStats: (d) =>
+                store.getAvg(
+                  store.getX01({ since: d, startScore: 501, finish: 2 }),
+                  'darts'
+                ),
             },
             {
               text: 'Fastest # Darts',
-              userStats: store.getMin(store.getX01(true, 501, 2), 'darts'),
+              userStats: (d) =>
+                store.getMin(
+                  store.getX01({ since: d, startScore: 501, finish: 2 }),
+                  'darts'
+                ),
             },
             {
               text: 'Slowest # Darts',
-              userStats: store.getMax(store.getX01(true, 501, 2), 'darts'),
+              userStats: (d) =>
+                store.getMax(
+                  store.getX01({ since: d, startScore: 501, finish: 2 }),
+                  'darts'
+                ),
             },
           ]
         default:
@@ -153,22 +224,35 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           return [
             {
               text: 'Number of Games',
-              userStats: store.getCount(store.rtcStats),
+              userStats: (d) =>
+                store.getCount(
+                  store.getRtc({ since: d, allowUnfinished: true })
+                ),
             },
             {
               text: 'Fewest Darts',
-              userStats: store.getMin(store.getRtc(true, 1), 'darts'),
+              userStats: (d) =>
+                store.getMin(store.getRtc({ since: d }), 'darts'),
             },
             {
               text: 'Longest Streak',
-              userStats: store.getMax(store.rtcStats, 'maxStreak'),
+              userStats: (d) =>
+                store.getMax(
+                  store.getRtc({ since: d, allowUnfinished: true }),
+                  'maxStreak'
+                ),
             },
           ]
         case 'Single':
           return [
             {
               text: 'Average Hit Rate',
-              userStats: store.getAvg(store.getRtc(false, 1), 'hitRate', false),
+              userStats: (d) =>
+                store.getAvg(
+                  store.getRtc({ since: d, mode: 1 }),
+                  'hitRate',
+                  false
+                ),
               transform: toPercentage,
             },
           ]
@@ -176,7 +260,12 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           return [
             {
               text: 'Average Hit Rate',
-              userStats: store.getAvg(store.getRtc(false, 2), 'hitRate', false),
+              userStats: (d) =>
+                store.getAvg(
+                  store.getRtc({ since: d, mode: 2 }),
+                  'hitRate',
+                  false
+                ),
               transform: toPercentage,
             },
           ]
@@ -184,7 +273,12 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           return [
             {
               text: 'Average Hit Rate',
-              userStats: store.getAvg(store.getRtc(false, 3), 'hitRate', false),
+              userStats: (d) =>
+                store.getAvg(
+                  store.getRtc({ since: d, mode: 3 }),
+                  'hitRate',
+                  false
+                ),
               transform: toPercentage,
             },
           ]
@@ -195,11 +289,16 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
       return [
         {
           text: 'Number of Games',
-          userStats: store.getCount(store.killerStats),
+          userStats: (d) => store.getCount(store.getKiller({ since: d })),
         },
       ]
     case 'skovhugger':
-      return []
+      return [
+        {
+          text: 'Number of Games',
+          userStats: (d) => store.getCount(store.getSkovhugger({ since: d })),
+        },
+      ]
   }
 }
 </script>

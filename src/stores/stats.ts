@@ -188,29 +188,88 @@ export const useStatsStore = defineStore('stats', {
       }
     },
 
-    getX01(
-      requireFinish: boolean,
-      startScore: 301 | 501 | 701 | null,
-      finish: 1 | 2 | 3 | null
-    ) {
-      return this.x01Stats.filter(
-        (stat) =>
-          (startScore == null ||
-            getTypeAttribute<number>(stat.legs, 'startScore', 0) ==
-              startScore) &&
-          (finish == null ||
-            getTypeAttribute<number>(stat.legs, 'finish', 0) == finish) &&
-          (!requireFinish || stat.legs.finish)
-      )
+    getX01(options: {
+      since?: Date
+      allowUnfinished?: boolean
+      startScore?: 301 | 501 | 701
+      finish?: 1 | 2 | 3
+    }) {
+      return this.x01Stats.filter((stat) => {
+        if (
+          options.since &&
+          new Date(stat.legs.createdAt).getTime() < options.since.getTime()
+        )
+          return false
+
+        if (!options.allowUnfinished && !stat.legs.finish) return false
+
+        if (
+          options.startScore != undefined &&
+          getTypeAttribute<number>(stat.legs, 'startScore', 0) !=
+            options.startScore
+        )
+          return false
+        if (
+          options.finish != undefined &&
+          getTypeAttribute<number>(stat.legs, 'finish', 0) != options.finish
+        )
+          return
+        false
+
+        return true
+      })
     },
 
-    getRtc(requireFinish: boolean, mode: 1 | 2 | 3 | null) {
-      return this.rtcStats.filter(
-        (stat) =>
-          (mode == null ||
-            getTypeAttribute<number>(stat.legs, 'mode', 0) == mode) &&
-          (!requireFinish || stat.legs.finish)
-      )
+    getRtc(options: {
+      since?: Date
+      allowUnfinished?: boolean
+      mode?: 1 | 2 | 3
+    }) {
+      return this.rtcStats.filter((stat) => {
+        if (
+          options.since &&
+          new Date(stat.legs.createdAt).getTime() < options.since.getTime()
+        )
+          return false
+
+        if (!options.allowUnfinished && !stat.legs.finish) return false
+
+        if (
+          options.mode != undefined &&
+          getTypeAttribute<number>(stat.legs, 'mode', 0) != options.mode
+        )
+          return false
+
+        return true
+      })
+    },
+
+    getKiller(options: { since?: Date; allowUnfinished?: boolean }) {
+      return this.killerStats.filter((stat) => {
+        if (
+          options.since &&
+          new Date(stat.legs.createdAt).getTime() < options.since.getTime()
+        )
+          return false
+
+        if (!options.allowUnfinished && !stat.legs.finish) return false
+
+        return true
+      })
+    },
+
+    getSkovhugger(options: { since?: Date; allowUnfinished?: boolean }) {
+      return this.skovhuggerStats.filter((stat) => {
+        if (
+          options.since &&
+          new Date(stat.legs.createdAt).getTime() < options.since.getTime()
+        )
+          return false
+
+        if (!options.allowUnfinished && !stat.legs.finish) return false
+
+        return true
+      })
     },
   },
 

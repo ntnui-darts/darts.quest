@@ -115,6 +115,7 @@ import { getFirst9Avg } from '@/games/x01'
 import { getRtcHitRate } from '@/games/rtc'
 import { ref, computed, onMounted } from 'vue'
 import { getTypeAttribute } from '@/types/game'
+import { addDays } from 'date-fns'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
@@ -125,12 +126,6 @@ const selected = ref<7 | 30 | 365 | 'other'>(365)
 const rtcModeHistory = ref('1')
 const rtcModeDartboard = ref('1')
 const startScore = ref('All')
-
-const addDays = (date: Date, days: number) => {
-  const result = new Date(date)
-  result.setDate(result.getDate() + days)
-  return result
-}
 
 const setLastDays = (days: 7 | 30 | 365) => {
   endDate.value = toYyyyMmDd(addDays(new Date(), 1))
