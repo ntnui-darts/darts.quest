@@ -12,8 +12,10 @@
       :datasets="rtcNumberOfGamesDataset"
       :show-smooth-button="false"
     ></Chart>
-    <h2>RTC Hit Rate</h2>
+    <h2>Hit Rate</h2>
     <Chart :datasets="rtcHitRateDataset"></Chart>
+    <h2>Win Rate</h2>
+    <Chart :datasets="rtcWinRateDataset"></Chart>
     <h2>RTC Streak</h2>
     <Chart :datasets="rtcStreakDataset"></Chart>
   </div>
@@ -23,6 +25,8 @@
       :datasets="x01NumberOfGamesDataset"
       :show-smooth-button="false"
     ></Chart>
+    <h2>Win Rate</h2>
+    <Chart :datasets="x01WinRateDataset"></Chart>
     <h2>First 9 Average</h2>
     <Chart :datasets="x01First9AvgDataset"></Chart>
     <h2>Checkout</h2>
@@ -36,6 +40,8 @@
       :datasets="killerNumberOfGamesDataset"
       :show-smooth-button="false"
     ></Chart>
+    <h2>Win Rate</h2>
+    <Chart :datasets="killerWinRateDataset"></Chart>
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
   </div>
@@ -47,6 +53,8 @@
     ></Chart>
     <h2>Score</h2>
     <Chart :datasets="skovhuggerScoreDataset"></Chart>
+    <h2>Win Rate</h2>
+    <Chart :datasets="skovhuggerWinRateDataset"></Chart>
   </div>
 </template>
 
@@ -128,6 +136,14 @@ const rtcStreakDataset = computed(() => {
       .map((stat) => ({ x: new Date(stat.legs.createdAt), y: stat.maxStreak })),
   }))
 })
+const rtcWinRateDataset = computed(() => {
+  return rtcUsers.value.map((user) => ({
+    label: userStore.getUser(user)?.name ?? 'Unknown',
+    data: rtcStats.value
+      .filter((s) => s.legs.userId == user)
+      .map((stat) => ({ x: new Date(stat.legs.createdAt), y: stat.winRate })),
+  }))
+})
 
 const x01Users = computed(() =>
   Array.from(new Set(statsStore.x01Stats.map((s) => s.legs.userId)))
@@ -173,6 +189,17 @@ const x01MaxVisitScoreDataset = computed(() => {
       })),
   }))
 })
+const x01WinRateDataset = computed(() => {
+  return x01Users.value.map((user) => ({
+    label: userStore.getUser(user)?.name ?? 'Unknown',
+    data: x01Stats.value
+      .filter((s) => s.legs.userId == user)
+      .map((stat) => ({
+        x: new Date(stat.legs.createdAt),
+        y: stat.winRate,
+      })),
+  }))
+})
 
 const killerUsers = computed(() =>
   Array.from(new Set(statsStore.killerStats.map((s) => s.legs.userId)))
@@ -199,6 +226,17 @@ const killerDartsDataset = computed(() => {
       })),
   }))
 })
+const killerWinRateDataset = computed(() => {
+  return killerUsers.value.map((user) => ({
+    label: userStore.getUser(user)?.name ?? 'Unknown',
+    data: killerStats.value
+      .filter((s) => s.legs.userId == user)
+      .map((stat) => ({
+        x: new Date(stat.legs.createdAt),
+        y: stat.winRate,
+      })),
+  }))
+})
 
 const skovhuggerUsers = computed(() =>
   Array.from(new Set(statsStore.skovhuggerStats.map((s) => s.legs.userId)))
@@ -222,6 +260,17 @@ const skovhuggerScoreDataset = computed(() => {
       .map((stat) => ({
         x: new Date(stat.legs.createdAt),
         y: stat.score,
+      })),
+  }))
+})
+const skovhuggerWinRateDataset = computed(() => {
+  return skovhuggerUsers.value.map((user) => ({
+    label: userStore.getUser(user)?.name ?? 'Unknown',
+    data: skovhuggerStats.value
+      .filter((s) => s.legs.userId == user)
+      .map((stat) => ({
+        x: new Date(stat.legs.createdAt),
+        y: stat.winRate,
       })),
   }))
 })

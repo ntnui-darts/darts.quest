@@ -136,7 +136,7 @@ export const useGameStore = defineStore('game', {
           leg.finish = true
         }
         await supabase.from('legs').insert({ ...leg, type: leg.type })
-        await upsertLegStatistics(leg)
+        await upsertLegStatistics(leg, this.game)
       }
       useStatsStore().fetchAll()
     },

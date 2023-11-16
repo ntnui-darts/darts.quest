@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { supabase } from '@/supabase'
-import { DbGame, Leg, getTypeAttribute } from '@/types/game'
+import { DbGame, Game, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
@@ -127,9 +127,7 @@ export const useStatsStore = defineStore('stats', {
       compress: (old: number, next: number, userId: string) => number
     ) {
       const filtered = key
-        ? stats.filter(
-            (userStat) => userStat[key] != null && userStat[key] != 0
-          )
+        ? stats.filter((userStat) => userStat[key] != null)
         : stats
 
       const result: Record<string, number> = {}
@@ -298,6 +296,10 @@ export const useStatsStore = defineStore('stats', {
   },
 })
 
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useStatsStore, import.meta.hot))
+}
+
 export const toPercentage = (n: number) => {
   return Math.round(n * 1000) / 10 + ' %'
 }
@@ -306,13 +308,20 @@ export const roundToNDecimals = (value: number, n: number) => {
   return Math.round(value * Math.pow(10, n)) / Math.pow(10, n)
 }
 
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useStatsStore, import.meta.hot))
+const getWinRate = (game: Pick<Game, 'result' | 'players'>, userId: string) => {
+  if (game.players.length < 2) return null
+  let index = game.result.indexOf(userId)
+  if (index < 0) return 0
+  return (game.players.length - index - 1) / (game.players.length - 1)
 }
 
-export const upsertLegStatistics = async (leg: Leg) => {
+export const upsertLegStatistics = async (
+  leg: Leg,
+  game: Pick<Game, 'result' | 'players'>
+) => {
   const segments = leg.visits.flat().filter((s) => s != null)
   const darts = segments.length
+  const winRate = getWinRate(game, leg.userId)
 
   switch (leg.type) {
     case 'x01':
@@ -330,6 +339,7 @@ export const upsertLegStatistics = async (leg: Leg) => {
         maxVisitScore,
         first9Avg,
         checkout,
+        winRate,
       })
       break
 
@@ -341,6 +351,7 @@ export const upsertLegStatistics = async (leg: Leg) => {
         darts,
         maxStreak,
         hitRate,
+        winRate,
       })
       break
 
@@ -348,6 +359,7 @@ export const upsertLegStatistics = async (leg: Leg) => {
       await supabase.from('statistics_killer').upsert({
         id: leg.id,
         darts,
+        winRate,
       })
       break
 
@@ -355,6 +367,7 @@ export const upsertLegStatistics = async (leg: Leg) => {
       await supabase.from('statistics_skovhugger').upsert({
         id: leg.id,
         score: getSkovhuggerScore(leg.visits),
+        winRate,
       })
       break
   }

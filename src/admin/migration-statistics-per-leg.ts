@@ -13,16 +13,19 @@ export const migrateToStatisticsPerLeg = async () => {
   const id = useAuthStore().auth?.id
   if (!id) throw Error()
 
+  const gamesResponse = await supabase.from('games').select('*')
+  if (!gamesResponse.data) throw Error()
   const legsResponse = await supabase.from('legs').select('*')
   if (!legsResponse.data) throw Error()
   const legs = legsResponse.data as Leg[]
   legs.forEach(async (leg) => {
-    if (leg.type == 'x01') {
-      await upsertLegStatistics(leg)
-      console.log(`Updated leg ${leg.id}`)
-    } else {
-      console.log(`Already there.`)
+    const game = gamesResponse.data.find((game) => game.id == leg.gameId)
+    if (!game) {
+      console.log(`Could not find gameId ${leg.gameId} for leg ${leg.id}`)
+      return
     }
+    await upsertLegStatistics(leg, game)
+    console.log(`Updated leg ${leg.id}`)
   })
   console.log('Completed migration of legs')
 }

@@ -111,14 +111,17 @@ export interface Database {
         Row: {
           darts: number | null
           id: string
+          winRate: number | null
         }
         Insert: {
           darts?: number | null
           id: string
+          winRate?: number | null
         }
         Update: {
           darts?: number | null
           id?: string
+          winRate?: number | null
         }
         Relationships: [
           {
@@ -136,18 +139,21 @@ export interface Database {
           hitRate: number | null
           id: string
           maxStreak: number | null
+          winRate: number | null
         }
         Insert: {
           darts?: number | null
           hitRate?: number | null
           id: string
           maxStreak?: number | null
+          winRate?: number | null
         }
         Update: {
           darts?: number | null
           hitRate?: number | null
           id?: string
           maxStreak?: number | null
+          winRate?: number | null
         }
         Relationships: [
           {
@@ -163,14 +169,17 @@ export interface Database {
         Row: {
           id: string
           score: number | null
+          winRate: number | null
         }
         Insert: {
           id: string
           score?: number | null
+          winRate?: number | null
         }
         Update: {
           id?: string
           score?: number | null
+          winRate?: number | null
         }
         Relationships: [
           {
@@ -189,6 +198,7 @@ export interface Database {
           first9Avg: number | null
           id: string
           maxVisitScore: number | null
+          winRate: number | null
         }
         Insert: {
           checkout?: number | null
@@ -196,6 +206,7 @@ export interface Database {
           first9Avg?: number | null
           id: string
           maxVisitScore?: number | null
+          winRate?: number | null
         }
         Update: {
           checkout?: number | null
@@ -203,6 +214,7 @@ export interface Database {
           first9Avg?: number | null
           id?: string
           maxVisitScore?: number | null
+          winRate?: number | null
         }
         Relationships: [
           {
