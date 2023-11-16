@@ -7,11 +7,13 @@
     @update-type-attributes="typeAttributes = $event"
   ></GameSelection>
   <div v-if="gameType == 'rtc'">
-    <h2>Number of Games</h2>
-    <Chart
-      :datasets="rtcNumberOfGamesDataset"
-      :show-smooth-button="false"
-    ></Chart>
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="rtcNumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
     <h2>Hit Rate</h2>
     <Chart :datasets="rtcHitRateDataset"></Chart>
     <h2>Win Rate</h2>
@@ -20,11 +22,13 @@
     <Chart :datasets="rtcStreakDataset"></Chart>
   </div>
   <div v-if="gameType == 'x01'">
-    <h2>Number of Games</h2>
-    <Chart
-      :datasets="x01NumberOfGamesDataset"
-      :show-smooth-button="false"
-    ></Chart>
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="x01NumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
     <h2>Win Rate</h2>
     <Chart :datasets="x01WinRateDataset"></Chart>
     <h2>First 9 Average</h2>
@@ -35,22 +39,26 @@
     <Chart :datasets="x01MaxVisitScoreDataset"></Chart>
   </div>
   <div v-if="gameType == 'killer'">
-    <h2>Number of Games</h2>
-    <Chart
-      :datasets="killerNumberOfGamesDataset"
-      :show-smooth-button="false"
-    ></Chart>
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="killerNumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
     <h2>Win Rate</h2>
     <Chart :datasets="killerWinRateDataset"></Chart>
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
   </div>
   <div v-if="gameType == 'skovhugger'">
-    <h2>Number of Games</h2>
-    <Chart
-      :datasets="skovhuggerNumberOfGamesDataset"
-      :show-smooth-button="false"
-    ></Chart>
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="skovhuggerNumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
     <h2>Score</h2>
     <Chart :datasets="skovhuggerScoreDataset"></Chart>
     <h2>Win Rate</h2>
@@ -77,6 +85,7 @@ const typeAttributes = ref<string[]>([])
 const props = defineProps<{
   userId?: string
   borderColor?: string
+  ignore?: string[]
 }>()
 
 const checkTypeAttribute = (ta: string, typeAttributes: string[]) =>

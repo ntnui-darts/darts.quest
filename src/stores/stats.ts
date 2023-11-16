@@ -36,6 +36,7 @@ const compareLegsCreatedAt = (
 
 export const useStatsStore = defineStore('stats', {
   state: () => ({
+    loading: true,
     legs: [] as Leg[],
     games: [] as DbGame[],
     x01Stats: [] as X01Stat[],
@@ -46,9 +47,11 @@ export const useStatsStore = defineStore('stats', {
 
   actions: {
     async fetchAll() {
+      this.loading = true
       await this.fetchGames()
       await this.fetchLegs()
       await this.fetchStats()
+      this.loading = false
     },
 
     async fetchLegs() {

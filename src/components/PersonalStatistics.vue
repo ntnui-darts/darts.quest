@@ -72,6 +72,7 @@
     v-if="userId"
     :user-id="userId"
     :border-color="borderColor"
+    :ignore="['numberOfGames']"
   ></HistoryStatistics>
 
   <h3>Last 10 Games</h3>
@@ -149,6 +150,7 @@ const legs = computed(() => {
 })
 
 const numberOfGamesDataset = computed(() => {
+  if (statsStore.loading) return []
   return Object.entries(GameTypeNames).map(([key, name]) => {
     let y = 1
     return {
