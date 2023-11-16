@@ -62,12 +62,14 @@
 import Chart from './Chart.vue'
 import GameSelection from './GameSelection.vue'
 import { GameType } from '@/games/games'
-import { AnyStat, useStatsStore } from '@/stores/stats'
-import { useUsersStore } from '@/stores/users'
+import {
+  useStatsStore,
+  getNumberOfGamesDataset,
+  getDataset,
+} from '@/stores/stats'
 import { computed, ref } from 'vue'
 
 const statsStore = useStatsStore()
-const userStore = useUsersStore()
 
 const gameType = ref<GameType>('x01')
 const typeAttributes = ref<string[]>([])
@@ -81,6 +83,10 @@ const checkTypeAttribute = (ta: string, typeAttributes: string[]) =>
   typeAttributes.includes(ta) ||
   (ta.endsWith(':false') &&
     !typeAttributes.includes(`${ta.split(':')[0]}:true`))
+
+const options = computed(() => ({
+  borderColor: props.borderColor,
+}))
 
 const rtcStats = computed(() =>
   statsStore.rtcStats.filter((stat) =>
@@ -111,55 +117,37 @@ const skovhuggerStats = computed(() =>
   )
 )
 
-const dataset = <T extends AnyStat>(
-  users: string[],
-  stats: T[],
-  getY: (s: T) => number | null
-) => {
-  return users.map((user) => ({
-    label: userStore.getUser(user)?.name ?? 'Unknown',
-    borderColor: props.borderColor,
-    data: stats
-      .filter((s) => s.legs.userId == user && getY(s) != null)
-      .map((stat) => ({
-        x: new Date(stat.legs.createdAt),
-        y: getY(stat),
-      })),
-  }))
-}
-
-const numberOfGamesDataset = <T extends AnyStat>(
-  users: string[],
-  stats: T[]
-) => {
-  return users.map((user) => {
-    let y = 1
-    return {
-      label: userStore.getUser(user)?.name ?? 'Unknown',
-      borderColor: props.borderColor,
-      data: stats
-        .filter((s) => s.legs.userId == user)
-        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
-    }
-  })
-}
-
 const rtcUsers = computed(() =>
   props.userId
     ? [props.userId]
     : Array.from(new Set(statsStore.rtcStats.map((s) => s.legs.userId)))
 )
 const rtcNumberOfGamesDataset = computed(() => {
-  return numberOfGamesDataset(rtcUsers.value, rtcStats.value)
+  return getNumberOfGamesDataset(rtcUsers.value, rtcStats.value, options.value)
 })
 const rtcHitRateDataset = computed(() => {
-  return dataset(rtcUsers.value, rtcStats.value, (stat) => stat.hitRate)
+  return getDataset(
+    rtcUsers.value,
+    rtcStats.value,
+    (stat) => stat.hitRate,
+    options.value
+  )
 })
 const rtcStreakDataset = computed(() => {
-  return dataset(rtcUsers.value, rtcStats.value, (stat) => stat.maxStreak)
+  return getDataset(
+    rtcUsers.value,
+    rtcStats.value,
+    (stat) => stat.maxStreak,
+    options.value
+  )
 })
 const rtcWinRateDataset = computed(() => {
-  return dataset(rtcUsers.value, rtcStats.value, (stat) => stat.winRate)
+  return getDataset(
+    rtcUsers.value,
+    rtcStats.value,
+    (stat) => stat.winRate,
+    options.value
+  )
 })
 
 const x01Users = computed(() =>
@@ -168,19 +156,39 @@ const x01Users = computed(() =>
     : Array.from(new Set(statsStore.x01Stats.map((s) => s.legs.userId)))
 )
 const x01NumberOfGamesDataset = computed(() => {
-  return numberOfGamesDataset(x01Users.value, x01Stats.value)
+  return getNumberOfGamesDataset(x01Users.value, x01Stats.value, options.value)
 })
 const x01First9AvgDataset = computed(() => {
-  return dataset(x01Users.value, x01Stats.value, (stat) => stat.first9Avg)
+  return getDataset(
+    x01Users.value,
+    x01Stats.value,
+    (stat) => stat.first9Avg,
+    options.value
+  )
 })
 const x01CheckoutDataset = computed(() => {
-  return dataset(x01Users.value, x01Stats.value, (stat) => stat.checkout)
+  return getDataset(
+    x01Users.value,
+    x01Stats.value,
+    (stat) => stat.checkout,
+    options.value
+  )
 })
 const x01MaxVisitScoreDataset = computed(() => {
-  return dataset(x01Users.value, x01Stats.value, (stat) => stat.maxVisitScore)
+  return getDataset(
+    x01Users.value,
+    x01Stats.value,
+    (stat) => stat.maxVisitScore,
+    options.value
+  )
 })
 const x01WinRateDataset = computed(() => {
-  return dataset(x01Users.value, x01Stats.value, (stat) => stat.winRate)
+  return getDataset(
+    x01Users.value,
+    x01Stats.value,
+    (stat) => stat.winRate,
+    options.value
+  )
 })
 
 const killerUsers = computed(() =>
@@ -189,13 +197,27 @@ const killerUsers = computed(() =>
     : Array.from(new Set(statsStore.killerStats.map((s) => s.legs.userId)))
 )
 const killerNumberOfGamesDataset = computed(() => {
-  return numberOfGamesDataset(killerUsers.value, killerStats.value)
+  return getNumberOfGamesDataset(
+    killerUsers.value,
+    killerStats.value,
+    options.value
+  )
 })
 const killerDartsDataset = computed(() => {
-  return dataset(killerUsers.value, killerStats.value, (stat) => stat.darts)
+  return getDataset(
+    killerUsers.value,
+    killerStats.value,
+    (stat) => stat.darts,
+    options.value
+  )
 })
 const killerWinRateDataset = computed(() => {
-  return dataset(killerUsers.value, killerStats.value, (stat) => stat.winRate)
+  return getDataset(
+    killerUsers.value,
+    killerStats.value,
+    (stat) => stat.winRate,
+    options.value
+  )
 })
 
 const skovhuggerUsers = computed(() =>
@@ -204,20 +226,26 @@ const skovhuggerUsers = computed(() =>
     : Array.from(new Set(statsStore.skovhuggerStats.map((s) => s.legs.userId)))
 )
 const skovhuggerNumberOfGamesDataset = computed(() => {
-  return numberOfGamesDataset(skovhuggerUsers.value, skovhuggerStats.value)
-})
-const skovhuggerScoreDataset = computed(() => {
-  return dataset(
+  return getNumberOfGamesDataset(
     skovhuggerUsers.value,
     skovhuggerStats.value,
-    (stat) => stat.score
+    options.value
+  )
+})
+const skovhuggerScoreDataset = computed(() => {
+  return getDataset(
+    skovhuggerUsers.value,
+    skovhuggerStats.value,
+    (stat) => stat.score,
+    options.value
   )
 })
 const skovhuggerWinRateDataset = computed(() => {
-  return dataset(
+  return getDataset(
     skovhuggerUsers.value,
     skovhuggerStats.value,
-    (stat) => stat.winRate
+    (stat) => stat.winRate,
+    options.value
   )
 })
 </script>

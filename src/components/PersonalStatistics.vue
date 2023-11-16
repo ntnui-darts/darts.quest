@@ -1,39 +1,7 @@
 <template>
-  <div class="row spaced">
-    <div>
-      <p style="min-width: 100px">
-        {{ statsStore.getNumberOfWins }} wins. <br />
-        {{ statsStore.getNumberOfLosses }} losses. <br />
-        {{ statsStore.getNumberOfSoloGames }} solo games. <br />
-      </p>
-    </div>
-  </div>
-  <div class="row options" style="position: sticky; top: 1em; z-index: 10">
-    <button
-      v-for="days in ([7, 30, 365] as const)"
-      @click="setLastDays(days)"
-      :class="{ selected: selected == days }"
-    >
-      Last {{ days }} days
-    </button>
-  </div>
-  <div class="row" style="align-items: center">
-    <input
-      id="startDate"
-      type="date"
-      v-model="startDate"
-      style="flex: 1"
-      @change="selected = 'other'"
-    />
-    <span>→</span>
-    <input
-      id="endDate"
-      type="date"
-      v-model="endDate"
-      style="flex: 1"
-      @change="selected = 'other'"
-    />
-  </div>
+  <h2>Number of Games</h2>
+  <Chart :datasets="numberOfGamesDataset" :show-smooth-button="false"></Chart>
+
   <h2>X01</h2>
   <div class="row options">
     <button
@@ -51,6 +19,36 @@
     stat-type="x01"
     title="X01"
   ></DartboardChart>
+
+  <!-- style="position: sticky; top: 1em; z-index: 10"> -->
+  <div class="row options">
+    <button
+      v-for="days in ([7, 30, 365] as const)"
+      @click="setLastDays(days)"
+      :class="{ selected: selected == days }"
+    >
+      Last {{ days }} days
+    </button>
+  </div>
+
+  <!-- <div class="row" style="align-items: center">
+    <input
+      id="startDate"
+      type="date"
+      v-model="startDate"
+      style="flex: 1"
+      @change="selected = 'other'"
+    />
+    <span>→</span>
+    <input
+      id="endDate"
+      type="date"
+      v-model="endDate"
+      style="flex: 1"
+      @change="selected = 'other'"
+    />
+  </div> -->
+
   <h2>Round the Clock</h2>
   <div class="row options">
     <button
@@ -61,6 +59,7 @@
       {{ ['All', 'Single', 'Double', 'Triple'][i] }}
     </button>
   </div>
+
   <DartboardChart
     :visits="rtcVisitsDartboard"
     :width="300"
@@ -72,7 +71,7 @@
   <HistoryStatistics
     v-if="userId"
     :user-id="userId"
-    border-color="rgb(19, 221, 97)"
+    :border-color="borderColor"
   ></HistoryStatistics>
 
   <h3>Last 10 Games</h3>
@@ -84,12 +83,14 @@
 <script lang="ts" setup>
 import LegStats from '@/components/LegStats.vue'
 import DartboardChart from '@/components/DartboardChart.vue'
+import HistoryStatistics from './HistoryStatistics.vue'
 import { useStatsStore } from '@/stores/stats'
 import { ref, computed, onMounted } from 'vue'
 import { getTypeAttribute } from '@/types/game'
 import { addDays } from 'date-fns'
-import HistoryStatistics from './HistoryStatistics.vue'
 import { useAuthStore } from '@/stores/auth'
+import Chart from './Chart.vue'
+import { GameType, GameTypeNames } from '@/games/games'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
@@ -99,6 +100,7 @@ const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
 const rtcModeDartboard = ref('1')
 const startScore = ref('All')
+const borderColor = 'rgb(19, 221, 97)'
 
 const setLastDays = (days: 7 | 30 | 365) => {
   endDate.value = toYyyyMmDd(addDays(new Date(), 1))
@@ -143,6 +145,19 @@ const legs = computed(() => {
       (!startDate.value || new Date(startDate.value).getTime() <= time) &&
       (!endDate.value || time <= new Date(endDate.value).getTime())
     )
+  })
+})
+
+const numberOfGamesDataset = computed(() => {
+  return Object.entries(GameTypeNames).map(([key, name]) => {
+    let y = 1
+    return {
+      label: name,
+      data: statsStore
+        .getStats(key as GameType)
+        .filter((s) => s.legs.userId == userId.value)
+        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
+    }
   })
 })
 </script>

@@ -8,6 +8,7 @@ import { getMaxStreak, getRtcHitRate } from '@/games/rtc'
 import { getSkovhuggerScore } from '@/games/skovhugger'
 import { compareCreatedAt } from '@/functions/compare'
 import type { GameType } from '@/games/games'
+import { useUsersStore } from './users'
 
 type LegJoin = {
   legs: {
@@ -298,6 +299,41 @@ export const useStatsStore = defineStore('stats', {
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useStatsStore, import.meta.hot))
+}
+
+export const getDataset = <T extends AnyStat>(
+  users: string[],
+  stats: T[],
+  getY: (s: T) => number | null,
+  options: object
+) => {
+  return users.map((user) => ({
+    ...options,
+    label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+    data: stats
+      .filter((s) => s.legs.userId == user && getY(s) != null)
+      .map((stat) => ({
+        x: new Date(stat.legs.createdAt),
+        y: getY(stat),
+      })),
+  }))
+}
+
+export const getNumberOfGamesDataset = <T extends AnyStat>(
+  users: string[],
+  stats: T[],
+  options: object
+) => {
+  return users.map((user) => {
+    let y = 1
+    return {
+      ...options,
+      label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+      data: stats
+        .filter((s) => s.legs.userId == user)
+        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
+    }
+  })
 }
 
 export const toPercentage = (n: number) => {
