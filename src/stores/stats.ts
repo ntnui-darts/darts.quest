@@ -169,6 +169,10 @@ export const useStatsStore = defineStore('stats', {
       return this.getCompressed(stats, null, 0, false, (old) => old + 1)
     },
 
+    getSum<T extends AnyStat>(stats: T[], key: keyof Omit<T, 'id' | 'legs'>) {
+      return this.getCompressed(stats, key, 0, false, (old, next) => old + next)
+    },
+
     getAvg<T extends AnyStat>(
       stats: T[],
       key: keyof Omit<T, 'id' | 'legs'>,

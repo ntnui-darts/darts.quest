@@ -144,6 +144,14 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
                 ),
             },
             {
+              text: 'Elo Delta',
+              userStats: (d) =>
+                store.getSum(
+                  store.getX01({ since: d, allowUnfinished: true }),
+                  'eloDelta'
+                ),
+            },
+            {
               text: 'Average First 9 Avg',
               userStats: (d) =>
                 store.getAvg(
@@ -173,21 +181,21 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           ]
         case '301 Double':
           return [
-            {
-              text: 'Average Win Rate',
-              userStats: (d) =>
-                store.getAvg(
-                  store.getX01({
-                    since: d,
-                    allowUnfinished: true,
-                    startScore: 301,
-                    finish: 2,
-                  }),
-                  'winRate',
-                  false
-                ),
-              transform: toPercentage,
-            },
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getX01({
+            //         since: d,
+            //         allowUnfinished: true,
+            //         startScore: 301,
+            //         finish: 2,
+            //       }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
             {
               text: 'Average # Darts',
               userStats: (d) =>
@@ -215,21 +223,21 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           ]
         case '501 Double':
           return [
-            {
-              text: 'Average Win Rate',
-              userStats: (d) =>
-                store.getAvg(
-                  store.getX01({
-                    since: d,
-                    allowUnfinished: true,
-                    startScore: 501,
-                    finish: 2,
-                  }),
-                  'winRate',
-                  false
-                ),
-              transform: toPercentage,
-            },
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getX01({
+            //         since: d,
+            //         allowUnfinished: true,
+            //         startScore: 501,
+            //         finish: 2,
+            //       }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
             {
               text: 'Average # Darts',
               userStats: (d) =>
@@ -270,6 +278,14 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
                 ),
             },
             {
+              text: 'Elo Delta',
+              userStats: (d) =>
+                store.getSum(
+                  store.getRtc({ since: d, allowUnfinished: true }),
+                  'eloDelta'
+                ),
+            },
+            {
               text: 'Fewest Darts',
               userStats: (d) =>
                 store.getMin(store.getRtc({ since: d }), 'darts'),
@@ -295,16 +311,16 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
                 ),
               transform: toPercentage,
             },
-            {
-              text: 'Average Win Rate',
-              userStats: (d) =>
-                store.getAvg(
-                  store.getRtc({ since: d, allowUnfinished: true, mode: 1 }),
-                  'winRate',
-                  false
-                ),
-              transform: toPercentage,
-            },
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getRtc({ since: d, allowUnfinished: true, mode: 1 }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
           ]
         case 'Double':
           return [
@@ -318,16 +334,16 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
                 ),
               transform: toPercentage,
             },
-            {
-              text: 'Average Win Rate',
-              userStats: (d) =>
-                store.getAvg(
-                  store.getRtc({ since: d, allowUnfinished: true, mode: 2 }),
-                  'winRate',
-                  false
-                ),
-              transform: toPercentage,
-            },
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getRtc({ since: d, allowUnfinished: true, mode: 2 }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
           ]
         case 'Triple':
           return [
@@ -341,16 +357,16 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
                 ),
               transform: toPercentage,
             },
-            {
-              text: 'Average Win Rate',
-              userStats: (d) =>
-                store.getAvg(
-                  store.getRtc({ since: d, allowUnfinished: true, mode: 3 }),
-                  'winRate',
-                  false
-                ),
-              transform: toPercentage,
-            },
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getRtc({ since: d, allowUnfinished: true, mode: 3 }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
           ]
         default:
           return []
@@ -362,15 +378,23 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           userStats: (d) => store.getCount(store.getKiller({ since: d })),
         },
         {
-          text: 'Average Win Rate',
+          text: 'Elo Delta',
           userStats: (d) =>
-            store.getAvg(
+            store.getSum(
               store.getKiller({ since: d, allowUnfinished: true }),
-              'winRate',
-              false
+              'eloDelta'
             ),
-          transform: toPercentage,
         },
+        // {
+        //   text: 'Average Win Rate',
+        //   userStats: (d) =>
+        //     store.getAvg(
+        //       store.getKiller({ since: d, allowUnfinished: true }),
+        //       'winRate',
+        //       false
+        //     ),
+        //   transform: toPercentage,
+        // },
       ]
     case 'skovhugger':
       return [
@@ -379,15 +403,23 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           userStats: (d) => store.getCount(store.getSkovhugger({ since: d })),
         },
         {
-          text: 'Average Win Rate',
+          text: 'Elo Delta',
           userStats: (d) =>
-            store.getAvg(
+            store.getSum(
               store.getSkovhugger({ since: d, allowUnfinished: true }),
-              'winRate',
-              false
+              'eloDelta'
             ),
-          transform: toPercentage,
         },
+        // {
+        //   text: 'Average Win Rate',
+        //   userStats: (d) =>
+        //     store.getAvg(
+        //       store.getSkovhugger({ since: d, allowUnfinished: true }),
+        //       'winRate',
+        //       false
+        //     ),
+        //   transform: toPercentage,
+        // },
         {
           text: 'Average Score',
           userStats: (d) =>
