@@ -72,6 +72,11 @@ const userStore = useUsersStore()
 const gameType = ref<GameType>('x01')
 const typeAttributes = ref<string[]>([])
 
+const props = defineProps<{
+  userId?: string
+  borderColor?: string
+}>()
+
 const checkTypeAttribute = (ta: string, typeAttributes: string[]) =>
   typeAttributes.includes(ta) ||
   (ta.endsWith(':false') &&
@@ -113,8 +118,9 @@ const dataset = <T extends AnyStat>(
 ) => {
   return users.map((user) => ({
     label: userStore.getUser(user)?.name ?? 'Unknown',
+    borderColor: props.borderColor,
     data: stats
-      .filter((s) => s.legs.userId == user)
+      .filter((s) => s.legs.userId == user && getY(s) != null)
       .map((stat) => ({
         x: new Date(stat.legs.createdAt),
         y: getY(stat),
@@ -130,6 +136,7 @@ const numberOfGamesDataset = <T extends AnyStat>(
     let y = 1
     return {
       label: userStore.getUser(user)?.name ?? 'Unknown',
+      borderColor: props.borderColor,
       data: stats
         .filter((s) => s.legs.userId == user)
         .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
@@ -138,7 +145,9 @@ const numberOfGamesDataset = <T extends AnyStat>(
 }
 
 const rtcUsers = computed(() =>
-  Array.from(new Set(statsStore.rtcStats.map((s) => s.legs.userId)))
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.rtcStats.map((s) => s.legs.userId)))
 )
 const rtcNumberOfGamesDataset = computed(() => {
   return numberOfGamesDataset(rtcUsers.value, rtcStats.value)
@@ -154,7 +163,9 @@ const rtcWinRateDataset = computed(() => {
 })
 
 const x01Users = computed(() =>
-  Array.from(new Set(statsStore.x01Stats.map((s) => s.legs.userId)))
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.x01Stats.map((s) => s.legs.userId)))
 )
 const x01NumberOfGamesDataset = computed(() => {
   return numberOfGamesDataset(x01Users.value, x01Stats.value)
@@ -173,7 +184,9 @@ const x01WinRateDataset = computed(() => {
 })
 
 const killerUsers = computed(() =>
-  Array.from(new Set(statsStore.killerStats.map((s) => s.legs.userId)))
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.killerStats.map((s) => s.legs.userId)))
 )
 const killerNumberOfGamesDataset = computed(() => {
   return numberOfGamesDataset(killerUsers.value, killerStats.value)
@@ -181,15 +194,15 @@ const killerNumberOfGamesDataset = computed(() => {
 const killerDartsDataset = computed(() => {
   return dataset(killerUsers.value, killerStats.value, (stat) => stat.darts)
 })
-
 const killerWinRateDataset = computed(() => {
   return dataset(killerUsers.value, killerStats.value, (stat) => stat.winRate)
 })
 
 const skovhuggerUsers = computed(() =>
-  Array.from(new Set(statsStore.skovhuggerStats.map((s) => s.legs.userId)))
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.skovhuggerStats.map((s) => s.legs.userId)))
 )
-
 const skovhuggerNumberOfGamesDataset = computed(() => {
   return numberOfGamesDataset(skovhuggerUsers.value, skovhuggerStats.value)
 })

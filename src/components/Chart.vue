@@ -33,12 +33,27 @@ let chart: Chart<any> | null = null
 const buildChart = async () => {
   if (!chartElement.value) return
 
-  const datasets = props.datasets
+  let datasets = props.datasets
     .filter((data) => data.data.length > 0)
     .map((dataset) => ({
       ...dataset,
       data: smoothEnabled.value ? smoothPoints(dataset.data) : dataset.data,
     }))
+
+  if (smoothEnabled.value && props.datasets.length == 1) {
+    const dataset = props.datasets[0]
+    datasets = [
+      {
+        ...dataset,
+        label: `Smooth`,
+        data: smoothPoints(dataset.data),
+      },
+      {
+        ...dataset,
+        borderColor: '#555555',
+      },
+    ]
+  }
 
   if (chart) {
     chart.data.datasets = datasets

@@ -68,38 +68,13 @@
     stat-type="rtc"
     title="RTC"
   ></DartboardChart>
-  <h3>X01 Number of Visits</h3>
-  <LegHistoryChart
-    :legs="legs"
-    :y="(leg) => leg.visits.length"
-    :group-by-type="true"
-    :show-smooth-button="true"
-  ></LegHistoryChart>
-  <h3>First 9 Average</h3>
-  <LegHistoryChart
-    :legs="x01Legs"
-    :y="(leg) => getFirst9Avg(leg.visits, leg)"
-    :group-by-type="false"
-    :show-smooth-button="false"
-  ></LegHistoryChart>
-  <h3>RTC Hit rate</h3>
-  <div class="row options">
-    <button
-      v-for="(option, i) in ['1', '2', '3']"
-      :class="{ selected: rtcModeHistory == option }"
-      @click="rtcModeHistory = option"
-    >
-      {{ ['Single', 'Double', 'Triple'][i] }}
-    </button>
-  </div>
-  <LegHistoryChart
-    :legs="rtcLegsHistory"
-    :y="(leg) => getRtcHitRate(leg.visits)"
-    :group-by-type="false"
-    :show-smooth-button="false"
-  ></LegHistoryChart>
-  <br />
-  <br />
+
+  <HistoryStatistics
+    v-if="userId"
+    :user-id="userId"
+    border-color="rgb(19, 221, 97)"
+  ></HistoryStatistics>
+
   <h3>Last 10 Games</h3>
   <div v-for="leg in legs.slice(-10).toReversed()">
     <LegStats :leg="leg"></LegStats>
@@ -109,13 +84,12 @@
 <script lang="ts" setup>
 import LegStats from '@/components/LegStats.vue'
 import DartboardChart from '@/components/DartboardChart.vue'
-import LegHistoryChart from '@/components/LegHistoryChart.vue'
 import { useStatsStore } from '@/stores/stats'
-import { getFirst9Avg } from '@/games/x01'
-import { getRtcHitRate } from '@/games/rtc'
 import { ref, computed, onMounted } from 'vue'
 import { getTypeAttribute } from '@/types/game'
 import { addDays } from 'date-fns'
+import HistoryStatistics from './HistoryStatistics.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
@@ -123,7 +97,6 @@ const statsStore = useStatsStore()
 const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
-const rtcModeHistory = ref('1')
 const rtcModeDartboard = ref('1')
 const startScore = ref('All')
 
@@ -132,6 +105,8 @@ const setLastDays = (days: 7 | 30 | 365) => {
   startDate.value = toYyyyMmDd(addDays(new Date(), -days))
   selected.value = days
 }
+
+const userId = computed(() => useAuthStore().auth?.id)
 
 const x01Legs = computed(() => legs.value.filter((leg) => leg.type == 'x01'))
 const x01Visits = computed(() =>
@@ -145,11 +120,7 @@ const x01Visits = computed(() =>
     .flat()
 )
 const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
-const rtcLegsHistory = computed(() =>
-  rtcLegs.value.filter(
-    (leg) => getTypeAttribute(leg, 'mode', '') == rtcModeHistory.value
-  )
-)
+
 const rtcVisitsDartboard = computed(() =>
   rtcLegs.value
     .filter(
@@ -162,7 +133,7 @@ const rtcVisitsDartboard = computed(() =>
 )
 
 onMounted(() => {
-  setLastDays(365)
+  setLastDays(7)
 })
 
 const legs = computed(() => {
