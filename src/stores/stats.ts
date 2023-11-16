@@ -26,7 +26,7 @@ export type KillerStat =
   Database['public']['Tables']['statistics_killer']['Row'] & LegJoin
 export type SkovhuggerStat =
   Database['public']['Tables']['statistics_skovhugger']['Row'] & LegJoin
-type AnyStat = KillerStat | RtcStat | SkovhuggerStat | X01Stat
+export type AnyStat = KillerStat | RtcStat | SkovhuggerStat | X01Stat
 
 const compareLegsCreatedAt = (
   a: { legs: { createdAt: string } },
