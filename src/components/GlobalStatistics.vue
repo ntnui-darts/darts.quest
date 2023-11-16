@@ -31,48 +31,48 @@
   <div v-for="stat in currentStats" class="col" :key="stat.text">
     <h3>{{ stat.text }}</h3>
     <table>
-      <tbody>
+      <thead>
         <tr>
           <th>Name</th>
           <th>Last 14 Days</th>
           <th>All Time</th>
         </tr>
-        <template
+      </thead>
+      <tbody>
+        <tr
           v-for="(userId, i) in new Set([
             ...Object.keys(stat.last14Days),
             ...Object.keys(stat.allTime),
           ])"
         >
-          <tr>
-            <td
-              :class="{
-                highlighted:
-                  userId == useAuthStore().auth?.id ? 'bold' : undefined,
-              }"
-            >
-              {{ i + 1 }}.
-              {{ stringMaxLength(useUsersStore().getUser(userId)?.name, 18) }}
-            </td>
-            <td style="text-align: end">
-              {{
-                stat.last14Days[userId] != null
-                  ? stat.transform
-                    ? stat.transform(stat.last14Days[userId]!)
-                    : roundToNDecimals(stat.last14Days[userId]!, 2)
-                  : null
-              }}
-            </td>
-            <td style="text-align: end">
-              {{
-                stat.allTime[userId] != null
-                  ? stat.transform
-                    ? stat.transform(stat.allTime[userId]!)
-                    : roundToNDecimals(stat.allTime[userId]!, 2)
-                  : null
-              }}
-            </td>
-          </tr>
-        </template>
+          <td
+            :class="{
+              highlighted:
+                userId == useAuthStore().auth?.id ? 'bold' : undefined,
+            }"
+          >
+            {{ i + 1 }}.
+            {{ stringMaxLength(useUsersStore().getUser(userId)?.name, 18) }}
+          </td>
+          <td style="text-align: end">
+            {{
+              stat.last14Days[userId] != null
+                ? stat.transform
+                  ? stat.transform(stat.last14Days[userId]!)
+                  : roundToNDecimals(stat.last14Days[userId]!, 2)
+                : null
+            }}
+          </td>
+          <td style="text-align: end">
+            {{
+              stat.allTime[userId] != null
+                ? stat.transform
+                  ? stat.transform(stat.allTime[userId]!)
+                  : roundToNDecimals(stat.allTime[userId]!, 2)
+                : null
+            }}
+          </td>
+        </tr>
       </tbody>
     </table>
     <div>
