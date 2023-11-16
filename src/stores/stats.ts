@@ -9,7 +9,6 @@ import { getSkovhuggerScore } from '@/games/skovhugger'
 import { compareCreatedAt } from '@/functions/compare'
 import type { GameType } from '@/games/games'
 import { useUsersStore } from './users'
-import { useEloStore } from './elo'
 
 type LegJoin = {
   legs: {
