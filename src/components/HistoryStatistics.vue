@@ -155,7 +155,7 @@ const rtcStreakDataset = computed(() => {
 const rtcEloDataset = computed(() => {
   return getAccumulatedDataset(
     rtcUsers.value,
-    rtcStats.value,
+    statsStore.rtcStats,
     (stat) => stat.eloDelta,
     initialElo,
     options.value
@@ -197,7 +197,7 @@ const x01MaxVisitScoreDataset = computed(() => {
 const x01EloDataset = computed(() => {
   return getAccumulatedDataset(
     x01Users.value,
-    x01Stats.value,
+    statsStore.x01Stats,
     (stat) => stat.eloDelta,
     initialElo,
     options.value
@@ -227,7 +227,7 @@ const killerDartsDataset = computed(() => {
 const killerEloDataset = computed(() => {
   return getAccumulatedDataset(
     killerUsers.value,
-    killerStats.value,
+    statsStore.killerStats,
     (stat) => stat.eloDelta,
     initialElo,
     options.value
@@ -257,7 +257,7 @@ const skovhuggerScoreDataset = computed(() => {
 const skovhuggerEloDataset = computed(() => {
   return getAccumulatedDataset(
     skovhuggerUsers.value,
-    skovhuggerStats.value,
+    statsStore.skovhuggerStats,
     (stat) => stat.eloDelta,
     initialElo,
     options.value

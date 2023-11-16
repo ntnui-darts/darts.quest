@@ -40,12 +40,9 @@ export const useEloStore = defineStore('elo', {
           const expected = getExpectedResult(player.elo, other.elo)
           eloDelta += getEloDelta(expected, result)
         }
+        eloDelta /= Math.max(1, eloPlayers.length - 1)
         if (eloDelta != 0) {
-          await this.setElo(
-            player.id,
-            game.type,
-            player.elo + eloDelta / (eloPlayers.length - 1)
-          )
+          await this.setElo(player.id, game.type, player.elo + eloDelta)
         }
         eloDeltas.push({
           userId: player.id,
