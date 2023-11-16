@@ -1,4 +1,5 @@
 <template>
+  <h2>Elo Rating</h2>
   <table v-if="userId">
     <thead>
       <th>Game Type</th>

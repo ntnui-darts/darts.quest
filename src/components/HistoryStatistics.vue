@@ -14,7 +14,7 @@
         :show-smooth-button="false"
       ></Chart>
     </template>
-    <h2>Elo</h2>
+    <h2>Elo Rating</h2>
     <Chart :datasets="rtcEloDataset"></Chart>
     <h2>Hit Rate</h2>
     <Chart :datasets="rtcHitRateDataset"></Chart>
@@ -29,7 +29,7 @@
         :show-smooth-button="false"
       ></Chart>
     </template>
-    <h2>Elo</h2>
+    <h2>Elo Rating</h2>
     <Chart :datasets="x01EloDataset"></Chart>
     <h2>First 9 Average</h2>
     <Chart :datasets="x01First9AvgDataset"></Chart>
@@ -46,7 +46,7 @@
         :show-smooth-button="false"
       ></Chart>
     </template>
-    <h2>Elo</h2>
+    <h2>Elo Rating</h2>
     <Chart :datasets="killerEloDataset"></Chart>
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
@@ -59,7 +59,7 @@
         :show-smooth-button="false"
       ></Chart>
     </template>
-    <h2>Elo</h2>
+    <h2>Elo Rating</h2>
     <Chart :datasets="skovhuggerEloDataset"></Chart>
     <h2>Score</h2>
     <Chart :datasets="skovhuggerScoreDataset"></Chart>
