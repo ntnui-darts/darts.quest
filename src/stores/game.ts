@@ -13,6 +13,7 @@ import {
 import { useUsersStore } from './users'
 import { getGameController, getGameDisplayName } from '@/games/games'
 import { speak } from '@/functions/speak'
+import { useEloStore } from './elo'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -131,12 +132,18 @@ export const useGameStore = defineStore('game', {
         legs: this.game.legs.map((leg) => leg.id),
         type: this.game.type,
       })
+      const eloDeltas = await useEloStore().updateEloFromGame(this.game)
+
       for (let leg of this.game.legs) {
         if (this.game.result.includes(leg.userId)) {
           leg.finish = true
         }
         await supabase.from('legs').insert({ ...leg, type: leg.type })
-        await upsertLegStatistics(leg, this.game)
+        await upsertLegStatistics(
+          leg,
+          this.game,
+          eloDeltas.find((e) => e.userId == leg.userId)?.eloDelta ?? 0
+        )
       }
       useStatsStore().fetchAll()
     },

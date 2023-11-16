@@ -9,6 +9,41 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      elo: {
+        Row: {
+          created_at: string
+          id: string
+          killer: number | null
+          rtc: number | null
+          skovhugger: number | null
+          x01: number | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          killer?: number | null
+          rtc?: number | null
+          skovhugger?: number | null
+          x01?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          killer?: number | null
+          rtc?: number | null
+          skovhugger?: number | null
+          x01?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "elo_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       games: {
         Row: {
           createdAt: string
@@ -110,16 +145,19 @@ export interface Database {
       statistics_killer: {
         Row: {
           darts: number | null
+          eloDelta: number | null
           id: string
           winRate: number | null
         }
         Insert: {
           darts?: number | null
+          eloDelta?: number | null
           id: string
           winRate?: number | null
         }
         Update: {
           darts?: number | null
+          eloDelta?: number | null
           id?: string
           winRate?: number | null
         }
@@ -136,6 +174,7 @@ export interface Database {
       statistics_rtc: {
         Row: {
           darts: number | null
+          eloDelta: number | null
           hitRate: number | null
           id: string
           maxStreak: number | null
@@ -143,6 +182,7 @@ export interface Database {
         }
         Insert: {
           darts?: number | null
+          eloDelta?: number | null
           hitRate?: number | null
           id: string
           maxStreak?: number | null
@@ -150,6 +190,7 @@ export interface Database {
         }
         Update: {
           darts?: number | null
+          eloDelta?: number | null
           hitRate?: number | null
           id?: string
           maxStreak?: number | null
@@ -167,16 +208,19 @@ export interface Database {
       }
       statistics_skovhugger: {
         Row: {
+          eloDelta: number | null
           id: string
           score: number | null
           winRate: number | null
         }
         Insert: {
+          eloDelta?: number | null
           id: string
           score?: number | null
           winRate?: number | null
         }
         Update: {
+          eloDelta?: number | null
           id?: string
           score?: number | null
           winRate?: number | null
@@ -195,6 +239,7 @@ export interface Database {
         Row: {
           checkout: number | null
           darts: number | null
+          eloDelta: number | null
           first9Avg: number | null
           id: string
           maxVisitScore: number | null
@@ -203,6 +248,7 @@ export interface Database {
         Insert: {
           checkout?: number | null
           darts?: number | null
+          eloDelta?: number | null
           first9Avg?: number | null
           id: string
           maxVisitScore?: number | null
@@ -211,6 +257,7 @@ export interface Database {
         Update: {
           checkout?: number | null
           darts?: number | null
+          eloDelta?: number | null
           first9Avg?: number | null
           id?: string
           maxVisitScore?: number | null

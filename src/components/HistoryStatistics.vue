@@ -14,10 +14,10 @@
         :show-smooth-button="false"
       ></Chart>
     </template>
+    <h2>Elo</h2>
+    <Chart :datasets="rtcEloDataset"></Chart>
     <h2>Hit Rate</h2>
     <Chart :datasets="rtcHitRateDataset"></Chart>
-    <h2>Win Rate</h2>
-    <Chart :datasets="rtcWinRateDataset"></Chart>
     <h2>RTC Streak</h2>
     <Chart :datasets="rtcStreakDataset"></Chart>
   </div>
@@ -29,8 +29,8 @@
         :show-smooth-button="false"
       ></Chart>
     </template>
-    <h2>Win Rate</h2>
-    <Chart :datasets="x01WinRateDataset"></Chart>
+    <h2>Elo</h2>
+    <Chart :datasets="x01EloDataset"></Chart>
     <h2>First 9 Average</h2>
     <Chart :datasets="x01First9AvgDataset"></Chart>
     <h2>Checkout</h2>
@@ -46,8 +46,8 @@
         :show-smooth-button="false"
       ></Chart>
     </template>
-    <h2>Win Rate</h2>
-    <Chart :datasets="killerWinRateDataset"></Chart>
+    <h2>Elo</h2>
+    <Chart :datasets="killerEloDataset"></Chart>
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
   </div>
@@ -59,10 +59,10 @@
         :show-smooth-button="false"
       ></Chart>
     </template>
+    <h2>Elo</h2>
+    <Chart :datasets="skovhuggerEloDataset"></Chart>
     <h2>Score</h2>
     <Chart :datasets="skovhuggerScoreDataset"></Chart>
-    <h2>Win Rate</h2>
-    <Chart :datasets="skovhuggerWinRateDataset"></Chart>
   </div>
 </template>
 
@@ -74,8 +74,10 @@ import {
   useStatsStore,
   getNumberOfGamesDataset,
   getDataset,
+  getAccumulatedDataset,
 } from '@/stores/stats'
 import { computed, ref } from 'vue'
+import { initialElo } from '@/stores/elo'
 
 const statsStore = useStatsStore()
 
@@ -150,11 +152,12 @@ const rtcStreakDataset = computed(() => {
     options.value
   )
 })
-const rtcWinRateDataset = computed(() => {
-  return getDataset(
+const rtcEloDataset = computed(() => {
+  return getAccumulatedDataset(
     rtcUsers.value,
     rtcStats.value,
-    (stat) => stat.winRate,
+    (stat) => stat.eloDelta,
+    initialElo,
     options.value
   )
 })
@@ -191,11 +194,12 @@ const x01MaxVisitScoreDataset = computed(() => {
     options.value
   )
 })
-const x01WinRateDataset = computed(() => {
-  return getDataset(
+const x01EloDataset = computed(() => {
+  return getAccumulatedDataset(
     x01Users.value,
     x01Stats.value,
-    (stat) => stat.winRate,
+    (stat) => stat.eloDelta,
+    initialElo,
     options.value
   )
 })
@@ -220,11 +224,12 @@ const killerDartsDataset = computed(() => {
     options.value
   )
 })
-const killerWinRateDataset = computed(() => {
-  return getDataset(
+const killerEloDataset = computed(() => {
+  return getAccumulatedDataset(
     killerUsers.value,
     killerStats.value,
-    (stat) => stat.winRate,
+    (stat) => stat.eloDelta,
+    initialElo,
     options.value
   )
 })
@@ -249,11 +254,12 @@ const skovhuggerScoreDataset = computed(() => {
     options.value
   )
 })
-const skovhuggerWinRateDataset = computed(() => {
-  return getDataset(
+const skovhuggerEloDataset = computed(() => {
+  return getAccumulatedDataset(
     skovhuggerUsers.value,
     skovhuggerStats.value,
-    (stat) => stat.winRate,
+    (stat) => stat.eloDelta,
+    initialElo,
     options.value
   )
 })

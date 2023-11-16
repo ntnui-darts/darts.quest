@@ -7,7 +7,5 @@
 // import { migrateToStatisticsPerLeg } from '@/admin/migration-statistics-per-leg'
 import { router } from '@/router'
 
-const migrate = () => {
-  // migrateToStatisticsPerLeg()
-}
+const migrate = () => {}
 </script>

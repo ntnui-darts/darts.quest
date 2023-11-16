@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/auth'
-import { upsertLegStatistics } from '@/stores/stats'
+// import { upsertLegStatistics } from '@/stores/stats'
 import { supabase } from '@/supabase'
 import { Leg } from '@/types/game'
 
@@ -24,7 +24,7 @@ export const migrateToStatisticsPerLeg = async () => {
       console.log(`Could not find gameId ${leg.gameId} for leg ${leg.id}`)
       return
     }
-    await upsertLegStatistics(leg, game)
+    // await upsertLegStatistics(leg, game, 0)
     console.log(`Updated leg ${leg.id}`)
   })
   console.log('Completed migration of legs')

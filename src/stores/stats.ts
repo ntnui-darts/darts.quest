@@ -9,6 +9,7 @@ import { getSkovhuggerScore } from '@/games/skovhugger'
 import { compareCreatedAt } from '@/functions/compare'
 import type { GameType } from '@/games/games'
 import { useUsersStore } from './users'
+import { useEloStore } from './elo'
 
 type LegJoin = {
   legs: {
@@ -304,6 +305,31 @@ if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useStatsStore, import.meta.hot))
 }
 
+export const getAccumulatedDataset = <T extends AnyStat>(
+  users: string[],
+  stats: T[],
+  getY: (s: T) => number | null,
+  initialValue: number,
+  options: object
+) => {
+  return users.map((user) => {
+    let sum = initialValue
+    return {
+      ...options,
+      label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+      data: stats
+        .filter((s) => s.legs.userId == user && getY(s) != null)
+        .map((stat) => {
+          sum += getY(stat) ?? 0
+          return {
+            x: new Date(stat.legs.createdAt),
+            y: sum,
+          }
+        }),
+    }
+  })
+}
+
 export const getDataset = <T extends AnyStat>(
   users: string[],
   stats: T[],
@@ -356,7 +382,8 @@ const getWinRate = (game: Pick<Game, 'result' | 'players'>, userId: string) => {
 
 export const upsertLegStatistics = async (
   leg: Leg,
-  game: Pick<Game, 'result' | 'players'>
+  game: Pick<Game, 'result' | 'players'>,
+  eloDelta: number
 ) => {
   const segments = leg.visits.flat().filter((s) => s != null)
   const darts = segments.length
@@ -379,6 +406,7 @@ export const upsertLegStatistics = async (
         first9Avg,
         checkout,
         winRate,
+        eloDelta,
       })
       break
 
@@ -391,6 +419,7 @@ export const upsertLegStatistics = async (
         maxStreak,
         hitRate,
         winRate,
+        eloDelta,
       })
       break
 
@@ -399,6 +428,7 @@ export const upsertLegStatistics = async (
         id: leg.id,
         darts,
         winRate,
+        eloDelta,
       })
       break
 
@@ -407,6 +437,7 @@ export const upsertLegStatistics = async (
         id: leg.id,
         score: getSkovhuggerScore(leg.visits),
         winRate,
+        eloDelta,
       })
       break
   }
