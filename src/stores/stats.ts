@@ -127,7 +127,7 @@ export const useStatsStore = defineStore('stats', {
       }
     },
 
-    getStats(gameType: GameType) {
+    getStats(gameType: GameType): AnyStat[] {
       switch (gameType) {
         case 'killer':
           return this.killerStats
@@ -137,6 +137,8 @@ export const useStatsStore = defineStore('stats', {
           return this.skovhuggerStats
         case 'x01':
           return this.x01Stats
+        case 'cricket':
+          return this.cricketStats
       }
     },
 
