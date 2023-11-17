@@ -81,14 +81,20 @@ const simulateCricket = (game: Game) => {
       const prevHits = player.hits.get(segment.sector) ?? 0
       const totalHits = prevHits + segment.multiplier
       player.hits.set(segment.sector, totalHits)
-      if (prevHits < 3) {
-        if (totalHits >= 3) {
-          unlocks.set(segment.sector, (unlocks.get(segment.sector) ?? 0) + 1)
-        }
+      if (prevHits < 3 && totalHits >= 3) {
+        unlocks.set(segment.sector, (unlocks.get(segment.sector) ?? 0) + 1)
+      }
+      if (
+        (unlocks.get(segment.sector) ?? 0) == players.length ||
+        totalHits < 3
+      ) {
         continue
       }
-      if ((unlocks.get(segment.sector) ?? 0) == players.length) continue
-      player.score += segment.sector * segment.multiplier
+      const multiplier =
+        prevHits >= 3 ? segment.multiplier : segment.multiplier - (3 - prevHits)
+      if (multiplier > 0) {
+        player.score += segment.sector * multiplier
+      }
     }
 
     if (sectors.every((s) => (unlocks.get(s) ?? 0) == players.length)) {
