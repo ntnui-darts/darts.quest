@@ -3,7 +3,7 @@
   <h2>Game Type</h2>
   <div class="row options">
     <button
-      v-for="gameType in (['x01', 'rtc', 'killer', 'skovhugger'] satisfies GameType[])"
+      v-for="gameType in (['x01', 'rtc', 'killer', 'skovhugger', 'cricket'] satisfies GameType[])"
       :class="{ selected: selectedGameType == gameType }"
       @click="selectGameType(gameType)"
     >

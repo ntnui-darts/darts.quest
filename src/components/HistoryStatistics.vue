@@ -64,6 +64,19 @@
     <h2>Score</h2>
     <Chart :datasets="skovhuggerScoreDataset"></Chart>
   </div>
+  <div v-if="gameType == 'cricket'">
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="cricketNumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
+    <h2>Elo Rating</h2>
+    <Chart :datasets="cricketEloDataset"></Chart>
+    <h2>Score</h2>
+    <Chart :datasets="cricketScoreDataset"></Chart>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -122,6 +135,13 @@ const killerStats = computed(() =>
 )
 const skovhuggerStats = computed(() =>
   statsStore.skovhuggerStats.filter((stat) =>
+    typeAttributes.value.every((ta) =>
+      checkTypeAttribute(ta, stat.legs.typeAttributes)
+    )
+  )
+)
+const cricketStats = computed(() =>
+  statsStore.cricketStats.filter((stat) =>
     typeAttributes.value.every((ta) =>
       checkTypeAttribute(ta, stat.legs.typeAttributes)
     )
@@ -258,6 +278,36 @@ const skovhuggerEloDataset = computed(() => {
   return getAccumulatedDataset(
     skovhuggerUsers.value,
     statsStore.skovhuggerStats,
+    (stat) => stat.eloDelta,
+    initialElo,
+    options.value
+  )
+})
+
+const cricketUsers = computed(() =>
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.cricketStats.map((s) => s.legs.userId)))
+)
+const cricketNumberOfGamesDataset = computed(() => {
+  return getNumberOfGamesDataset(
+    cricketUsers.value,
+    cricketStats.value,
+    options.value
+  )
+})
+const cricketScoreDataset = computed(() => {
+  return getDataset(
+    cricketUsers.value,
+    cricketStats.value,
+    (stat) => stat.score,
+    options.value
+  )
+})
+const cricketEloDataset = computed(() => {
+  return getAccumulatedDataset(
+    cricketUsers.value,
+    statsStore.cricketStats,
     (stat) => stat.eloDelta,
     initialElo,
     options.value
