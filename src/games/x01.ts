@@ -74,7 +74,7 @@ export const getX01Controller = (game: Game): GameController => {
           speak('Bust!')
         }
       }
-      gameStore.updateGameState()
+      gameStore.refreshGameState()
     },
 
     speakVisit(visit) {

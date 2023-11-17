@@ -66,7 +66,7 @@ export const getKillerController = (game: Game): KillerController => {
           return // sector already taken
         }
         player.sector = segment.sector
-        gameStore.updateGameState()
+        gameStore.refreshGameState()
         return
       }
       gameStore.saveScore(segment)
