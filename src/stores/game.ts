@@ -127,7 +127,7 @@ export const useGameStore = defineStore('game', {
     },
 
     async saveGame() {
-      if (!this.game) throw Error()
+      if (!this.game || !this.gameState) return false
       this.game.result = this.refreshGameState().rank
 
       await supabase.from('games').insert({
@@ -144,11 +144,14 @@ export const useGameStore = defineStore('game', {
         await upsertLegStatistics(
           leg,
           this.game,
+          this.gameState,
           eloDeltas.find((e) => e.userId == leg.userId)?.eloDelta ?? 0
         )
       }
 
       useStatsStore().fetchAll()
+
+      return true
     },
 
     saveToLocalStorage() {
