@@ -2,6 +2,8 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import type { Game } from '@/types/game'
 import type { GameType } from '@/games/games'
 import { supabase } from '@/supabase'
+import { Database } from '@/types/supabase'
+import { useAuthStore } from './auth'
 
 export const initialElo = 1000
 const k = 32
@@ -14,15 +16,19 @@ const getEloDelta = (expectedResult: number, actualResult: number) => {
   return k * (actualResult - expectedResult)
 }
 
+type EloRow = Omit<Database['public']['Tables']['elo']['Row'], 'id'>
+
 export const useEloStore = defineStore('elo', {
-  state: () => ({}),
+  state: () => ({
+    personalElo: null as EloRow | null,
+  }),
 
   actions: {
     async updateEloFromGame(game: Game) {
       const eloPlayers: { id: string; elo: number }[] = []
 
       for (const id of game.players) {
-        const elo = await this.getElo(id, game.type)
+        const elo = await this.fetchElo(id, game.type)
         eloPlayers.push({ id, elo })
       }
       const eloDeltas: { userId: string; eloDelta: number }[] = []
@@ -42,7 +48,7 @@ export const useEloStore = defineStore('elo', {
         }
         eloDelta /= Math.max(1, eloPlayers.length - 1)
         if (eloDelta != 0) {
-          await this.setElo(player.id, game.type, player.elo + eloDelta)
+          await this.upsertElo(player.id, game.type, player.elo + eloDelta)
         }
         eloDeltas.push({
           userId: player.id,
@@ -52,7 +58,7 @@ export const useEloStore = defineStore('elo', {
       return eloDeltas
     },
 
-    async getElo(userId: string, gameType: GameType) {
+    async fetchElo(userId: string, gameType: GameType) {
       const eloResponse = await supabase
         .from('elo')
         .select(gameType)
@@ -65,8 +71,20 @@ export const useEloStore = defineStore('elo', {
       return initialElo
     },
 
-    async setElo(userId: string, gameType: GameType, elo: number) {
+    async upsertElo(userId: string, gameType: GameType, elo: number) {
       await supabase.from('elo').upsert({ id: userId, [gameType]: elo })
+    },
+
+    async fetchPersonalElo() {
+      const userId = useAuthStore().auth?.id
+      if (!userId) return
+      const eloResponse = await supabase
+        .from('elo')
+        .select('x01, rtc, killer, skovhugger, cricket')
+        .eq('id', userId)
+      if (eloResponse.data?.length) {
+        this.personalElo = eloResponse.data[0]
+      }
     },
   },
 

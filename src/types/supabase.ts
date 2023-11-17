@@ -11,7 +11,7 @@ export interface Database {
     Tables: {
       elo: {
         Row: {
-          created_at: string
+          cricket: number | null
           id: string
           killer: number | null
           rtc: number | null
@@ -19,7 +19,7 @@ export interface Database {
           x01: number | null
         }
         Insert: {
-          created_at?: string
+          cricket?: number | null
           id: string
           killer?: number | null
           rtc?: number | null
@@ -27,7 +27,7 @@ export interface Database {
           x01?: number | null
         }
         Update: {
-          created_at?: string
+          cricket?: number | null
           id?: string
           killer?: number | null
           rtc?: number | null

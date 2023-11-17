@@ -6,9 +6,9 @@
       <th>Elo Rating</th>
     </thead>
     <tbody>
-      <tr v-for="(value, name) in elo">
-        <td>{{ name }}</td>
-        <td>{{ Math.round(value) }}</td>
+      <tr v-for="(value, name) in eloStore.personalElo">
+        <td>{{ GameTypeNames[name] }}</td>
+        <td>{{ Math.round(value ?? initialElo) }}</td>
       </tr>
     </tbody>
   </table>
@@ -106,11 +106,13 @@ import { addDays } from 'date-fns'
 import { useAuthStore } from '@/stores/auth'
 import Chart from './Chart.vue'
 import { GameType, GameTypeNames } from '@/games/games'
-import { useEloStore } from '@/stores/elo'
+import { initialElo, useEloStore } from '@/stores/elo'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
 const statsStore = useStatsStore()
+const eloStore = useEloStore()
+
 const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
@@ -155,12 +157,7 @@ const elo = ref<Record<string, number>>({})
 onMounted(async () => {
   setLastDays(7)
 
-  if (userId.value) {
-    for (const gameType of ['x01', 'rtc', 'killer', 'skovhugger'] as const) {
-      const name = GameTypeNames[gameType]
-      elo.value[name] = await useEloStore().getElo(userId.value, gameType)
-    }
-  }
+  eloStore.fetchPersonalElo()
 })
 
 const legs = computed(() => {
