@@ -1,10 +1,11 @@
 <template>
   <br />
   <h2>Game Type</h2>
-  <div class="row options">
+  <div class="row options" style="overflow: auto">
     <button
       v-for="gameType in (['x01', 'rtc', 'killer', 'skovhugger', 'cricket'] satisfies GameType[])"
       :class="{ selected: selectedGameType == gameType }"
+      style="min-width: 120px"
       @click="selectGameType(gameType)"
     >
       {{ GameTypeNames[gameType] }}

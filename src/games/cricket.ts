@@ -87,11 +87,11 @@ const simulateCricket = (game: Game) => {
         }
         continue
       }
-      if ((unlocks.get(segment.sector) ?? 0) > 1) continue
+      if ((unlocks.get(segment.sector) ?? 0) == players.length) continue
       player.score += segment.sector * segment.multiplier
     }
 
-    if (sectors.every((s) => (unlocks.get(s) ?? 0) > 1)) {
+    if (sectors.every((s) => (unlocks.get(s) ?? 0) == players.length)) {
       state.rank = players
         .toSorted((a, b) => b.score - a.score)
         .map((p) => p.id)
@@ -99,7 +99,7 @@ const simulateCricket = (game: Game) => {
     }
 
     if (
-      sectors.every((s) => player.hits.get(s) ?? 0 >= 3) &&
+      sectors.every((s) => (player.hits.get(s) ?? 0) >= 3) &&
       player.score == Math.max(...playersLeft().map((p) => p.score))
     ) {
       state.rank.push(player.id)

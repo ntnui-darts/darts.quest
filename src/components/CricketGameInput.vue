@@ -11,39 +11,59 @@
       {{ multiplierToString(i) }}
     </button>
   </div>
-  <div class="grid-sectors">
-    <button
-      v-for="(_, i) in Array(6)"
-      @click="selectSector(i + 15)"
-      :class="{
-        selected: selectedSector == i + 15,
-      }"
-      :disabled="(gameState.unlocks.get(i + 15) ?? 0) > 1"
-    >
-      {{ i + 15 }}
-      {{ multiplierToString(Math.min(player?.hits.get(i + 15) ?? 0, 3)) }}
-    </button>
-    <button
-      @click="selectSector(0)"
-      :class="{
-        selected: selectedSector == 0,
-      }"
-    >
-      0
-    </button>
-    <button
-      @click="selectSector(25)"
-      :class="{
-        selected: selectedSector == 25,
-      }"
-      :disabled="
-        selectedMultiplier == 3 || (gameState.unlocks.get(25) ?? 0) > 1
-      "
-    >
-      25
-      {{ multiplierToString(Math.min(player?.hits.get(25) ?? 0, 3)) }}
-    </button>
-    <button @click="emit('undo')">&#x232B;</button>
+  <div class="row" style="overflow: auto">
+    <div v-for="player in gameState.players" class="col" style="flex: 1">
+      <div style="text-align: center">
+        {{ stringMaxLength(useUsersStore().getUser(player.id)?.name, 10) }}
+      </div>
+      <button
+        v-for="(_, i) in Array(6)"
+        @click="selectSector(20 - i)"
+        class="input-button"
+        :class="{
+          selected: selectedSector == 20 - i,
+        }"
+        :disabled="
+          player != currentPlayer ||
+          (gameState.unlocks.get(20 - i) ?? 0) == gameState.players.length
+        "
+      >
+        {{ player == currentPlayer ? 20 - i : '&#8203;' }}
+        {{ multiplierToString(Math.min(player?.hits.get(20 - i) ?? 0, 3)) }}
+      </button>
+      <button
+        @click="selectSector(25)"
+        class="input-button"
+        :class="{
+          selected: selectedSector == 25,
+        }"
+        :disabled="
+          player != currentPlayer ||
+          selectedMultiplier == 3 ||
+          (gameState.unlocks.get(25) ?? 0) == gameState.players.length
+        "
+      >
+        {{ player == currentPlayer ? 'Bull' : '&#8203;' }}
+        {{ multiplierToString(Math.min(player?.hits.get(25) ?? 0, 3)) }}
+      </button>
+      <button
+        @click="selectSector(0)"
+        class="input-button"
+        :class="{
+          selected: selectedSector == 0,
+        }"
+        :disabled="player != currentPlayer"
+      >
+        {{ player == currentPlayer ? 0 : '&#8203;' }}
+      </button>
+      <button
+        v-if="player == currentPlayer"
+        class="input-button"
+        @click="emit('undo')"
+      >
+        &#x232B;
+      </button>
+    </div>
   </div>
 </template>
 
@@ -52,11 +72,13 @@ import { useGameStore } from '@/stores/game'
 import { Segment, multiplierToString } from '@/types/game'
 import { ref, computed } from 'vue'
 import { CricketGameState } from '@/games/cricket'
+import { useUsersStore } from '@/stores/users'
+import { stringMaxLength } from '@/functions/string'
 
 const selectedMultiplier = ref(1)
 const selectedSector = ref<number | null>(null)
 const gameState = computed(() => useGameStore().gameState as CricketGameState)
-const player = computed(() =>
+const currentPlayer = computed(() =>
   gameState.value.players.find((p) => p.id == gameState.value.player)
 )
 
@@ -80,13 +102,7 @@ const selectSector = (sector: number) => {
 </script>
 
 <style scoped>
-.grid-sectors {
-  display: grid;
-  column-gap: 1em;
-  row-gap: 1em;
-  grid-template-columns: 1fr 1fr 1fr;
-}
-.grid-sectors button {
-  height: 4em;
+.input-button {
+  min-width: 26svw;
 }
 </style>
