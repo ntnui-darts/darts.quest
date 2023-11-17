@@ -4,23 +4,26 @@ import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
 import RtcGameInput from '@/components/RtcGameInput.vue'
 import NoOptionsInput from '@/components/NoOptionsInput.vue'
 import KillerGameInput from '@/components/KillerGameInput.vue'
+import CricketGameInput from '@/components/CricketGameInput.vue'
 import { Game, GameController, Leg, getTypeAttribute } from '@/types/game'
 import { getX01Controller } from './x01'
 import { getRtcRandomController } from './rtc-random'
 import { getKillerController } from './killer'
 import { getRtcController } from './rtc'
 import { getSkovhuggerController } from './skovhugger'
+import { getCricketController } from './cricket'
 
-export type GameType = 'x01' | 'rtc' | 'killer' | 'skovhugger'
+export type GameType = 'x01' | 'rtc' | 'killer' | 'skovhugger' | 'cricket'
 
 export const GameTypeNames = {
   x01: 'X01',
   rtc: 'Round the Clock',
   killer: 'Killer',
   skovhugger: 'Skovhugger',
+  cricket: 'Cricket',
 } as const satisfies Record<GameType, string>
 
-export const getMinPlayerCount = (gameType: GameType) => {
+export const getMinPlayerCount = (gameType: GameType): number => {
   switch (gameType) {
     case 'killer':
       return 2
@@ -30,6 +33,8 @@ export const getMinPlayerCount = (gameType: GameType) => {
       return 1
     case 'skovhugger':
       return 1
+    case 'cricket':
+      return 2
   }
 }
 
@@ -60,6 +65,9 @@ export const getGameDisplayName = (game?: Game | Leg | null): string => {
 
     case 'skovhugger':
       return 'Skovhugger'
+
+    case 'cricket':
+      return 'Cricket'
   }
 }
 
@@ -78,6 +86,9 @@ export const getGamePoints = (game: {
       return 5
 
     case 'skovhugger':
+      return 0
+
+    case 'cricket':
       return 0
   }
 }
@@ -99,6 +110,9 @@ export const getGameController = (game: Game): GameController => {
 
     case 'skovhugger':
       return getSkovhuggerController(game)
+
+    case 'cricket':
+      return getCricketController(game)
   }
 }
 
@@ -108,6 +122,7 @@ export const getOptionsComponent = (type: GameType) => {
       return X01OptionsInput
     case 'rtc':
       return RtcOptionsInput
+    case 'cricket':
     case 'skovhugger':
     case 'killer':
       return NoOptionsInput
@@ -123,5 +138,7 @@ export const getInputComponent = (gameType: GameType) => {
       return RtcGameInput
     case 'killer':
       return KillerGameInput
+    case 'cricket':
+      return CricketGameInput
   }
 }

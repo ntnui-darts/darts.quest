@@ -11,7 +11,7 @@ export interface Database {
     Tables: {
       elo: {
         Row: {
-          created_at: string
+          cricket: number | null
           id: string
           killer: number | null
           rtc: number | null
@@ -19,7 +19,7 @@ export interface Database {
           x01: number | null
         }
         Insert: {
-          created_at?: string
+          cricket?: number | null
           id: string
           killer?: number | null
           rtc?: number | null
@@ -27,7 +27,7 @@ export interface Database {
           x01?: number | null
         }
         Update: {
-          created_at?: string
+          cricket?: number | null
           id?: string
           killer?: number | null
           rtc?: number | null
@@ -138,6 +138,35 @@ export interface Database {
             columns: ["userId"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      statistics_cricket: {
+        Row: {
+          eloDelta: number | null
+          id: string
+          score: number | null
+          winRate: number | null
+        }
+        Insert: {
+          eloDelta?: number | null
+          id: string
+          score?: number | null
+          winRate?: number | null
+        }
+        Update: {
+          eloDelta?: number | null
+          id?: string
+          score?: number | null
+          winRate?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistics_cricket_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "legs"
             referencedColumns: ["id"]
           }
         ]

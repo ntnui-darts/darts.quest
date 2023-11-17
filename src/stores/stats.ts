@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { supabase } from '@/supabase'
-import { DbGame, Game, Leg, getTypeAttribute } from '@/types/game'
+import { DbGame, Game, GameState, Leg, getTypeAttribute } from '@/types/game'
 import { useAuthStore } from './auth'
 import { Database } from '@/types/supabase'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
@@ -9,6 +9,7 @@ import { getSkovhuggerScore } from '@/games/skovhugger'
 import { compareCreatedAt } from '@/functions/compare'
 import type { GameType } from '@/games/games'
 import { useUsersStore } from './users'
+import { CricketGameState } from '@/games/cricket'
 
 type LegJoin = {
   legs: {
@@ -27,7 +28,14 @@ export type KillerStat =
   Database['public']['Tables']['statistics_killer']['Row'] & LegJoin
 export type SkovhuggerStat =
   Database['public']['Tables']['statistics_skovhugger']['Row'] & LegJoin
-export type AnyStat = KillerStat | RtcStat | SkovhuggerStat | X01Stat
+export type CricketStat =
+  Database['public']['Tables']['statistics_cricket']['Row'] & LegJoin
+export type AnyStat =
+  | KillerStat
+  | RtcStat
+  | SkovhuggerStat
+  | X01Stat
+  | CricketStat
 
 const compareLegsCreatedAt = (
   a: { legs: { createdAt: string } },
@@ -43,6 +51,7 @@ export const useStatsStore = defineStore('stats', {
     rtcStats: [] as RtcStat[],
     killerStats: [] as KillerStat[],
     skovhuggerStats: [] as SkovhuggerStat[],
+    cricketStats: [] as CricketStat[],
   }),
 
   actions: {
@@ -117,9 +126,19 @@ export const useStatsStore = defineStore('stats', {
           ) as SkovhuggerStat[]
         ).toSorted(compareLegsCreatedAt)
       }
+      const cricketStats = await supabase
+        .from('statistics_cricket')
+        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+      if (cricketStats.data) {
+        this.cricketStats = (
+          cricketStats.data.filter(
+            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+          ) as CricketStat[]
+        ).toSorted(compareLegsCreatedAt)
+      }
     },
 
-    getStats(gameType: GameType) {
+    getStats(gameType: GameType): AnyStat[] {
       switch (gameType) {
         case 'killer':
           return this.killerStats
@@ -129,6 +148,8 @@ export const useStatsStore = defineStore('stats', {
           return this.skovhuggerStats
         case 'x01':
           return this.x01Stats
+        case 'cricket':
+          return this.cricketStats
       }
     },
 
@@ -286,6 +307,20 @@ export const useStatsStore = defineStore('stats', {
         return true
       })
     },
+
+    getCricket(options: { since?: Date; allowUnfinished?: boolean }) {
+      return this.cricketStats.filter((stat) => {
+        if (
+          options.since &&
+          new Date(stat.legs.createdAt).getTime() < options.since.getTime()
+        )
+          return false
+
+        if (!options.allowUnfinished && !stat.legs.finish) return false
+
+        return true
+      })
+    },
   },
 
   getters: {
@@ -395,8 +430,9 @@ const getWinRate = (game: Pick<Game, 'result' | 'players'>, userId: string) => {
 export const upsertLegStatistics = async (
   leg: Leg,
   game: Pick<Game, 'result' | 'players'>,
+  gameState: GameState,
   eloDelta: number
-) => {
+): Promise<boolean> => {
   const segments = leg.visits.flat().filter((s) => s != null)
   const darts = segments.length
   const winRate = getWinRate(game, leg.userId)
@@ -420,7 +456,7 @@ export const upsertLegStatistics = async (
         winRate,
         eloDelta,
       })
-      break
+      return true
 
     case 'rtc':
       const maxStreak = getMaxStreak(leg.visits)
@@ -433,7 +469,7 @@ export const upsertLegStatistics = async (
         winRate,
         eloDelta,
       })
-      break
+      return true
 
     case 'killer':
       await supabase.from('statistics_killer').upsert({
@@ -442,7 +478,7 @@ export const upsertLegStatistics = async (
         winRate,
         eloDelta,
       })
-      break
+      return true
 
     case 'skovhugger':
       await supabase.from('statistics_skovhugger').upsert({
@@ -451,6 +487,18 @@ export const upsertLegStatistics = async (
         winRate,
         eloDelta,
       })
-      break
+      return true
+
+    case 'cricket':
+      await supabase.from('statistics_cricket').upsert({
+        id: leg.id,
+        score:
+          (gameState as CricketGameState).players.find(
+            (player) => player.id == leg.userId
+          )?.score ?? 0,
+        winRate,
+        eloDelta,
+      })
+      return true
   }
 }

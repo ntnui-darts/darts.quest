@@ -1,10 +1,11 @@
 <template>
   <br />
   <h2>Game Type</h2>
-  <div class="row options">
+  <div class="row options" style="overflow: auto">
     <button
-      v-for="gameType in (['x01', 'rtc', 'killer', 'skovhugger'] satisfies GameType[])"
+      v-for="gameType in (['x01', 'rtc', 'killer', 'skovhugger', 'cricket'] satisfies GameType[])"
       :class="{ selected: selectedGameType == gameType }"
+      style="min-width: 120px"
       @click="selectGameType(gameType)"
     >
       {{ GameTypeNames[gameType] }}
@@ -435,6 +436,47 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           text: 'Lowest Score',
           userStats: (d) =>
             store.getMin(store.getSkovhugger({ since: d }), 'score'),
+        },
+      ]
+    case 'cricket':
+      return [
+        {
+          text: 'Number of Games',
+          userStats: (d) => store.getCount(store.getCricket({ since: d })),
+        },
+        {
+          text: 'Elo Delta',
+          userStats: (d) =>
+            store.getSum(
+              store.getCricket({ since: d, allowUnfinished: true }),
+              'eloDelta'
+            ),
+        },
+        // {
+        //   text: 'Average Win Rate',
+        //   userStats: (d) =>
+        //     store.getAvg(
+        //       store.getCricket({ since: d, allowUnfinished: true }),
+        //       'winRate',
+        //       false
+        //     ),
+        //   transform: toPercentage,
+        // },
+        {
+          text: 'Average Score',
+          userStats: (d) =>
+            store.getAvg(store.getCricket({ since: d }), 'score', false),
+          transform: (n) => roundToNDecimals(n, 0).toString(),
+        },
+        {
+          text: 'Highest Score',
+          userStats: (d) =>
+            store.getMax(store.getCricket({ since: d }), 'score'),
+        },
+        {
+          text: 'Lowest Score',
+          userStats: (d) =>
+            store.getMin(store.getCricket({ since: d }), 'score'),
         },
       ]
   }

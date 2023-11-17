@@ -170,9 +170,20 @@ const saveGame = async () => {
   promptQuit('Save game and exit?', async () => {
     if (loadingStore.loading) return
     loadingStore.loading = true
-    await gameStore.saveGame()
-    loadingStore.loading = false
-    quit()
+    let saved = false
+    try {
+      saved = await gameStore.saveGame()
+    } catch {
+      saved = false
+    }
+    if (saved) {
+      loadingStore.loading = false
+      quit()
+    } else {
+      alert(
+        'Something went wrong! Please submit an issue to NTNUI Darts on GitHub.'
+      )
+    }
   })
 }
 
