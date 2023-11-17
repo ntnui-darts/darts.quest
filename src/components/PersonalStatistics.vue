@@ -152,8 +152,6 @@ const rtcVisitsDartboard = computed(() =>
     .flat()
 )
 
-const elo = ref<Record<string, number>>({})
-
 onMounted(async () => {
   setLastDays(7)
 
