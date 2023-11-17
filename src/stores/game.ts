@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { insertLegStatistics, useStatsStore } from './stats'
+import { upsertLegStatistics, useStatsStore } from './stats'
 import { supabase } from '@/supabase'
 import {
   Game as GameData,
@@ -13,6 +13,7 @@ import {
 import { useUsersStore } from './users'
 import { getGameController, getGameDisplayName } from '@/games/games'
 import { speak } from '@/functions/speak'
+import { useEloStore } from './elo'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -133,13 +134,18 @@ export const useGameStore = defineStore('game', {
         ...this.game,
         legs: this.game.legs.map((leg) => leg.id),
       })
+      const eloDeltas = await useEloStore().updateEloFromGame(this.game)
 
       for (let leg of this.game.legs) {
         if (this.game.result.includes(leg.userId)) {
           leg.finish = true
         }
         await supabase.from('legs').insert(leg)
-        await insertLegStatistics(leg)
+        await upsertLegStatistics(
+          leg,
+          this.game,
+          eloDeltas.find((e) => e.userId == leg.userId)?.eloDelta ?? 0
+        )
       }
 
       useStatsStore().fetchAll()

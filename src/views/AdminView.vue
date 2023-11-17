@@ -6,8 +6,9 @@
 <script lang="ts" setup>
 // import { migrateToStatisticsPerLeg } from '@/admin/migration-statistics-per-leg'
 import { router } from '@/router'
+// import { setElo } from '@/admin/set-elo'
 
 const migrate = () => {
-  // migrateToStatisticsPerLeg()
+  // setElo()
 }
 </script>

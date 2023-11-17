@@ -3,7 +3,7 @@
   <h2>Game Type</h2>
   <div class="row options">
     <button
-      v-for="gameType in (['x01', 'rtc', 'killer'] satisfies GameType[])"
+      v-for="gameType in (['x01', 'rtc', 'killer', 'skovhugger'] satisfies GameType[])"
       :class="{ selected: selectedGameType == gameType }"
       @click="selectGameType(gameType)"
     >
@@ -28,23 +28,48 @@
       {{ option }}
     </button>
   </div>
-  <div
-    v-for="stat in getStats(selectedGameType, subCategory)"
-    class="col"
-    :key="stat.key"
-  >
+  <div v-for="stat in currentStats" class="col" :key="stat.text">
     <h3>{{ stat.text }}</h3>
     <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Last 14 Days</th>
+          <th>All Time</th>
+        </tr>
+      </thead>
       <tbody>
-        <tr v-for="(userStat, i) in stat.userStats">
-          <td>
-            {{ i + 1 }}. {{ useUsersStore().getUser(userStat.userId)?.name }}
+        <tr
+          v-for="(userId, i) in new Set([
+            ...Object.keys(stat.last14Days),
+            ...Object.keys(stat.allTime),
+          ])"
+        >
+          <td
+            :class="{
+              highlighted:
+                userId == useAuthStore().auth?.id ? 'bold' : undefined,
+            }"
+          >
+            {{ i + 1 }}.
+            {{ stringMaxLength(useUsersStore().getUser(userId)?.name, 18) }}
           </td>
           <td style="text-align: end">
             {{
-              stat.transform
-                ? stat.transform(userStat[stat.key] ?? 0)
-                : roundToTwoDecimals(userStat[stat.key] ?? 0)
+              stat.last14Days[userId] != null
+                ? stat.transform
+                  ? stat.transform(stat.last14Days[userId]!)
+                  : roundToNDecimals(stat.last14Days[userId]!, 2)
+                : null
+            }}
+          </td>
+          <td style="text-align: end">
+            {{
+              stat.allTime[userId] != null
+                ? stat.transform
+                  ? stat.transform(stat.allTime[userId]!)
+                  : roundToNDecimals(stat.allTime[userId]!, 2)
+                : null
             }}
           </td>
         </tr>
@@ -60,17 +85,16 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import {
-  useStatsStore,
-  UserStat,
-  toPercentage,
-  roundToTwoDecimals,
-} from '@/stores/stats'
+import { computed, ref } from 'vue'
+import { useStatsStore, toPercentage, roundToNDecimals } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
-import { GameType, GameTypeNames } from '@/games/games'
+import { GameTypeNames } from '@/games/games'
+import type { GameType } from '@/games/games'
+import { addDays } from 'date-fns'
+import { useAuthStore } from '@/stores/auth'
+import { stringMaxLength } from '@/functions/string'
 
-const statsStore = useStatsStore()
+const store = useStatsStore()
 
 type SubCategory =
   | 'General'
@@ -87,10 +111,22 @@ const selectGameType = (type: GameType) => {
   subCategory.value = 'General'
 }
 
+const currentStats = computed(() => {
+  const stats = getStats(selectedGameType.value, subCategory.value)
+  return stats.map((stat) => {
+    const allTime = stat.userStats(new Date(0))
+    const last14Days = stat.userStats(addDays(new Date(), -14))
+    return {
+      ...stat,
+      allTime,
+      last14Days,
+    }
+  })
+})
+
 type Stat = {
-  key: keyof Omit<UserStat, 'userId'>
   text: string
-  userStats: UserStat[]
+  userStats: (since: Date) => Record<string, number | null>
   transform?: (n: number) => string
 }
 
@@ -101,111 +137,130 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
         case 'General':
           return [
             {
-              key: 'numX01Games',
               text: 'Number of Games',
-              userStats: sort(statsStore.userStats, 'numX01Games', 0, false),
+              userStats: (d) =>
+                store.getCount(
+                  store.getX01({ since: d, allowUnfinished: true })
+                ),
             },
             {
-              key: 'avgX01First9AvgLast10',
-              text: 'Average First 9 Avg Last 10 Games',
-              userStats: sort(
-                statsStore.userStats,
-                'avgX01First9AvgLast10',
-                0,
-                false
-              ),
+              text: 'Elo Delta',
+              userStats: (d) =>
+                store.getSum(
+                  store.getX01({ since: d, allowUnfinished: true }),
+                  'eloDelta'
+                ),
             },
             {
-              key: 'maxX01First9Avg',
+              text: 'Average First 9 Avg',
+              userStats: (d) =>
+                store.getAvg(
+                  store.getX01({ since: d, allowUnfinished: true }),
+                  'first9Avg',
+                  false
+                ),
+            },
+            {
               text: 'Highest First 9 Average',
-              userStats: sort(
-                statsStore.userStats,
-                'maxX01First9Avg',
-                0,
-                false
-              ),
+              userStats: (d) =>
+                store.getMax(
+                  store.getX01({ since: d, allowUnfinished: true }),
+                  'first9Avg'
+                ),
             },
             {
-              key: 'maxX01DoubleCheckout',
               text: 'Highest Double Checkout',
-              userStats: sort(
-                statsStore.userStats,
-                'maxX01DoubleCheckout',
-                0,
-                false
-              ),
+              userStats: (d) =>
+                store.getMax(store.getX01({ since: d, finish: 2 }), 'checkout'),
             },
             {
-              key: 'maxX01VisitScore',
               text: 'Highest Single Visit Score',
-              userStats: sort(
-                statsStore.userStats,
-                'maxX01VisitScore',
-                0,
-                false
-              ),
+              userStats: (d) =>
+                store.getMax(store.getX01({ since: d }), 'maxVisitScore'),
             },
           ]
         case '301 Double':
           return [
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getX01({
+            //         since: d,
+            //         allowUnfinished: true,
+            //         startScore: 301,
+            //         finish: 2,
+            //       }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
             {
-              key: 'avg301DoubleVisitsLast10',
-              text: 'Average # Visits Last 10 Games',
-              userStats: sort(
-                statsStore.userStats,
-                'avg301DoubleVisitsLast10',
-                Infinity
-              ),
+              text: 'Average # Darts',
+              userStats: (d) =>
+                store.getAvg(
+                  store.getX01({ since: d, startScore: 301, finish: 2 }),
+                  'darts'
+                ),
             },
             {
-              key: 'min301DoubleVisits',
-              text: 'Fastest # Visits',
-              userStats: sort(
-                statsStore.userStats,
-                'min301DoubleVisits',
-                Infinity
-              ),
+              text: 'Fastest # Darts',
+              userStats: (d) =>
+                store.getMin(
+                  store.getX01({ since: d, startScore: 301, finish: 2 }),
+                  'darts'
+                ),
             },
             {
-              key: 'max301DoubleVisits',
-              text: 'Slowest # Visits',
-              userStats: sort(
-                statsStore.userStats,
-                'max301DoubleVisits',
-                0,
-                false
-              ),
+              text: 'Slowest # Darts',
+              userStats: (d) =>
+                store.getMax(
+                  store.getX01({ since: d, startScore: 301, finish: 2 }),
+                  'darts'
+                ),
             },
           ]
         case '501 Double':
           return [
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getX01({
+            //         since: d,
+            //         allowUnfinished: true,
+            //         startScore: 501,
+            //         finish: 2,
+            //       }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
             {
-              key: 'avg501DoubleVisitsLast10',
-              text: 'Average # Visits Last 10 Games',
-              userStats: sort(
-                statsStore.userStats,
-                'avg501DoubleVisitsLast10',
-                Infinity
-              ),
+              text: 'Average # Darts',
+              userStats: (d) =>
+                store.getAvg(
+                  store.getX01({ since: d, startScore: 501, finish: 2 }),
+                  'darts'
+                ),
             },
             {
-              key: 'min501DoubleVisits',
-              text: 'Fastest # Visits',
-              userStats: sort(
-                statsStore.userStats,
-                'min501DoubleVisits',
-                Infinity
-              ),
+              text: 'Fastest # Darts',
+              userStats: (d) =>
+                store.getMin(
+                  store.getX01({ since: d, startScore: 501, finish: 2 }),
+                  'darts'
+                ),
             },
             {
-              key: 'max501DoubleVisits',
-              text: 'Slowest # Visits',
-              userStats: sort(
-                statsStore.userStats,
-                'max501DoubleVisits',
-                0,
-                false
-              ),
+              text: 'Slowest # Darts',
+              userStats: (d) =>
+                store.getMax(
+                  store.getX01({ since: d, startScore: 501, finish: 2 }),
+                  'darts'
+                ),
             },
           ]
         default:
@@ -216,62 +271,102 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
         case 'General':
           return [
             {
-              key: 'numRtcGames',
               text: 'Number of Games',
-              userStats: sort(statsStore.userStats, 'numRtcGames', 0, false),
+              userStats: (d) =>
+                store.getCount(
+                  store.getRtc({ since: d, allowUnfinished: true })
+                ),
             },
             {
-              key: 'minRtcVisits',
-              text: 'Fewest Visits',
-              userStats: sort(statsStore.userStats, 'minRtcVisits', Infinity),
+              text: 'Elo Delta',
+              userStats: (d) =>
+                store.getSum(
+                  store.getRtc({ since: d, allowUnfinished: true }),
+                  'eloDelta'
+                ),
             },
             {
-              key: 'maxRtcStreak',
+              text: 'Fewest Darts',
+              userStats: (d) =>
+                store.getMin(store.getRtc({ since: d }), 'darts'),
+            },
+            {
               text: 'Longest Streak',
-              userStats: sort(statsStore.userStats, 'maxRtcStreak', 0, false),
+              userStats: (d) =>
+                store.getMax(
+                  store.getRtc({ since: d, allowUnfinished: true }),
+                  'maxStreak'
+                ),
             },
           ]
         case 'Single':
           return [
             {
-              key: 'avgRtcSingleHitRateLast10',
-              text: 'Average Hit Rate Last 10 Games',
-              userStats: sort(
-                statsStore.userStats,
-                'avgRtcSingleHitRateLast10',
-                0,
-                false
-              ),
+              text: 'Average Hit Rate',
+              userStats: (d) =>
+                store.getAvg(
+                  store.getRtc({ since: d, mode: 1 }),
+                  'hitRate',
+                  false
+                ),
               transform: toPercentage,
             },
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getRtc({ since: d, allowUnfinished: true, mode: 1 }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
           ]
         case 'Double':
           return [
             {
-              key: 'avgRtcDoubleHitRateLast10',
-              text: 'Average Hit Rate Last 10 Games',
-              userStats: sort(
-                statsStore.userStats,
-                'avgRtcDoubleHitRateLast10',
-                0,
-                false
-              ),
+              text: 'Average Hit Rate',
+              userStats: (d) =>
+                store.getAvg(
+                  store.getRtc({ since: d, mode: 2 }),
+                  'hitRate',
+                  false
+                ),
               transform: toPercentage,
             },
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getRtc({ since: d, allowUnfinished: true, mode: 2 }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
           ]
         case 'Triple':
           return [
             {
-              key: 'avgRtcTripleHitRateLast10',
-              text: 'Average Hit Rate Last 10 Games',
-              userStats: sort(
-                statsStore.userStats,
-                'avgRtcTripleHitRateLast10',
-                0,
-                false
-              ),
+              text: 'Average Hit Rate',
+              userStats: (d) =>
+                store.getAvg(
+                  store.getRtc({ since: d, mode: 3 }),
+                  'hitRate',
+                  false
+                ),
               transform: toPercentage,
             },
+            // {
+            //   text: 'Average Win Rate',
+            //   userStats: (d) =>
+            //     store.getAvg(
+            //       store.getRtc({ since: d, allowUnfinished: true, mode: 3 }),
+            //       'winRate',
+            //       false
+            //     ),
+            //   transform: toPercentage,
+            // },
           ]
         default:
           return []
@@ -279,37 +374,116 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
     case 'killer':
       return [
         {
-          key: 'numKillerGames',
           text: 'Number of Games',
-          userStats: sort(statsStore.userStats, 'numKillerGames', 0, false),
+          userStats: (d) => store.getCount(store.getKiller({ since: d })),
         },
         {
-          key: 'avgKillerWinRateLast10',
-          text: 'Win Rate Last 10 Games',
-          userStats: sort(
-            statsStore.userStats,
-            'avgKillerWinRateLast10',
-            0,
-            false
-          ),
-          transform: toPercentage,
+          text: 'Elo Delta',
+          userStats: (d) =>
+            store.getSum(
+              store.getKiller({ since: d, allowUnfinished: true }),
+              'eloDelta'
+            ),
         },
+        // {
+        //   text: 'Average Win Rate',
+        //   userStats: (d) =>
+        //     store.getAvg(
+        //       store.getKiller({ since: d, allowUnfinished: true }),
+        //       'winRate',
+        //       false
+        //     ),
+        //   transform: toPercentage,
+        // },
       ]
     case 'skovhugger':
+      return [
+        {
+          text: 'Number of Games',
+          userStats: (d) => store.getCount(store.getSkovhugger({ since: d })),
+        },
+        {
+          text: 'Elo Delta',
+          userStats: (d) =>
+            store.getSum(
+              store.getSkovhugger({ since: d, allowUnfinished: true }),
+              'eloDelta'
+            ),
+        },
+        // {
+        //   text: 'Average Win Rate',
+        //   userStats: (d) =>
+        //     store.getAvg(
+        //       store.getSkovhugger({ since: d, allowUnfinished: true }),
+        //       'winRate',
+        //       false
+        //     ),
+        //   transform: toPercentage,
+        // },
+        {
+          text: 'Average Score',
+          userStats: (d) =>
+            store.getAvg(store.getSkovhugger({ since: d }), 'score', false),
+          transform: (n) => roundToNDecimals(n, 0).toString(),
+        },
+        {
+          text: 'Highest Score',
+          userStats: (d) =>
+            store.getMax(store.getSkovhugger({ since: d }), 'score'),
+        },
+        {
+          text: 'Lowest Score',
+          userStats: (d) =>
+            store.getMin(store.getSkovhugger({ since: d }), 'score'),
+        },
+      ]
     case 'cricket':
-      return []
+      return [
+        {
+          text: 'Number of Games',
+          userStats: (d) => store.getCount(store.getCricket({ since: d })),
+        },
+        {
+          text: 'Elo Delta',
+          userStats: (d) =>
+            store.getSum(
+              store.getCricket({ since: d, allowUnfinished: true }),
+              'eloDelta'
+            ),
+        },
+        // {
+        //   text: 'Average Win Rate',
+        //   userStats: (d) =>
+        //     store.getAvg(
+        //       store.getCricket({ since: d, allowUnfinished: true }),
+        //       'winRate',
+        //       false
+        //     ),
+        //   transform: toPercentage,
+        // },
+        {
+          text: 'Average Score',
+          userStats: (d) =>
+            store.getAvg(store.getCricket({ since: d }), 'score', false),
+          transform: (n) => roundToNDecimals(n, 0).toString(),
+        },
+        {
+          text: 'Highest Score',
+          userStats: (d) =>
+            store.getMax(store.getCricket({ since: d }), 'score'),
+        },
+        {
+          text: 'Lowest Score',
+          userStats: (d) =>
+            store.getMin(store.getCricket({ since: d }), 'score'),
+        },
+      ]
   }
 }
-
-const sort = (
-  userStats: UserStat[],
-  key: keyof Omit<UserStat, 'userId'>,
-  _default: number,
-  ascending = true
-) => {
-  const sorted = userStats
-    .filter((userStat) => userStat[key] != null && userStat[key] != 0)
-    .toSorted((a, b) => (a[key] ?? _default) - (b[key] ?? _default))
-  return ascending ? sorted : sorted.toReversed()
-}
 </script>
+
+<style scoped>
+.highlighted {
+  font-weight: bold;
+}
+</style>

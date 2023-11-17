@@ -15,7 +15,9 @@ export const useUsersStore = defineStore('users', {
     async fetchUsers() {
       const fetchedUsers = (await supabase.from('users').select('*')).data
       if (fetchedUsers) {
-        this.users = fetchedUsers.toSorted(compareCreatedAt)
+        this.users = fetchedUsers
+          .filter((user) => user.visible)
+          .toSorted(compareCreatedAt)
       }
     },
 

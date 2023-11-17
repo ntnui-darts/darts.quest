@@ -9,6 +9,41 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      elo: {
+        Row: {
+          created_at: string
+          id: string
+          killer: number | null
+          rtc: number | null
+          skovhugger: number | null
+          x01: number | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          killer?: number | null
+          rtc?: number | null
+          skovhugger?: number | null
+          x01?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          killer?: number | null
+          rtc?: number | null
+          skovhugger?: number | null
+          x01?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "elo_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       games: {
         Row: {
           createdAt: string
@@ -107,79 +142,31 @@ export interface Database {
           }
         ]
       }
-      statistics: {
+      statistics_cricket: {
         Row: {
-          avg301DoubleVisitsLast10: number | null
-          avg501DoubleVisitsLast10: number | null
-          avgKillerWinRateLast10: number | null
-          avgRtcDoubleHitRateLast10: number | null
-          avgRtcSingleHitRateLast10: number | null
-          avgRtcTripleHitRateLast10: number | null
-          avgX01First9AvgLast10: number | null
-          max301DoubleVisits: number
-          max501DoubleVisits: number
-          maxRtcStreak: number
-          maxX01DoubleCheckout: number
-          maxX01First9Avg: number
-          maxX01VisitScore: number
-          min301DoubleVisits: number | null
-          min501DoubleVisits: number | null
-          minRtcVisits: number | null
-          numKillerGames: number
-          numRtcGames: number
-          numX01Games: number
-          userId: string
+          eloDelta: number | null
+          id: string
+          score: number | null
+          winRate: number | null
         }
         Insert: {
-          avg301DoubleVisitsLast10?: number | null
-          avg501DoubleVisitsLast10?: number | null
-          avgKillerWinRateLast10?: number | null
-          avgRtcDoubleHitRateLast10?: number | null
-          avgRtcSingleHitRateLast10?: number | null
-          avgRtcTripleHitRateLast10?: number | null
-          avgX01First9AvgLast10?: number | null
-          max301DoubleVisits?: number
-          max501DoubleVisits?: number
-          maxRtcStreak?: number
-          maxX01DoubleCheckout?: number
-          maxX01First9Avg?: number
-          maxX01VisitScore?: number
-          min301DoubleVisits?: number | null
-          min501DoubleVisits?: number | null
-          minRtcVisits?: number | null
-          numKillerGames?: number
-          numRtcGames?: number
-          numX01Games?: number
-          userId: string
+          eloDelta?: number | null
+          id: string
+          score?: number | null
+          winRate?: number | null
         }
         Update: {
-          avg301DoubleVisitsLast10?: number | null
-          avg501DoubleVisitsLast10?: number | null
-          avgKillerWinRateLast10?: number | null
-          avgRtcDoubleHitRateLast10?: number | null
-          avgRtcSingleHitRateLast10?: number | null
-          avgRtcTripleHitRateLast10?: number | null
-          avgX01First9AvgLast10?: number | null
-          max301DoubleVisits?: number
-          max501DoubleVisits?: number
-          maxRtcStreak?: number
-          maxX01DoubleCheckout?: number
-          maxX01First9Avg?: number
-          maxX01VisitScore?: number
-          min301DoubleVisits?: number | null
-          min501DoubleVisits?: number | null
-          minRtcVisits?: number | null
-          numKillerGames?: number
-          numRtcGames?: number
-          numX01Games?: number
-          userId?: string
+          eloDelta?: number | null
+          id?: string
+          score?: number | null
+          winRate?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "statistics_userId_fkey"
-            columns: ["userId"]
+            foreignKeyName: "statistics_cricket_id_fkey"
+            columns: ["id"]
             isOneToOne: true
-            referencedRelation: "users"
+            referencedRelation: "legs"
             referencedColumns: ["id"]
           }
         ]
@@ -187,15 +174,21 @@ export interface Database {
       statistics_killer: {
         Row: {
           darts: number | null
+          eloDelta: number | null
           id: string
+          winRate: number | null
         }
         Insert: {
           darts?: number | null
+          eloDelta?: number | null
           id: string
+          winRate?: number | null
         }
         Update: {
           darts?: number | null
+          eloDelta?: number | null
           id?: string
+          winRate?: number | null
         }
         Relationships: [
           {
@@ -210,21 +203,27 @@ export interface Database {
       statistics_rtc: {
         Row: {
           darts: number | null
+          eloDelta: number | null
           hitRate: number | null
           id: string
           maxStreak: number | null
+          winRate: number | null
         }
         Insert: {
           darts?: number | null
+          eloDelta?: number | null
           hitRate?: number | null
           id: string
           maxStreak?: number | null
+          winRate?: number | null
         }
         Update: {
           darts?: number | null
+          eloDelta?: number | null
           hitRate?: number | null
           id?: string
           maxStreak?: number | null
+          winRate?: number | null
         }
         Relationships: [
           {
@@ -238,16 +237,22 @@ export interface Database {
       }
       statistics_skovhugger: {
         Row: {
+          eloDelta: number | null
           id: string
           score: number | null
+          winRate: number | null
         }
         Insert: {
+          eloDelta?: number | null
           id: string
           score?: number | null
+          winRate?: number | null
         }
         Update: {
+          eloDelta?: number | null
           id?: string
           score?: number | null
+          winRate?: number | null
         }
         Relationships: [
           {
@@ -263,23 +268,29 @@ export interface Database {
         Row: {
           checkout: number | null
           darts: number | null
+          eloDelta: number | null
           first9Avg: number | null
           id: string
           maxVisitScore: number | null
+          winRate: number | null
         }
         Insert: {
           checkout?: number | null
           darts?: number | null
+          eloDelta?: number | null
           first9Avg?: number | null
           id: string
           maxVisitScore?: number | null
+          winRate?: number | null
         }
         Update: {
           checkout?: number | null
           darts?: number | null
+          eloDelta?: number | null
           first9Avg?: number | null
           id?: string
           maxVisitScore?: number | null
+          winRate?: number | null
         }
         Relationships: [
           {
@@ -296,6 +307,7 @@ export interface Database {
           createdAt: string
           id: string
           name: string
+          visible: boolean | null
           walkOn: string | null
           walkOnEndTime: number
           walkOnTime: number
@@ -304,6 +316,7 @@ export interface Database {
           createdAt?: string
           id?: string
           name?: string
+          visible?: boolean | null
           walkOn?: string | null
           walkOnEndTime?: number
           walkOnTime?: number
@@ -312,6 +325,7 @@ export interface Database {
           createdAt?: string
           id?: string
           name?: string
+          visible?: boolean | null
           walkOn?: string | null
           walkOnEndTime?: number
           walkOnTime?: number

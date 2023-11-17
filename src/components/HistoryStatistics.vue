@@ -7,22 +7,30 @@
     @update-type-attributes="typeAttributes = $event"
   ></GameSelection>
   <div v-if="gameType == 'rtc'">
-    <h2>Number of Games</h2>
-    <Chart
-      :datasets="rtcNumberOfGamesDataset"
-      :show-smooth-button="false"
-    ></Chart>
-    <h2>RTC Hit Rate</h2>
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="rtcNumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
+    <h2>Elo Rating</h2>
+    <Chart :datasets="rtcEloDataset"></Chart>
+    <h2>Hit Rate</h2>
     <Chart :datasets="rtcHitRateDataset"></Chart>
     <h2>RTC Streak</h2>
     <Chart :datasets="rtcStreakDataset"></Chart>
   </div>
   <div v-if="gameType == 'x01'">
-    <h2>Number of Games</h2>
-    <Chart
-      :datasets="x01NumberOfGamesDataset"
-      :show-smooth-button="false"
-    ></Chart>
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="x01NumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
+    <h2>Elo Rating</h2>
+    <Chart :datasets="x01EloDataset"></Chart>
     <h2>First 9 Average</h2>
     <Chart :datasets="x01First9AvgDataset"></Chart>
     <h2>Checkout</h2>
@@ -31,20 +39,28 @@
     <Chart :datasets="x01MaxVisitScoreDataset"></Chart>
   </div>
   <div v-if="gameType == 'killer'">
-    <h2>Number of Games</h2>
-    <Chart
-      :datasets="killerNumberOfGamesDataset"
-      :show-smooth-button="false"
-    ></Chart>
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="killerNumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
+    <h2>Elo Rating</h2>
+    <Chart :datasets="killerEloDataset"></Chart>
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
   </div>
   <div v-if="gameType == 'skovhugger'">
-    <h2>Number of Games</h2>
-    <Chart
-      :datasets="skovhuggerNumberOfGamesDataset"
-      :show-smooth-button="false"
-    ></Chart>
+    <template v-if="!ignore?.includes('numberOfGames')">
+      <h2>Number of Games</h2>
+      <Chart
+        :datasets="skovhuggerNumberOfGamesDataset"
+        :show-smooth-button="false"
+      ></Chart>
+    </template>
+    <h2>Elo Rating</h2>
+    <Chart :datasets="skovhuggerEloDataset"></Chart>
     <h2>Score</h2>
     <Chart :datasets="skovhuggerScoreDataset"></Chart>
   </div>
@@ -54,20 +70,34 @@
 import Chart from './Chart.vue'
 import GameSelection from './GameSelection.vue'
 import { GameType } from '@/games/games'
-import { useStatsStore } from '@/stores/stats'
-import { useUsersStore } from '@/stores/users'
+import {
+  useStatsStore,
+  getNumberOfGamesDataset,
+  getDataset,
+  getAccumulatedDataset,
+} from '@/stores/stats'
 import { computed, ref } from 'vue'
+import { initialElo } from '@/stores/elo'
 
 const statsStore = useStatsStore()
-const userStore = useUsersStore()
 
 const gameType = ref<GameType>('x01')
 const typeAttributes = ref<string[]>([])
+
+const props = defineProps<{
+  userId?: string
+  borderColor?: string
+  ignore?: string[]
+}>()
 
 const checkTypeAttribute = (ta: string, typeAttributes: string[]) =>
   typeAttributes.includes(ta) ||
   (ta.endsWith(':false') &&
     !typeAttributes.includes(`${ta.split(':')[0]}:true`))
+
+const options = computed(() => ({
+  borderColor: props.borderColor,
+}))
 
 const rtcStats = computed(() =>
   statsStore.rtcStats.filter((stat) =>
@@ -99,130 +129,138 @@ const skovhuggerStats = computed(() =>
 )
 
 const rtcUsers = computed(() =>
-  Array.from(new Set(statsStore.rtcStats.map((s) => s.legs.userId)))
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.rtcStats.map((s) => s.legs.userId)))
 )
 const rtcNumberOfGamesDataset = computed(() => {
-  return rtcUsers.value.map((user) => {
-    let y = 1
-    return {
-      label: userStore.getUser(user)?.name ?? 'Unknown',
-      data: rtcStats.value
-        .filter((s) => s.legs.userId == user)
-        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
-    }
-  })
+  return getNumberOfGamesDataset(rtcUsers.value, rtcStats.value, options.value)
 })
 const rtcHitRateDataset = computed(() => {
-  return rtcUsers.value.map((user) => ({
-    label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: rtcStats.value
-      .filter((s) => s.legs.userId == user)
-      .map((stat) => ({ x: new Date(stat.legs.createdAt), y: stat.hitRate })),
-  }))
+  return getDataset(
+    rtcUsers.value,
+    rtcStats.value,
+    (stat) => stat.hitRate,
+    options.value
+  )
 })
 const rtcStreakDataset = computed(() => {
-  return rtcUsers.value.map((user) => ({
-    label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: rtcStats.value
-      .filter((s) => s.legs.userId == user)
-      .map((stat) => ({ x: new Date(stat.legs.createdAt), y: stat.maxStreak })),
-  }))
+  return getDataset(
+    rtcUsers.value,
+    rtcStats.value,
+    (stat) => stat.maxStreak,
+    options.value
+  )
+})
+const rtcEloDataset = computed(() => {
+  return getAccumulatedDataset(
+    rtcUsers.value,
+    statsStore.rtcStats,
+    (stat) => stat.eloDelta,
+    initialElo,
+    options.value
+  )
 })
 
 const x01Users = computed(() =>
-  Array.from(new Set(statsStore.x01Stats.map((s) => s.legs.userId)))
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.x01Stats.map((s) => s.legs.userId)))
 )
 const x01NumberOfGamesDataset = computed(() => {
-  return x01Users.value.map((user) => {
-    let y = 1
-    return {
-      label: userStore.getUser(user)?.name ?? 'Unknown',
-      data: x01Stats.value
-        .filter((s) => s.legs.userId == user)
-        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
-    }
-  })
+  return getNumberOfGamesDataset(x01Users.value, x01Stats.value, options.value)
 })
 const x01First9AvgDataset = computed(() => {
-  return x01Users.value.map((user) => ({
-    label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: x01Stats.value
-      .filter((s) => s.legs.userId == user)
-      .map((stat) => ({ x: new Date(stat.legs.createdAt), y: stat.first9Avg })),
-  }))
+  return getDataset(
+    x01Users.value,
+    x01Stats.value,
+    (stat) => stat.first9Avg,
+    options.value
+  )
 })
 const x01CheckoutDataset = computed(() => {
-  return x01Users.value.map((user) => ({
-    label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: x01Stats.value
-      .filter((s) => s.legs.userId == user)
-      .map((stat) => ({
-        x: new Date(stat.legs.createdAt),
-        y: stat.checkout,
-      })),
-  }))
+  return getDataset(
+    x01Users.value,
+    x01Stats.value,
+    (stat) => stat.checkout,
+    options.value
+  )
 })
 const x01MaxVisitScoreDataset = computed(() => {
-  return x01Users.value.map((user) => ({
-    label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: x01Stats.value
-      .filter((s) => s.legs.userId == user)
-      .map((stat) => ({
-        x: new Date(stat.legs.createdAt),
-        y: stat.maxVisitScore,
-      })),
-  }))
+  return getDataset(
+    x01Users.value,
+    x01Stats.value,
+    (stat) => stat.maxVisitScore,
+    options.value
+  )
+})
+const x01EloDataset = computed(() => {
+  return getAccumulatedDataset(
+    x01Users.value,
+    statsStore.x01Stats,
+    (stat) => stat.eloDelta,
+    initialElo,
+    options.value
+  )
 })
 
 const killerUsers = computed(() =>
-  Array.from(new Set(statsStore.killerStats.map((s) => s.legs.userId)))
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.killerStats.map((s) => s.legs.userId)))
 )
 const killerNumberOfGamesDataset = computed(() => {
-  return killerUsers.value.map((user) => {
-    let y = 1
-    return {
-      label: userStore.getUser(user)?.name ?? 'Unknown',
-      data: killerStats.value
-        .filter((s) => s.legs.userId == user)
-        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
-    }
-  })
+  return getNumberOfGamesDataset(
+    killerUsers.value,
+    killerStats.value,
+    options.value
+  )
 })
 const killerDartsDataset = computed(() => {
-  return killerUsers.value.map((user) => ({
-    label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: killerStats.value
-      .filter((s) => s.legs.userId == user)
-      .map((stat) => ({
-        x: new Date(stat.legs.createdAt),
-        y: stat.darts,
-      })),
-  }))
+  return getDataset(
+    killerUsers.value,
+    killerStats.value,
+    (stat) => stat.darts,
+    options.value
+  )
+})
+const killerEloDataset = computed(() => {
+  return getAccumulatedDataset(
+    killerUsers.value,
+    statsStore.killerStats,
+    (stat) => stat.eloDelta,
+    initialElo,
+    options.value
+  )
 })
 
 const skovhuggerUsers = computed(() =>
-  Array.from(new Set(statsStore.skovhuggerStats.map((s) => s.legs.userId)))
+  props.userId
+    ? [props.userId]
+    : Array.from(new Set(statsStore.skovhuggerStats.map((s) => s.legs.userId)))
 )
 const skovhuggerNumberOfGamesDataset = computed(() => {
-  return skovhuggerUsers.value.map((user) => {
-    let y = 1
-    return {
-      label: userStore.getUser(user)?.name ?? 'Unknown',
-      data: skovhuggerStats.value
-        .filter((s) => s.legs.userId == user)
-        .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),
-    }
-  })
+  return getNumberOfGamesDataset(
+    skovhuggerUsers.value,
+    skovhuggerStats.value,
+    options.value
+  )
 })
 const skovhuggerScoreDataset = computed(() => {
-  return skovhuggerUsers.value.map((user) => ({
-    label: userStore.getUser(user)?.name ?? 'Unknown',
-    data: skovhuggerStats.value
-      .filter((s) => s.legs.userId == user)
-      .map((stat) => ({
-        x: new Date(stat.legs.createdAt),
-        y: stat.score,
-      })),
-  }))
+  return getDataset(
+    skovhuggerUsers.value,
+    skovhuggerStats.value,
+    (stat) => stat.score,
+    options.value
+  )
+})
+const skovhuggerEloDataset = computed(() => {
+  return getAccumulatedDataset(
+    skovhuggerUsers.value,
+    statsStore.skovhuggerStats,
+    (stat) => stat.eloDelta,
+    initialElo,
+    options.value
+  )
 })
 </script>
