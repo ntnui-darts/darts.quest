@@ -12,14 +12,17 @@
     </button>
   </div>
   <div class="row" style="overflow: auto">
-    <div v-for="player in gameState.players" class="col" style="flex: 1">
+    <div
+      v-for="player in gameState.players"
+      class="col"
+      style="flex: 1; min-width: 30%"
+    >
       <div style="text-align: center">
         {{ stringMaxLength(useUsersStore().getUser(player.id)?.name, 10) }}
       </div>
       <button
         v-for="(_, i) in Array(6)"
         @click="selectSector(20 - i)"
-        class="input-button"
         :class="{
           selected: selectedSector == 20 - i,
         }"
@@ -33,7 +36,6 @@
       </button>
       <button
         @click="selectSector(25)"
-        class="input-button"
         :class="{
           selected: selectedSector == 25,
         }"
@@ -48,7 +50,6 @@
       </button>
       <button
         @click="selectSector(0)"
-        class="input-button"
         :class="{
           selected: selectedSector == 0,
         }"
@@ -56,11 +57,7 @@
       >
         {{ player == currentPlayer ? 0 : '&#8203;' }}
       </button>
-      <button
-        v-if="player == currentPlayer"
-        class="input-button"
-        @click="emit('undo')"
-      >
+      <button v-if="player == currentPlayer" @click="emit('undo')">
         &#x232B;
       </button>
     </div>
@@ -100,9 +97,3 @@ const selectSector = (sector: number) => {
   selectedMultiplier.value = 1
 }
 </script>
-
-<style scoped>
-.input-button {
-  min-width: 26svw;
-}
-</style>
