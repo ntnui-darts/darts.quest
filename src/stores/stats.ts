@@ -76,12 +76,15 @@ export const useStatsStore = defineStore('stats', {
     },
 
     async fetchStats() {
+      const users = useUsersStore().users
       const x01Stats = await supabase
         .from('statistics_x01')
         .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
       if (x01Stats.data) {
         this.x01Stats = (
-          x01Stats.data.filter((s) => s.legs != null) as X01Stat[]
+          x01Stats.data.filter(
+            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+          ) as X01Stat[]
         ).toSorted(compareLegsCreatedAt)
       }
       const rtcStats = await supabase
@@ -89,7 +92,9 @@ export const useStatsStore = defineStore('stats', {
         .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
       if (rtcStats.data) {
         this.rtcStats = (
-          rtcStats.data.filter((s) => s.legs != null) as RtcStat[]
+          rtcStats.data.filter(
+            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+          ) as RtcStat[]
         ).toSorted(compareLegsCreatedAt)
       }
       const killerStats = await supabase
@@ -97,7 +102,9 @@ export const useStatsStore = defineStore('stats', {
         .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
       if (killerStats.data) {
         this.killerStats = (
-          killerStats.data.filter((s) => s.legs != null) as KillerStat[]
+          killerStats.data.filter(
+            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+          ) as KillerStat[]
         ).toSorted(compareLegsCreatedAt)
       }
       const skovhuggerStats = await supabase
@@ -105,7 +112,9 @@ export const useStatsStore = defineStore('stats', {
         .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
       if (skovhuggerStats.data) {
         this.skovhuggerStats = (
-          skovhuggerStats.data.filter((s) => s.legs != null) as SkovhuggerStat[]
+          skovhuggerStats.data.filter(
+            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+          ) as SkovhuggerStat[]
         ).toSorted(compareLegsCreatedAt)
       }
     },

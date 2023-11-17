@@ -278,6 +278,7 @@ export interface Database {
           createdAt: string
           id: string
           name: string
+          visible: boolean | null
           walkOn: string | null
           walkOnEndTime: number
           walkOnTime: number
@@ -286,6 +287,7 @@ export interface Database {
           createdAt?: string
           id?: string
           name?: string
+          visible?: boolean | null
           walkOn?: string | null
           walkOnEndTime?: number
           walkOnTime?: number
@@ -294,6 +296,7 @@ export interface Database {
           createdAt?: string
           id?: string
           name?: string
+          visible?: boolean | null
           walkOn?: string | null
           walkOnEndTime?: number
           walkOnTime?: number

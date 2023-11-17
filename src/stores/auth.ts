@@ -8,8 +8,8 @@ supabase.auth.onAuthStateChange(async (_, session) => {
   const user = session?.user
   if (user && useAuthStore().auth?.id != user?.id) {
     useAuthStore().auth = user
-    useUsersStore().fetchUsers()
-    useStatsStore().fetchAll()
+    await useUsersStore().fetchUsers()
+    await useStatsStore().fetchAll()
   }
 })
 
