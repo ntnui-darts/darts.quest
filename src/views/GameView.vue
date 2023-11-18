@@ -53,18 +53,19 @@
       </div>
       <div class="row" style="margin: 0 1em">
         <button
-          v-for="(segment, i) in displayVisit"
+          v-for="(segment, i) in displayVisit.visit"
           :class="{
             outlined:
-              i == displayVisit.indexOf(null) ||
-              (displayVisit.indexOf(null) == -1 && i == 0),
+              (!displayVisit.isPrev && i == displayVisit.visit.indexOf(null)) ||
+              (displayVisit.isPrev && i == 0),
           }"
-          :disabled="displayVisit.indexOf(null) == -1 || segment == null"
+          :disabled="displayVisit.isPrev || segment == null"
         >
           {{ gameStore.getController().getSegmentText(segment) }}
         </button>
       </div>
     </div>
+
     <component
       :is="getInputComponent(gameStore.game.type)"
       @hit="gameStore.getController().recordHit($event)"
@@ -72,6 +73,7 @@
       @undo="gameStore.undoScore()"
     ></component>
   </div>
+
   <div v-if="gameStore.game && somePlayersFinished">
     <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
       &#x232B;
@@ -117,7 +119,8 @@ const somePlayersFinished = computed(
 )
 
 const displayVisit = computed(() => {
-  if (!gameStore.game || !gameStore.gameState?.player) return [null, null, null]
+  if (!gameStore.game || !gameStore.gameState?.player)
+    return { visit: [null, null, null] ?? [null, null, null], isPrev: false }
   const leg = getLegOfUser(gameStore.game, gameStore.gameState?.player)
   const visit = leg?.visits.at(-1)
   if (
@@ -126,9 +129,9 @@ const displayVisit = computed(() => {
   ) {
     const leg = getLegOfUser(gameStore.game, gameStore.gameState?.prevPlayer)
     const visit = leg?.visits.at(-1)
-    return visit ?? [null, null, null]
+    return { visit: visit ?? [null, null, null], isPrev: true }
   }
-  return visit ?? [null, null, null]
+  return { visit: visit ?? [null, null, null], isPrev: false }
 })
 
 onMounted(() => {
