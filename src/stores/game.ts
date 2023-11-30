@@ -47,6 +47,9 @@ export const useGameStore = defineStore('game', {
 
     refreshGameState() {
       this.gameState = this.getController().getGameState()
+      if (this.game) {
+        this.game.result = this.gameState.rank
+      }
       this.tryPlayWalkOn()
       return this.gameState
     },
@@ -128,13 +131,13 @@ export const useGameStore = defineStore('game', {
 
     async saveGame() {
       if (!this.game || !this.gameState) return false
-      this.game.result = this.refreshGameState().rank
+      this.refreshGameState()
 
       await supabase.from('games').insert({
         ...this.game,
         legs: this.game.legs.map((leg) => leg.id),
       })
-      const eloDeltas = await useEloStore().updateEloFromGame(this.game)
+      const eloDeltas = await useEloStore().updateEloFromGame(this.game, true)
 
       for (let leg of this.game.legs) {
         if (this.game.result.includes(leg.userId)) {

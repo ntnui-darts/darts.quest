@@ -80,8 +80,16 @@
     </button>
     <h2>Results</h2>
     <ol>
-      <li v-for="id in gameStore.gameState?.rank">
-        {{ gameStore.gameState?.getUserResultText(id) }}
+      <li
+        v-for="(id, i) in gameStore.gameState?.rank"
+        style="display: flex; justify-content: space-between"
+      >
+        <span>
+          {{ i + 1 }}. {{ gameStore.gameState?.getUserResultText(id) }}
+        </span>
+        <span style="margin-left: 1em" :style="{ color: getEloColor(id) }">{{
+          getEloText(id)
+        }}</span>
       </li>
     </ol>
     <div class="col">
@@ -94,7 +102,7 @@
 import Youtube from '@/components/Youtube.vue'
 import Prompt from '@/components/Prompt.vue'
 import InGameSummary from '@/components/InGameSummary.vue'
-import { onMounted, computed, watch } from 'vue'
+import { onMounted, computed, watch, ref } from 'vue'
 import { router } from '@/router'
 import { useUsersStore } from '@/stores/users'
 import { useLoadingStore } from '@/stores/loading'
@@ -104,10 +112,14 @@ import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { getLegOfUser } from '@/types/game'
 import { speak } from '@/functions/speak'
 import { useOptionsStore } from '@/stores/options'
+import { useEloStore } from '@/stores/elo'
+import { roundToNDecimals } from '@/stores/stats'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
 const loadingStore = useLoadingStore()
+
+const eloDeltas = ref<{ userId: string; eloDelta: number }[]>([])
 
 const allPlayersFinished = computed(
   () =>
@@ -216,6 +228,29 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  () => gameStore.gameState?.rank.length,
+  async () => {
+    if (!gameStore.game?.result.length) return
+    eloDeltas.value = await useEloStore().updateEloFromGame(
+      gameStore.game,
+      false
+    )
+  }
+)
+
+const getEloText = (userId: string) => {
+  const eloDelta =
+    eloDeltas.value.find((eloDelta) => eloDelta.userId == userId)?.eloDelta ?? 0
+  return `${eloDelta > 0 ? '+' : ''}${roundToNDecimals(eloDelta, 1)}`
+}
+
+const getEloColor = (userId: string) => {
+  const eloDelta =
+    eloDeltas.value.find((eloDelta) => eloDelta.userId == userId)?.eloDelta ?? 0
+  return eloDelta > 0 ? '#127a16' : '#ad1717'
+}
 </script>
 
 <style scoped>

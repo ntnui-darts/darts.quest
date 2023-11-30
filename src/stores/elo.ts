@@ -24,13 +24,14 @@ export const useEloStore = defineStore('elo', {
   }),
 
   actions: {
-    async updateEloFromGame(game: Game) {
+    async updateEloFromGame(game: Game, upsert: boolean) {
       const eloPlayers: { id: string; elo: number }[] = []
 
       for (const id of game.players) {
         const elo = await this.fetchElo(id, game.type)
         eloPlayers.push({ id, elo })
       }
+      console.log(eloPlayers)
       const eloDeltas: { userId: string; eloDelta: number }[] = []
       for (const player of eloPlayers) {
         let eloDelta = 0
@@ -47,7 +48,7 @@ export const useEloStore = defineStore('elo', {
           eloDelta += getEloDelta(expected, result)
         }
         eloDelta /= Math.max(1, eloPlayers.length - 1)
-        if (eloDelta != 0) {
+        if (eloDelta != 0 && upsert) {
           await this.upsertElo(player.id, game.type, player.elo + eloDelta)
         }
         eloDeltas.push({

@@ -30,7 +30,7 @@ export const setElo = async () => {
       continue
     }
     //@ts-ignore
-    const eloDeltas = await eloStore.updateEloFromGame(game as Game)
+    const eloDeltas = await eloStore.updateEloFromGame(game as Game, true)
     for (const eloDelta of eloDeltas) {
       const legIdResponse = await supabase
         .from('legs')
