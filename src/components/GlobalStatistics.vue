@@ -177,7 +177,10 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
             {
               text: 'Highest Single Visit Score',
               userStats: (d) =>
-                store.getMax(store.getX01({ since: d }), 'maxVisitScore'),
+                store.getMax(
+                  store.getX01({ since: d, allowUnfinished: true }),
+                  'maxVisitScore'
+                ),
             },
           ]
         case '301 Double':
