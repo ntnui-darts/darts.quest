@@ -1,4 +1,8 @@
+import { useOptionsStore } from '@/stores/options'
+
 export const speak = (text: string) => {
+  if (useOptionsStore().speechMuted) return
+
   const utterance = new SpeechSynthesisUtterance()
   utterance.text = text
   const defaultVoice = window.speechSynthesis

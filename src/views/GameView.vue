@@ -1,7 +1,7 @@
 <template>
   <div hidden>
     <Youtube
-      v-if="gameStore.walkOn"
+      v-if="gameStore.walkOn && !useOptionsStore().walkOnMuted"
       :video-id="gameStore.walkOn"
       :start-time="gameStore.walkOnTime"
       :end-time="gameStore.walkOnEndTime"
@@ -103,6 +103,7 @@ import { useGameStore } from '@/stores/game'
 import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { getLegOfUser } from '@/types/game'
 import { speak } from '@/functions/speak'
+import { useOptionsStore } from '@/stores/options'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()

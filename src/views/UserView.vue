@@ -1,6 +1,8 @@
 <template>
   <button id="back" @click="router.push({ name: 'home' })">Back</button>
   <br />
+
+  <h2>User</h2>
   <label for="name">Display Name</label>
   <input
     id="name"
@@ -8,27 +10,56 @@
     @change="updateName"
   />
   <p>Mail Address: {{ usersStore.getCurrentUser?.email }}</p>
+
+  <h2>Walk On</h2>
   <label for="videoId">Walk-on Youtube URL</label>
   <input
     id="walkOn"
     :value="usersStore.getCurrentUser?.walkOn"
     @change="updateWalkOn"
   />
-  <label for="videoId">Walk-on Video Start Time (s)</label>
-  <input
-    id="walkOnStart"
-    :value="usersStore.getCurrentUser?.walkOnTime"
-    type="number"
-    @change="updateWalkOnTime"
-  />
-  <label for="videoId">Walk-on Video End Time (s)</label>
-  <input
-    id="walkOnEnd"
-    :value="usersStore.getCurrentUser?.walkOnEndTime"
-    type="number"
-    @change="updateWalkOnEndTime"
-  />
-  <button @click="router.push({ name: 'password' })">Change Password</button>
+  <div class="row">
+    <div class="col">
+      <label for="videoId">Start Time (s)</label>
+      <input
+        id="walkOnStart"
+        :value="usersStore.getCurrentUser?.walkOnTime"
+        type="number"
+        @change="updateWalkOnTime"
+      />
+    </div>
+    <div class="col">
+      <label for="videoId">End Time (s)</label>
+      <input
+        id="walkOnEnd"
+        :value="usersStore.getCurrentUser?.walkOnEndTime"
+        type="number"
+        @change="updateWalkOnEndTime"
+      />
+    </div>
+  </div>
+
+  <h2>Audio</h2>
+  <div id="audio" class="row">
+    <button
+      :class="{ selected: !optionsStore.walkOnMuted }"
+      @click="optionsStore.toggleWalkOnMuted"
+    >
+      WalkOn: {{ optionsStore.walkOnMuted ? 'Off' : 'On' }}
+    </button>
+    <button
+      :class="{ selected: !optionsStore.speechMuted }"
+      @click="optionsStore.toggleSpeechMuted"
+    >
+      Speech: {{ optionsStore.speechMuted ? 'Off' : 'On' }}
+    </button>
+  </div>
+
+  <h2>Password</h2>
+  <button @click="router.push({ name: 'password' })" id="change-password">
+    Change Password
+  </button>
+
   <div class="row">
     <button v-if="changed" id="discard" @click="discardChanges">
       Discard Changes
@@ -45,11 +76,13 @@
 <script lang="ts" setup>
 import { useAuthStore } from '@/stores/auth'
 import { useUsersStore } from '@/stores/users'
+import { useOptionsStore } from '@/stores/options'
 import { router } from '@/router'
 import { ref } from 'vue'
 
 const authStore = useAuthStore()
 const usersStore = useUsersStore()
+const optionsStore = useOptionsStore()
 
 const changed = ref(false)
 const updateName = (e: Event) => {
