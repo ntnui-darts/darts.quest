@@ -1,6 +1,5 @@
 <template>
   <button id="back" @click="router.push({ name: 'home' })">Back</button>
-  <br />
 
   <h2>User</h2>
   <label for="name">Display Name</label>
