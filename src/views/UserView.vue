@@ -18,7 +18,7 @@
     @change="updateWalkOn"
   />
   <div class="row">
-    <div class="col">
+    <div class="col" style="flex: 1; max-width: 45%">
       <label for="videoId">Start Time (s)</label>
       <input
         id="walkOnStart"
@@ -27,7 +27,7 @@
         @change="updateWalkOnTime"
       />
     </div>
-    <div class="col">
+    <div class="col" style="flex: 1; max-width: 45%">
       <label for="videoId">End Time (s)</label>
       <input
         id="walkOnEnd"
