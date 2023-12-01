@@ -42,6 +42,7 @@ const buildChart = async () => {
       pointHoverRadius: 12,
       pointHitRadius: 12,
       borderWidth: 4,
+      pointRadius: 0,
     }))
 
   if (smoothEnabled.value && props.datasets.length == 1) {
@@ -55,6 +56,7 @@ const buildChart = async () => {
         pointHoverRadius: 12,
         pointHitRadius: 12,
         borderWidth: 4,
+        pointRadius: 0,
       },
       {
         ...dataset,
@@ -63,6 +65,7 @@ const buildChart = async () => {
         pointHoverRadius: 12,
         pointHitRadius: 12,
         borderWidth: 4,
+        pointRadius: 0,
       },
     ]
   }
