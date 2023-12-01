@@ -100,6 +100,8 @@ const submit = async () => {
       } else {
         await authStore.signIn(email.value, password.value)
       }
+    } else {
+      router.push({ name: 'home' })
     }
   } catch {
     error.value = 'Oh no! Something went wrong :('
