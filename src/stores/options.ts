@@ -19,12 +19,12 @@ export const useOptionsStore = defineStore('options', {
   actions: {
     toggleWalkOnMuted() {
       this.walkOnMuted = !this.walkOnMuted
-      localStorage.setItem('walkOnMuted', (!this.walkOnMuted).toString())
+      localStorage.setItem('walkOnMuted', this.walkOnMuted.toString())
     },
 
     toggleSpeechMuted() {
       this.speechMuted = !this.speechMuted
-      localStorage.setItem('speechMuted', (!this.speechMuted).toString())
+      localStorage.setItem('speechMuted', this.speechMuted.toString())
     },
   },
 })
