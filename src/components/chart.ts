@@ -8,7 +8,7 @@ export const smoothPoints = (points: Point[]) => {
     for (const b of points) {
       const distance = Math.max(
         1,
-        Math.pow(Math.abs(a.x.getTime() - b.x.getTime()) / 9e7, 2)
+        Math.pow(Math.abs(a.x.getTime() - b.x.getTime()) / 16e7, 2)
       )
       const weight = 1 / distance
       sumWeights += weight

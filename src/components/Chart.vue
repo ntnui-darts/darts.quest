@@ -34,10 +34,14 @@ const buildChart = async () => {
   if (!chartElement.value) return
 
   let datasets = props.datasets
-    .filter((data) => data.data.length > 0)
+    .filter((data) => data.data.length > 3)
     .map((dataset) => ({
       ...dataset,
       data: smoothEnabled.value ? smoothPoints(dataset.data) : dataset.data,
+      cubicInterpolationMode: smoothEnabled.value ? 'monotone' : 'default',
+      pointHoverRadius: 12,
+      pointHitRadius: 12,
+      borderWidth: 4,
     }))
 
   if (smoothEnabled.value && props.datasets.length == 1) {
@@ -47,10 +51,18 @@ const buildChart = async () => {
         ...dataset,
         label: `Smooth`,
         data: smoothPoints(dataset.data),
+        cubicInterpolationMode: 'monotone',
+        pointHoverRadius: 12,
+        pointHitRadius: 12,
+        borderWidth: 4,
       },
       {
         ...dataset,
         borderColor: '#555555',
+        cubicInterpolationMode: 'default',
+        pointHoverRadius: 12,
+        pointHitRadius: 12,
+        borderWidth: 4,
       },
     ]
   }
@@ -64,6 +76,7 @@ const buildChart = async () => {
   chart = new Chart(chartElement.value, {
     type: 'line',
     data: {
+      //@ts-ignore
       datasets,
     },
     options: {
