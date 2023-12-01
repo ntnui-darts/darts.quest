@@ -185,21 +185,6 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           ]
         case '301 Double':
           return [
-            // {
-            //   text: 'Average Win Rate',
-            //   userStats: (d) =>
-            //     store.getAvg(
-            //       store.getX01({
-            //         since: d,
-            //         allowUnfinished: true,
-            //         startScore: 301,
-            //         finish: 2,
-            //       }),
-            //       'winRate',
-            //       false
-            //     ),
-            //   transform: toPercentage,
-            // },
             {
               text: 'Average # Darts',
               userStats: (d) =>
@@ -227,21 +212,6 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
           ]
         case '501 Double':
           return [
-            // {
-            //   text: 'Average Win Rate',
-            //   userStats: (d) =>
-            //     store.getAvg(
-            //       store.getX01({
-            //         since: d,
-            //         allowUnfinished: true,
-            //         startScore: 501,
-            //         finish: 2,
-            //       }),
-            //       'winRate',
-            //       false
-            //     ),
-            //   transform: toPercentage,
-            // },
             {
               text: 'Average # Darts',
               userStats: (d) =>
@@ -292,7 +262,7 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
             {
               text: 'Fewest Darts',
               userStats: (d) =>
-                store.getMin(store.getRtc({ since: d }), 'darts'),
+                store.getMin(store.getRtc({ since: d, fast: false }), 'darts'),
             },
             {
               text: 'Longest Streak',
@@ -315,16 +285,6 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
                 ),
               transform: toPercentage,
             },
-            // {
-            //   text: 'Average Win Rate',
-            //   userStats: (d) =>
-            //     store.getAvg(
-            //       store.getRtc({ since: d, allowUnfinished: true, mode: 1 }),
-            //       'winRate',
-            //       false
-            //     ),
-            //   transform: toPercentage,
-            // },
           ]
         case 'Double':
           return [
@@ -338,16 +298,6 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
                 ),
               transform: toPercentage,
             },
-            // {
-            //   text: 'Average Win Rate',
-            //   userStats: (d) =>
-            //     store.getAvg(
-            //       store.getRtc({ since: d, allowUnfinished: true, mode: 2 }),
-            //       'winRate',
-            //       false
-            //     ),
-            //   transform: toPercentage,
-            // },
           ]
         case 'Triple':
           return [
@@ -361,16 +311,6 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
                 ),
               transform: toPercentage,
             },
-            // {
-            //   text: 'Average Win Rate',
-            //   userStats: (d) =>
-            //     store.getAvg(
-            //       store.getRtc({ since: d, allowUnfinished: true, mode: 3 }),
-            //       'winRate',
-            //       false
-            //     ),
-            //   transform: toPercentage,
-            // },
           ]
         default:
           return []
@@ -389,16 +329,6 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
               'eloDelta'
             ),
         },
-        // {
-        //   text: 'Average Win Rate',
-        //   userStats: (d) =>
-        //     store.getAvg(
-        //       store.getKiller({ since: d, allowUnfinished: true }),
-        //       'winRate',
-        //       false
-        //     ),
-        //   transform: toPercentage,
-        // },
       ]
     case 'skovhugger':
       return [
@@ -414,16 +344,6 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
               'eloDelta'
             ),
         },
-        // {
-        //   text: 'Average Win Rate',
-        //   userStats: (d) =>
-        //     store.getAvg(
-        //       store.getSkovhugger({ since: d, allowUnfinished: true }),
-        //       'winRate',
-        //       false
-        //     ),
-        //   transform: toPercentage,
-        // },
         {
           text: 'Average Score',
           userStats: (d) =>
@@ -455,16 +375,6 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
               'eloDelta'
             ),
         },
-        // {
-        //   text: 'Average Win Rate',
-        //   userStats: (d) =>
-        //     store.getAvg(
-        //       store.getCricket({ since: d, allowUnfinished: true }),
-        //       'winRate',
-        //       false
-        //     ),
-        //   transform: toPercentage,
-        // },
         {
           text: 'Average Score',
           userStats: (d) =>

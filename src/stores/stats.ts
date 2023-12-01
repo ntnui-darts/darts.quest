@@ -260,6 +260,7 @@ export const useStatsStore = defineStore('stats', {
       since?: Date
       allowUnfinished?: boolean
       mode?: 1 | 2 | 3
+      fast?: boolean
     }) {
       return this.rtcStats.filter((stat) => {
         if (
@@ -273,6 +274,12 @@ export const useStatsStore = defineStore('stats', {
         if (
           options.mode != undefined &&
           getTypeAttribute<number>(stat.legs, 'mode', 0) != options.mode
+        )
+          return false
+
+        if (
+          options.fast != undefined &&
+          getTypeAttribute<boolean>(stat.legs, 'fast', false) != options.fast
         )
           return false
 
