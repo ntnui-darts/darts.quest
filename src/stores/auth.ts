@@ -20,10 +20,13 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async getSession() {
+      const prevAuth = this.auth
       const response = await supabase.auth.getSession()
       this.auth = response.data.session?.user
-      await useUsersStore().fetchUsers()
-      await useStatsStore().fetchAll()
+      if (this.auth != prevAuth) {
+        await useUsersStore().fetchUsers()
+        await useStatsStore().fetchAll()
+      }
     },
 
     async signUp(name: string, email: string, password: string) {
