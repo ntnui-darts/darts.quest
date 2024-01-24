@@ -27,10 +27,14 @@
 </template>
 
 <script lang="ts" setup>
-import { Multiplier, Segment, multiplierToString } from '@/types/game'
-import { ref } from 'vue'
 import { useGameStore } from '@/stores/game'
-import { getTypeAttribute } from '@/types/game'
+import {
+  Multiplier,
+  Segment,
+  getTypeAttribute,
+  multiplierToString,
+} from '@/types/game'
+import { ref } from 'vue'
 
 const gameStore = useGameStore()
 

@@ -33,19 +33,19 @@
 </template>
 
 <script lang="ts" setup>
-import ReloadView from '@/components/ReloadView.vue'
+import GameSelection from '@/components/GameSelection.vue'
+import InstallationPrompt from '@/components/InstallationPrompt.vue'
 import PlayerSelection from '@/components/PlayerSelection.vue'
+import ReloadView from '@/components/ReloadView.vue'
 import { router } from '@/router'
-import { Leg } from '@/types/game'
-import { useUsersStore } from '@/stores/users'
+import { useAuthStore } from '@/stores/auth'
+import { useGameStore } from '@/stores/game'
 import { useHomeStore } from '@/stores/home'
+import { useModalStore } from '@/stores/modal'
+import { useUsersStore } from '@/stores/users'
+import { Leg } from '@/types/game'
 import { nanoid } from 'nanoid'
 import { onMounted, watch } from 'vue'
-import { useModalStore } from '@/stores/modal'
-import { useGameStore } from '@/stores/game'
-import { useAuthStore } from '@/stores/auth'
-import InstallationPrompt from '@/components/InstallationPrompt.vue'
-import GameSelection from '@/components/GameSelection.vue'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()

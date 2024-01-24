@@ -8,9 +8,9 @@
 
 <script lang="ts" setup>
 import { router } from '@/router'
-import { Game } from '@/types/game'
-import { useModalStore } from '@/stores/modal'
 import { useGameStore } from '@/stores/game'
+import { useModalStore } from '@/stores/modal'
+import { Game } from '@/types/game'
 
 function reloadGame() {
   const gameJson = localStorage.getItem('game')

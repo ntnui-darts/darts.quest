@@ -96,17 +96,17 @@
 </template>
 
 <script lang="ts" setup>
-import LegStats from '@/components/LegStats.vue'
 import DartboardChart from '@/components/DartboardChart.vue'
-import HistoryStatistics from './HistoryStatistics.vue'
+import LegStats from '@/components/LegStats.vue'
+import { GameType, GameTypeNames } from '@/games/games'
+import { useAuthStore } from '@/stores/auth'
+import { initialElo, useEloStore } from '@/stores/elo'
 import { useStatsStore } from '@/stores/stats'
-import { ref, computed, onMounted } from 'vue'
 import { getTypeAttribute } from '@/types/game'
 import { addDays } from 'date-fns'
-import { useAuthStore } from '@/stores/auth'
+import { computed, onMounted, ref } from 'vue'
 import Chart from './Chart.vue'
-import { GameType, GameTypeNames } from '@/games/games'
-import { initialElo, useEloStore } from '@/stores/elo'
+import HistoryStatistics from './HistoryStatistics.vue'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 

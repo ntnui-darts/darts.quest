@@ -82,7 +82,7 @@ import { KillerController, KillerPlayer } from '@/games/killer'
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import { Segment, multiplierToString } from '@/types/game'
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const selectedMultiplier = ref(1)
 const selectedSector = ref<number | null>(null)

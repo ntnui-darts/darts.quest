@@ -73,10 +73,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useAuthStore } from '@/stores/auth'
-import { useUsersStore } from '@/stores/users'
-import { useOptionsStore } from '@/stores/options'
 import { router } from '@/router'
+import { useAuthStore } from '@/stores/auth'
+import { useOptionsStore } from '@/stores/options'
+import { useUsersStore } from '@/stores/users'
 import { ref } from 'vue'
 
 const authStore = useAuthStore()

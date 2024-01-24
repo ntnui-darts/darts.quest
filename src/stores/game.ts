@@ -1,19 +1,19 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { upsertLegStatistics, useStatsStore } from './stats'
+import { speak } from '@/functions/speak'
+import { getGameController, getGameDisplayName } from '@/games/games'
 import { supabase } from '@/supabase'
 import {
+  GameController,
   Game as GameData,
+  GameState,
   Segment,
   Visit,
   getLegOfUser,
-  GameController,
-  GameState,
   getVisitsOfUser,
 } from '@/types/game'
-import { useUsersStore } from './users'
-import { getGameController, getGameDisplayName } from '@/games/games'
-import { speak } from '@/functions/speak'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useEloStore } from './elo'
+import { upsertLegStatistics, useStatsStore } from './stats'
+import { useUsersStore } from './users'
 
 export const useGameStore = defineStore('game', {
   state: () => ({

@@ -99,21 +99,21 @@
 </template>
 
 <script lang="ts" setup>
-import Youtube from '@/components/Youtube.vue'
-import Prompt from '@/components/Prompt.vue'
 import InGameSummary from '@/components/InGameSummary.vue'
-import { onMounted, computed, watch, ref } from 'vue'
+import Prompt from '@/components/Prompt.vue'
+import Youtube from '@/components/Youtube.vue'
+import { speak } from '@/functions/speak'
+import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { router } from '@/router'
-import { useUsersStore } from '@/stores/users'
+import { useEloStore } from '@/stores/elo'
+import { useGameStore } from '@/stores/game'
 import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
-import { useGameStore } from '@/stores/game'
-import { getGameDisplayName, getInputComponent } from '@/games/games'
-import { getLegOfUser } from '@/types/game'
-import { speak } from '@/functions/speak'
 import { useOptionsStore } from '@/stores/options'
-import { useEloStore } from '@/stores/elo'
 import { roundToNDecimals } from '@/stores/stats'
+import { useUsersStore } from '@/stores/users'
+import { getLegOfUser } from '@/types/game'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()

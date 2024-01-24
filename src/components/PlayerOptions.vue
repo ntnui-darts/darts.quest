@@ -14,8 +14,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
 import { UserCurrentInfo } from '@/components/PlayerSelection.vue'
+import { ref } from 'vue'
 
 const props = defineProps<{
   user: UserCurrentInfo

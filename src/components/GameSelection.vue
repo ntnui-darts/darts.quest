@@ -33,8 +33,8 @@
 </template>
 
 <script lang="ts" setup>
-import { GameTypeNames, getOptionsComponent } from '@/games/games'
 import type { GameType } from '@/games/games'
+import { GameTypeNames, getOptionsComponent } from '@/games/games'
 defineProps<{ gameType: GameType; typeAttributes: string[] }>()
 
 const emit = defineEmits<{

@@ -1,8 +1,8 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { User as AuthUser } from '@supabase/supabase-js'
 import { supabase } from '@/supabase'
-import { User, useUsersStore } from './users'
+import { User as AuthUser } from '@supabase/supabase-js'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useStatsStore } from './stats'
+import { User, useUsersStore } from './users'
 
 supabase.auth.onAuthStateChange(async (_, session) => {
   const user = session?.user

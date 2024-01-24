@@ -1,8 +1,8 @@
+import { compareCreatedAt } from '@/functions/compare'
 import { supabase } from '@/supabase'
 import { Database } from '@/types/supabase'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
-import { compareCreatedAt } from '@/functions/compare'
 
 export type User = Database['public']['Tables']['users']['Row']
 

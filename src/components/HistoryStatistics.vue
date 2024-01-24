@@ -80,17 +80,17 @@
 </template>
 
 <script lang="ts" setup>
-import Chart from './Chart.vue'
-import GameSelection from './GameSelection.vue'
 import { GameType } from '@/games/games'
+import { initialElo } from '@/stores/elo'
 import {
-  useStatsStore,
-  getNumberOfGamesDataset,
-  getDataset,
   getAccumulatedDataset,
+  getDataset,
+  getNumberOfGamesDataset,
+  useStatsStore,
 } from '@/stores/stats'
 import { computed, ref } from 'vue'
-import { initialElo } from '@/stores/elo'
+import Chart from './Chart.vue'
+import GameSelection from './GameSelection.vue'
 
 const statsStore = useStatsStore()
 

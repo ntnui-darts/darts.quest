@@ -33,7 +33,7 @@
 
 <script lang="ts" setup>
 import { getTypeAttribute } from '@/types/game'
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
 

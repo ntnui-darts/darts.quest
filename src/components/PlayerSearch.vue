@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import { useModalStore } from '@/stores/modal'
 import { User, useUsersStore } from '@/stores/users'
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import PlayerOptions from './PlayerOptions.vue'
 
 const props = defineProps<{

@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
 import { useModalStore } from '@/stores/modal'
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import Prompt from './Prompt.vue'
 
 const installEvent = ref(undefined as any)

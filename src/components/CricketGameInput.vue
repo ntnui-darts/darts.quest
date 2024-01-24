@@ -65,12 +65,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useGameStore } from '@/stores/game'
-import { Segment, multiplierToString } from '@/types/game'
-import { ref, computed } from 'vue'
-import { CricketGameState } from '@/games/cricket'
-import { useUsersStore } from '@/stores/users'
 import { stringMaxLength } from '@/functions/string'
+import { CricketGameState } from '@/games/cricket'
+import { useGameStore } from '@/stores/game'
+import { useUsersStore } from '@/stores/users'
+import { Segment, multiplierToString } from '@/types/game'
+import { computed, ref } from 'vue'
 
 const selectedMultiplier = ref(1)
 const selectedSector = ref<number | null>(null)

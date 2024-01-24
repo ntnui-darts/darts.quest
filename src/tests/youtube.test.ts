@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest'
 import { parseYoutube } from '@/components/youtube'
+import { expect, test } from 'vitest'
 
 test('parse youtube url', () => {
   expect(
