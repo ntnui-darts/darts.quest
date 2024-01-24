@@ -25,7 +25,7 @@ export const useGameStore = defineStore('game', {
     walkOnEndTime: 0,
 
     // Don't access controller directly, use getController()
-    _controller: null as GameController | null,
+    _controller: null as GameController<GameState> | null,
   }),
 
   actions: {
@@ -37,7 +37,7 @@ export const useGameStore = defineStore('game', {
       this.refreshGameState()
     },
 
-    getController(): GameController {
+    getController(): GameController<GameState> {
       if (!this.game) throw Error()
       if (this.game != this._controller?.game) {
         this._controller = getGameController(this.game)

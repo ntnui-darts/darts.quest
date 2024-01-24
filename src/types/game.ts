@@ -45,9 +45,9 @@ export interface GameState {
   getTopRightText(): string
 }
 
-export interface GameController {
+export interface GameController<T extends GameState> {
   game: Game
-  getGameState(): GameState
+  getGameState(): T
   recordHit(segment: Segment): void
   recordMiss(): void
   getSegmentText(segment?: Segment | null): string

@@ -1,17 +1,17 @@
-import { Game, GameController, GameState, getVisitsOfUser } from '@/types/game'
 import {
   SimulationState,
   getGenericController,
   nextState,
 } from '@/games/generic'
 import { useUsersStore } from '@/stores/users'
+import { Game, GameController, GameState, getVisitsOfUser } from '@/types/game'
 
 export interface CricketGameState extends GameState {
   players: { id: string; score: number; hits: Map<number, number> }[]
   unlocks: Map<number, number>
 }
 
-export const getCricketController = (game: Game): GameController => {
+export const getCricketController = (game: Game): GameController<GameState> => {
   return {
     ...getGenericController(game),
 

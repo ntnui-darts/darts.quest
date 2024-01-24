@@ -1,21 +1,24 @@
-import { useUsersStore } from '@/stores/users'
-import {
-  Game,
-  GameController,
-  Multiplier,
-  Segment,
-  Visit,
-  getVisitsOfUser,
-} from '@/types/game'
+import { speak } from '@/functions/speak'
 import {
   SimulationState,
   getGenericController,
   nextState,
 } from '@/games/generic'
+import { useUsersStore } from '@/stores/users'
+import {
+  Game,
+  GameController,
+  GameState,
+  Multiplier,
+  Segment,
+  Visit,
+  getVisitsOfUser,
+} from '@/types/game'
 import { getSegmentScore } from './x01'
-import { speak } from '@/functions/speak'
 
-export const getSkovhuggerController = (game: Game): GameController => {
+export const getSkovhuggerController = (
+  game: Game
+): GameController<GameState> => {
   return {
     ...getGenericController(game),
 

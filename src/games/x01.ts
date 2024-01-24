@@ -1,19 +1,19 @@
+import { speak } from '@/functions/speak'
+import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
+import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
-  Segment,
-  Visit,
   Game,
   GameController,
-  getVisitsOfUser,
-  getTypeAttribute,
   GameState,
+  Segment,
+  Visit,
+  getTypeAttribute,
+  getVisitsOfUser,
 } from '@/types/game'
-import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { GameType, getGamePoints } from './games'
-import { useGameStore } from '@/stores/game'
-import { speak } from '@/functions/speak'
 
-export const getX01Controller = (game: Game): GameController => {
+export const getX01Controller = (game: Game): GameController<GameState> => {
   return {
     ...getGenericController(game),
 

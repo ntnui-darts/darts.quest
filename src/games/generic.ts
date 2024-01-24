@@ -2,6 +2,7 @@ import { useGameStore } from '@/stores/game'
 import {
   Game,
   GameController,
+  GameState,
   Multiplier,
   Visit,
   getVisitsOfUser,
@@ -27,7 +28,7 @@ export const getGenericController = (game: Game) => {
     recordMiss() {
       useGameStore().saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
-  } satisfies Partial<GameController>
+  } satisfies Partial<GameController<GameState>>
 }
 
 export type SimulationState = {

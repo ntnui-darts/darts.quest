@@ -1,14 +1,20 @@
-import { useGameStore } from '@/stores/game'
-import { useUsersStore } from '@/stores/users'
-import { Game, GameController, Multiplier, getVisitsOfUser } from '@/types/game'
 import {
   SimulationState,
   getGenericController,
   nextState,
 } from '@/games/generic'
+import { useGameStore } from '@/stores/game'
+import { useUsersStore } from '@/stores/users'
+import {
+  Game,
+  GameController,
+  GameState,
+  Multiplier,
+  getVisitsOfUser,
+} from '@/types/game'
 import { getGamePoints } from './games'
 
-export type KillerController = GameController & {
+export type KillerController = GameController<GameState> & {
   getKillerPlayers: () => KillerPlayer[]
 }
 

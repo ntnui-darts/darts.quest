@@ -1,17 +1,24 @@
+import { speak } from '@/functions/speak'
+import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
+import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
   Game,
   GameController,
+  GameState,
   Visit,
-  getVisitsOfUser,
   getTypeAttribute,
+  getVisitsOfUser,
 } from '@/types/game'
-import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
-import { useGameStore } from '@/stores/game'
 import { getGamePoints } from './games'
-import { speak } from '@/functions/speak'
 
-export type RtcController = GameController & { getSequence(): number[] }
+export interface RtcGameState extends GameState {
+  getNextTarget(userId: string): number
+}
+
+export type RtcController = GameController<RtcGameState> & {
+  getSequence(): number[]
+}
 
 export const getRtcController = (game: Game): RtcController => {
   const sequence = Array(20)
@@ -23,11 +30,19 @@ export const getRtcController = (game: Game): RtcController => {
 
     getGameState() {
       const sequence = this.getSequence()
+      const winCondition = (game: Game, visits: Visit[]) => {
+        const isForced = getTypeAttribute<Boolean>(game, 'forced', false)
+        if (isForced) {
+          const segmentCount = visits.flat().filter((s) => s != null).length
+          return segmentCount >= 20
+        }
+        const reachedTargetScore =
+          getRtcLegScore(game, visits) == getGamePoints(game)
+        return reachedTargetScore
+      }
+
       return {
-        ...simulateFirstToWinGame(
-          game,
-          (game, visits) => getRtcLegScore(game, visits) == getGamePoints(game)
-        ),
+        ...simulateFirstToWinGame(game, winCondition),
 
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
@@ -35,9 +50,19 @@ export const getRtcController = (game: Game): RtcController => {
           return `${name}, ${visits?.length} visits`
         },
 
+        getNextTarget(userId) {
+          const isForced = getTypeAttribute<Boolean>(game, 'forced', false)
+          const visits = getVisitsOfUser(game, userId)
+          if (isForced) {
+            const segmentCount = visits.flat().filter((s) => s != null).length
+            return sequence.at(segmentCount) ?? -1
+          }
+          const score = getRtcLegScore(game, visits)
+          return sequence.at(score) ?? -1
+        },
+
         getUserDisplayText(userId) {
-          const score = getRtcLegScore(game, getVisitsOfUser(game, userId))
-          return `${sequence.at(score)}`
+          return this.getNextTarget(userId).toString()
         },
 
         getTopRightText() {
@@ -55,11 +80,9 @@ export const getRtcController = (game: Game): RtcController => {
     },
 
     recordHit(segment) {
-      const score = getRtcLegScore(
-        game,
-        getVisitsOfUser(game, useGameStore().gameState?.player)
-      )
-      const sector = this.getSequence().at(score)
+      const gameState = this.getGameState()
+      if (!gameState.player) throw Error()
+      const sector = gameState.getNextTarget(gameState.player)
       if (!sector) throw Error()
       useGameStore().saveScore({ multiplier: segment.multiplier, sector })
     },
