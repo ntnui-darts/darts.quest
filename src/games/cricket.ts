@@ -1,3 +1,4 @@
+import { speak } from '@/functions/speak'
 import {
   SimulationState,
   getGenericController,
@@ -6,12 +7,20 @@ import {
 import { useUsersStore } from '@/stores/users'
 import { Game, GameController, GameState, getVisitsOfUser } from '@/types/game'
 
+type CricketPlayer = {
+  id: string
+  score: number
+  scorePrev: number
+  hits: Map<number, number>
+}
 export interface CricketGameState extends GameState {
-  players: { id: string; score: number; hits: Map<number, number> }[]
+  players: CricketPlayer[]
   unlocks: Map<number, number>
 }
 
-export const getCricketController = (game: Game): GameController<GameState> => {
+export const getCricketController = (
+  game: Game
+): GameController<CricketGameState> => {
   return {
     ...getGenericController(game),
 
@@ -39,7 +48,18 @@ export const getCricketController = (game: Game): GameController<GameState> => {
       }
     },
 
-    speakVisit() {},
+    speakVisit(visit, leg) {
+      const hits = visit.filter((s) => s != null && s.sector > 0).length
+      let text = `${hits} hits`
+
+      const gameState = this.getGameState()
+      const player = gameState.players.find((p) => p.id == leg.userId)
+      if (!player) throw Error()
+      if (player.score > player.scorePrev) {
+        text += `, scored ${player.score - player.scorePrev}!`
+      }
+      speak(text)
+    },
   }
 }
 
@@ -53,9 +73,10 @@ const simulateCricket = (game: Game) => {
 
   const sectors = [15, 16, 17, 18, 19, 20, 25]
   const unlocks = new Map<number, number>()
-  const players = game.players.map((id) => ({
+  const players: CricketPlayer[] = game.players.map((id) => ({
     id,
     score: 0,
+    scorePrev: 0,
     hits: new Map<number, number>(),
   }))
   const playersLeft = () => players.filter((p) => !state.rank.includes(p.id))
@@ -74,6 +95,8 @@ const simulateCricket = (game: Game) => {
 
     const visit = getVisitsOfUser(game, player.id).at(state.visitIndex)
     if (!visit) break
+
+    player.scorePrev = player.score
 
     for (const segment of visit) {
       if (segment == null) continue
