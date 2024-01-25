@@ -1,6 +1,7 @@
 import { speak } from '@/functions/speak'
 import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { useGameStore } from '@/stores/game'
+import { toPercentage } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import {
   Game,
@@ -30,8 +31,8 @@ export const getRtcController = (game: Game): RtcController => {
 
     getGameState() {
       const sequence = this.getSequence()
+      const isForced = getTypeAttribute<Boolean>(game, 'forced', false)
       const winCondition = (game: Game, visits: Visit[]) => {
-        const isForced = getTypeAttribute<Boolean>(game, 'forced', false)
         if (isForced) {
           const segmentCount = visits.flat().filter((s) => s != null).length
           return segmentCount >= 20
@@ -40,14 +41,24 @@ export const getRtcController = (game: Game): RtcController => {
           getRtcLegScore(game, visits) == getGamePoints(game)
         return reachedTargetScore
       }
+      // Only forced mode games are sorted by score
+      const sortRank = isForced
+        ? (a: string, b: string) => {
+            return (
+              getRtcLegScore(game, getVisitsOfUser(game, b)) -
+              getRtcLegScore(game, getVisitsOfUser(game, a))
+            )
+          }
+        : undefined
 
       return {
-        ...simulateFirstToWinGame(game, winCondition),
+        ...simulateFirstToWinGame(game, winCondition, sortRank),
 
         getUserResultText(userId) {
           const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
           const visits = getVisitsOfUser(game, userId)
-          return `${name}, ${visits?.length} visits`
+          const hitRate = getRtcHitRate(visits)
+          return `${name}, Hit rate: ${toPercentage(hitRate)}`
         },
 
         getNextTarget(userId) {

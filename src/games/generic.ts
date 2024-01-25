@@ -71,7 +71,8 @@ export const nextState = (
 
 export const simulateFirstToWinGame = (
   game: Game,
-  winCondition: (game: Game, visits: Visit[]) => boolean
+  winCondition: (game: Game, visits: Visit[]) => boolean,
+  sortRank?: (a: string, b: string) => number
 ) => {
   let state: SimulationState = {
     player: null,
@@ -90,6 +91,9 @@ export const simulateFirstToWinGame = (
 
     if (winCondition(game, visits)) {
       state.rank.push(state.player)
+      if (sortRank) {
+        state.rank.sort(sortRank)
+      }
       continue
     }
 
