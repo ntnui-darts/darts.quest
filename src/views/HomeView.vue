@@ -5,6 +5,9 @@
     <button @click="router.push({ name: 'user' })">My Profile</button>
     <button @click="router.push({ name: 'statistics' })">Statistics</button>
   </div>
+
+  <button @click="router.push({ name: 'spectate-lobby' })">Spectate</button>
+
   <h2>Select Game Type</h2>
   <GameSelection
     :game-type="homeStore.gameType"
@@ -12,10 +15,12 @@
     @update-game-type="homeStore.gameType = $event"
     @update-type-attributes="homeStore.typeAttributes = $event"
   ></GameSelection>
+
   <PlayerSelection
     :players="homeStore.players"
     @update="homeStore.players = $event"
   ></PlayerSelection>
+
   <br />
   <button
     :class="{

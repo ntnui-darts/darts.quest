@@ -15,6 +15,7 @@
       @click="select(user)"
     >
       {{ user.name }}
+      {{ useOnlineStore().usersOnline.has(user.id) ? '👋' : '' }}
     </button>
     <p v-if="searchResultUsers.length == 0">No results 🤔</p>
   </div>
@@ -22,6 +23,7 @@
 
 <script lang="ts" setup>
 import { useModalStore } from '@/stores/modal'
+import { useOnlineStore } from '@/stores/online'
 import { User, useUsersStore } from '@/stores/users'
 import { computed, onMounted, ref } from 'vue'
 import PlayerOptions from './PlayerOptions.vue'
