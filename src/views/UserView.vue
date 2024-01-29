@@ -1,5 +1,13 @@
 <template>
   <button id="back" @click="router.push({ name: 'home' })">Back</button>
+  <div class="row">
+    <button v-if="changed" id="discard" @click="discardChanges">
+      Discard Changes
+    </button>
+    <button v-if="changed" id="save" class="primary" @click="saveChanges">
+      Save Changes
+    </button>
+  </div>
 
   <h2>User</h2>
   <label for="name">Display Name</label>
@@ -58,15 +66,6 @@
   <button @click="router.push({ name: 'password' })" id="change-password">
     Change Password
   </button>
-
-  <div class="row">
-    <button v-if="changed" id="discard" @click="discardChanges">
-      Discard Changes
-    </button>
-    <button v-if="changed" id="save" class="primary" @click="saveChanges">
-      Save Changes
-    </button>
-  </div>
   <br />
   <br />
   <button id="logout" @click="logout">Logout</button>
