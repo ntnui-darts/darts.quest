@@ -14,7 +14,7 @@ const initAuth = async (auth: AuthUser) => {
 
 supabase.auth.onAuthStateChange(async (_, session) => {
   const user = session?.user
-  if (user && useAuthStore().auth?.id != user?.id) {
+  if (user && useAuthStore().auth?.id != user.id) {
     initAuth(user)
   }
 })

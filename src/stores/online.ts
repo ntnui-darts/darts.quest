@@ -13,6 +13,7 @@ export const useOnlineStore = defineStore('online', {
     return {
       room,
       usersOnline: new Set<string>(),
+      spectating: null as string | null,
     }
   },
 
@@ -34,6 +35,9 @@ export const useOnlineStore = defineStore('online', {
             // @ts-ignore
             const presence = p as OnlinePresence
             this.usersOnline.delete(presence.userId)
+            if (presence.userId == this.spectating) {
+              this.spectating = null
+            }
           })
         })
         .subscribe(async (status) => {
