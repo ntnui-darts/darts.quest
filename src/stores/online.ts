@@ -1,8 +1,9 @@
 import { supabase } from '@/supabase'
-import { Game } from '@/types/game'
+import { Game, Segment } from '@/types/game'
 import { RealtimeChannel } from '@supabase/supabase-js'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
+import { useGameStore } from './game'
 
 type OnlinePresence = {
   userId: string
@@ -41,7 +42,27 @@ export const useOnlineStore = defineStore('online', {
           this.sendUpdate({ userId })
         })
 
-      this.outChannel = supabase.channel(`game-${userId}`).subscribe()
+      this.outChannel = supabase
+        .channel(`game-${userId}`)
+        .on('broadcast', { event: 'input' }, (args) => {
+          const gameStore = useGameStore()
+          const gameController = gameStore.getController()
+          const player = gameStore.gameState?.player
+          if (args.payload.userId == player) {
+            switch (args.payload.type) {
+              case 'hit':
+                gameController.recordHit(args.payload.segment)
+                break
+              case 'miss':
+                gameController.recordMiss()
+                break
+              case 'undo':
+                gameStore.undoScore()
+                break
+            }
+          }
+        })
+        .subscribe()
     },
 
     async sendUpdate(presence: Partial<OnlinePresence>) {
@@ -60,10 +81,10 @@ export const useOnlineStore = defineStore('online', {
       await this.inChannel?.unsubscribe()
       this.inChannel = supabase
         .channel(`game-${this.presence.spectating}`)
-        .on('broadcast', { event: 'game' }, (game) => {
-          // @ts-ignore
-          this.spectatingGame = game.payload as Game
+        .on('broadcast', { event: 'game' }, (args) => {
+          this.spectatingGame = args.payload as Game
         })
+
         .subscribe()
     },
 
@@ -79,6 +100,18 @@ export const useOnlineStore = defineStore('online', {
         type: 'broadcast',
         event: 'game',
         payload: game,
+      })
+    },
+
+    sendInput(type: 'hit' | 'miss' | 'undo', segment?: Segment) {
+      this.inChannel?.send({
+        type: 'broadcast',
+        event: 'input',
+        payload: {
+          userId: useAuthStore().auth?.id,
+          type,
+          segment,
+        },
       })
     },
   },

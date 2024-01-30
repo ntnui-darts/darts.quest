@@ -7,11 +7,16 @@
 
   <template v-if="onlineStore.spectatingGame && gameController && gameState">
     <MainGame
-      :show-input="false"
+      :show-input="
+        !!gameState.player && gameState.player == useAuthStore().auth?.id
+      "
       :show-save="false"
       :game="onlineStore.spectatingGame"
       :game-state="gameState"
       :game-controller="gameController"
+      @hit="onlineStore.sendInput('hit', $event)"
+      @miss="onlineStore.sendInput('miss')"
+      @undo="onlineStore.sendInput('undo')"
     ></MainGame>
   </template>
   <p v-else-if="onlineStore.getSpectating?.inGame">
@@ -24,6 +29,7 @@
 import MainGame from '@/components/MainGame.vue'
 import { getGameController } from '@/games/games'
 import { router } from '@/router'
+import { useAuthStore } from '@/stores/auth'
 import { useOnlineStore } from '@/stores/online'
 import { useUsersStore } from '@/stores/users'
 import { computed, onUnmounted, watch } from 'vue'

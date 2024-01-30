@@ -18,7 +18,9 @@
 
   <MainGame
     v-if="gameStore.game && gameStore.gameState"
-    :show-input="true"
+    :show-input="
+      !spectators.find((p) => p.userId == gameStore.gameState?.player)
+    "
     :show-save="true"
     :game="gameStore.game"
     :game-state="gameStore.gameState"
