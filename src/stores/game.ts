@@ -50,8 +50,8 @@ export const useGameStore = defineStore('game', {
       this.gameState = this.getController().getGameState()
       if (this.game) {
         this.game.result = this.gameState.rank
-        useOnlineStore().sendGame(this.game)
       }
+      useOnlineStore().sendGame()
       this.tryPlayWalkOn()
       return this.gameState
     },

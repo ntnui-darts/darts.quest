@@ -62,6 +62,9 @@ export const useOnlineStore = defineStore('online', {
             }
           }
         })
+        .on('broadcast', { event: 'refresh' }, () => {
+          this.sendGame()
+        })
         .subscribe()
     },
 
@@ -84,8 +87,13 @@ export const useOnlineStore = defineStore('online', {
         .on('broadcast', { event: 'game' }, (args) => {
           this.spectatingGame = args.payload as Game
         })
-
-        .subscribe()
+        .subscribe((status) => {
+          if (status != 'SUBSCRIBED') return
+          this.inChannel?.send({
+            type: 'broadcast',
+            event: 'refresh',
+          })
+        })
     },
 
     async stopSpectating() {
@@ -95,7 +103,9 @@ export const useOnlineStore = defineStore('online', {
       this.spectatingGame = null
     },
 
-    sendGame(game: Game) {
+    sendGame() {
+      const game = useGameStore().game
+      if (!game) return
       this.outChannel?.send({
         type: 'broadcast',
         event: 'game',
