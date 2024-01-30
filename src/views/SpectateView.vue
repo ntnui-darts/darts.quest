@@ -3,17 +3,22 @@
     Back
   </button>
 
-  <template v-if="onlineStore.getSpectating">
-    <h2>Spectating {{ name }}</h2>
+  <h2>Spectating {{ name }}</h2>
 
-    <p v-if="onlineStore.getSpectating.inGame">{{ name }} is in game.</p>
-    <p v-else>{{ name }} is not in game.</p>
-
-    {{ onlineStore.spectatingGame }}
+  <template v-if="onlineStore.spectatingGame && gameController && gameState">
+    <GameOverview
+      :show-input="false"
+      :game="onlineStore.spectatingGame"
+      :game-state="gameState"
+      :game-controller="gameController"
+    ></GameOverview>
   </template>
+  <p v-else>{{ name }} is not in game.</p>
 </template>
 
 <script lang="ts" setup>
+import GameOverview from '@/components/GameOverview.vue'
+import { getGameController } from '@/games/games'
 import { router } from '@/router'
 import { useOnlineStore } from '@/stores/online'
 import { useUsersStore } from '@/stores/users'
@@ -24,6 +29,14 @@ const onlineStore = useOnlineStore()
 const name = computed(
   () => useUsersStore().getUser(onlineStore.getSpectating?.userId)?.name
 )
+
+const gameController = computed(() =>
+  onlineStore.spectatingGame
+    ? getGameController(onlineStore.spectatingGame)
+    : null
+)
+
+const gameState = computed(() => gameController.value?.getGameState())
 
 watch(
   () => onlineStore.getSpectating,

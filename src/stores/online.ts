@@ -55,7 +55,7 @@ export const useOnlineStore = defineStore('online', {
         .channel(`game-${this.spectating}`)
         .on('broadcast', { event: 'game' }, (game) => {
           // @ts-ignore
-          this.spectatingGame = game as Game
+          this.spectatingGame = game.payload as Game
         })
         .subscribe()
     },

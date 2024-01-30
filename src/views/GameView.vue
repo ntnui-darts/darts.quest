@@ -16,63 +16,16 @@
     Quit
   </button>
 
-  <div class="row spaced">
-    <h3>
-      {{ getGameDisplayName(gameStore.game) }}
-    </h3>
-    <h3>
-      {{ gameStore.gameState?.getTopRightText() }}
-    </h3>
-  </div>
-
-  <div v-if="gameStore.game && !allPlayersFinished" class="col">
-    <div
-      class="col shadow"
-      style="
-        background-color: rgb(43, 43, 43);
-        border-radius: 0.5em;
-        padding: 1em 0;
-        margin-bottom: 1.5em;
-        overflow: hidden;
-        gap: 1.5em;
-      "
-    >
-      <div class="row" style="overflow: auto; padding: 0 1em">
-        <button
-          v-for="userId in gameStore.gameState?.playersLeft ?? []"
-          :class="{ selected: gameStore.gameState?.player == userId }"
-          :key="userId"
-          :id="userId"
-          style="min-width: 135px"
-          @click="clickUser(userId)"
-        >
-          {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
-          <br />
-          {{ gameStore.gameState?.getUserDisplayText(userId) }}
-        </button>
-      </div>
-      <div class="row" style="margin: 0 1em">
-        <button
-          v-for="(segment, i) in displayVisit.visit"
-          :class="{
-            outlined:
-              (!displayVisit.isPrev && i == displayVisit.visit.indexOf(null)) ||
-              (displayVisit.isPrev && i == 0),
-          }"
-          :disabled="displayVisit.isPrev || segment == null"
-        >
-          {{ gameStore.getController().getSegmentText(segment) }}
-        </button>
-      </div>
-    </div>
-
-    <component
-      :is="getInputComponent(gameStore.game.type)"
-      @hit="gameStore.getController().recordHit($event)"
-      @miss="gameStore.getController().recordMiss()"
-      @undo="gameStore.undoScore()"
-    ></component>
-  </div>
+  <GameOverview
+    v-if="gameStore.game && gameStore.gameState"
+    :show-input="true"
+    :game="gameStore.game"
+    :game-state="gameStore.gameState"
+    :game-controller="gameStore.getController()"
+    @hit="gameStore.getController().recordHit($event)"
+    @miss="gameStore.getController().recordMiss()"
+    @undo="gameStore.undoScore()"
+  ></GameOverview>
 
   <div v-if="gameStore.game && somePlayersFinished">
     <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
@@ -99,11 +52,10 @@
 </template>
 
 <script lang="ts" setup>
-import InGameSummary from '@/components/InGameSummary.vue'
+import GameOverview from '@/components/GameOverview.vue'
 import Prompt from '@/components/Prompt.vue'
 import Youtube from '@/components/Youtube.vue'
 import { speak } from '@/functions/speak'
-import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { useEloStore } from '@/stores/elo'
@@ -113,12 +65,9 @@ import { useModalStore } from '@/stores/modal'
 import { useOnlineStore } from '@/stores/online'
 import { useOptionsStore } from '@/stores/options'
 import { roundToNDecimals } from '@/stores/stats'
-import { useUsersStore } from '@/stores/users'
-import { getLegOfUser } from '@/types/game'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const gameStore = useGameStore()
-const usersStore = useUsersStore()
 const loadingStore = useLoadingStore()
 const onlineStore = useOnlineStore()
 const authStore = useAuthStore()
@@ -134,22 +83,6 @@ const allPlayersFinished = computed(
 const somePlayersFinished = computed(
   () => (gameStore.gameState?.rank.length ?? 0) > 0
 )
-
-const displayVisit = computed(() => {
-  if (!gameStore.game || !gameStore.gameState?.player)
-    return { visit: [null, null, null], isPrev: false }
-  const leg = getLegOfUser(gameStore.game, gameStore.gameState?.player)
-  const visit = leg?.visits.at(-1)
-  if (
-    (!visit || visit?.indexOf(null) == -1) &&
-    gameStore.gameState?.prevPlayer
-  ) {
-    const leg = getLegOfUser(gameStore.game, gameStore.gameState?.prevPlayer)
-    const visit = leg?.visits.at(-1)
-    return { visit: visit ?? [null, null, null], isPrev: true }
-  }
-  return { visit: visit ?? [null, null, null], isPrev: false }
-})
 
 onMounted(async () => {
   if (!gameStore.game) {
@@ -218,14 +151,6 @@ const saveGame = async () => {
       )
     }
   })
-}
-
-const clickUser = (userId: string) => {
-  if (!gameStore.game) return
-  const leg = getLegOfUser(gameStore.game, userId)
-  const user = usersStore.getUser(userId)
-  if (!leg || !user) return
-  useModalStore().push(InGameSummary, { leg, user }, {})
 }
 
 watch(
