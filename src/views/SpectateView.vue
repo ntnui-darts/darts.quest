@@ -13,7 +13,10 @@
       :game-controller="gameController"
     ></GameOverview>
   </template>
-  <p v-else>{{ name }} is not in game.</p>
+  <p v-else-if="onlineStore.getSpectating">
+    {{ name }} is playing. Waiting for update..
+  </p>
+  <p v-else>{{ name }} is active, but not currently playing.</p>
 </template>
 
 <script lang="ts" setup>

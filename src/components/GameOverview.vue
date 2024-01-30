@@ -57,9 +57,34 @@
       @undo="emit('undo')"
     ></component>
   </div>
+
+  <div v-if="game && somePlayersFinished">
+    <button v-if="allPlayersFinished && showInput" @click="emit('undo')">
+      &#x232B;
+    </button>
+    <h2>Results</h2>
+    <ol>
+      <li
+        v-for="(id, i) in gameState?.rank"
+        style="display: flex; justify-content: space-between"
+      >
+        <span> {{ i + 1 }}. {{ gameState?.getUserResultText(id) }} </span>
+        <span
+          v-if="getEloText && getEloColor"
+          style="margin-left: 1em"
+          :style="{ color: getEloColor(id) }"
+          >{{ getEloText(id) }}</span
+        >
+      </li>
+    </ol>
+    <div v-if="showInput" class="col">
+      <button @click="emit('save')">Save Game</button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
+import { speak } from '@/functions/speak'
 import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { useModalStore } from '@/stores/modal'
 import { useUsersStore } from '@/stores/users'
@@ -70,7 +95,7 @@ import {
   Segment,
   getLegOfUser,
 } from '@/types/game'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
 
 const props = defineProps<{
@@ -78,18 +103,25 @@ const props = defineProps<{
   gameState: GameState
   gameController: GameController<GameState>
   showInput: boolean
+  getEloText?: (id: string) => string
+  getEloColor?: (id: string) => string
 }>()
 
 const emit = defineEmits<{
   hit: [segment: Segment]
   miss: []
   undo: []
+  save: []
 }>()
 
 const usersStore = useUsersStore()
 
 const allPlayersFinished = computed(
   () => (props.game?.legs.length ?? 0) == (props.gameState?.rank.length ?? 0)
+)
+
+const somePlayersFinished = computed(
+  () => (props.gameState?.rank.length ?? 0) > 0
 )
 
 const displayVisit = computed(() => {
@@ -112,4 +144,44 @@ const clickUser = (userId: string) => {
   if (!leg || !user) return
   useModalStore().push(InGameSummary, { leg, user }, {})
 }
+
+watch(
+  () => props.gameState?.player,
+  (userId) => {
+    if (userId) {
+      const btn = document.getElementById(userId)
+      btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
+    }
+  }
+)
+
+watch(
+  () => props.gameState?.getTopRightText(),
+  (text) => {
+    if (text) setTimeout(() => speak(text), 1000)
+  },
+  { immediate: true }
+)
 </script>
+
+<style scoped>
+.grid-users {
+  display: grid;
+  column-gap: 1em;
+  row-gap: 1em;
+  grid-template-columns: 1fr 1fr;
+}
+
+button {
+  flex: 1;
+}
+
+.outlined {
+  outline: 1px solid var(--c-green);
+}
+
+li {
+  font-size: 14pt;
+  padding-bottom: 0.5em;
+}
+</style>

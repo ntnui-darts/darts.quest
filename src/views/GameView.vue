@@ -22,40 +22,19 @@
     :game="gameStore.game"
     :game-state="gameStore.gameState"
     :game-controller="gameStore.getController()"
+    :get-elo-text="getEloText"
+    :get-elo-color="getEloColor"
     @hit="gameStore.getController().recordHit($event)"
     @miss="gameStore.getController().recordMiss()"
     @undo="gameStore.undoScore()"
+    @save="saveGame"
   ></GameOverview>
-
-  <div v-if="gameStore.game && somePlayersFinished">
-    <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
-      &#x232B;
-    </button>
-    <h2>Results</h2>
-    <ol>
-      <li
-        v-for="(id, i) in gameStore.gameState?.rank"
-        style="display: flex; justify-content: space-between"
-      >
-        <span>
-          {{ i + 1 }}. {{ gameStore.gameState?.getUserResultText(id) }}
-        </span>
-        <span style="margin-left: 1em" :style="{ color: getEloColor(id) }">{{
-          getEloText(id)
-        }}</span>
-      </li>
-    </ol>
-    <div class="col">
-      <button @click="saveGame">Save Game</button>
-    </div>
-  </div>
 </template>
 
 <script lang="ts" setup>
 import GameOverview from '@/components/GameOverview.vue'
 import Prompt from '@/components/Prompt.vue'
 import Youtube from '@/components/Youtube.vue'
-import { speak } from '@/functions/speak'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { useEloStore } from '@/stores/elo'
@@ -65,7 +44,7 @@ import { useModalStore } from '@/stores/modal'
 import { useOnlineStore } from '@/stores/online'
 import { useOptionsStore } from '@/stores/options'
 import { roundToNDecimals } from '@/stores/stats'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 const gameStore = useGameStore()
 const loadingStore = useLoadingStore()
@@ -73,16 +52,6 @@ const onlineStore = useOnlineStore()
 const authStore = useAuthStore()
 
 const eloDeltas = ref<{ userId: string; eloDelta: number }[]>([])
-
-const allPlayersFinished = computed(
-  () =>
-    (gameStore.game?.legs.length ?? 0) ==
-    (gameStore.gameState?.rank.length ?? 0)
-)
-
-const somePlayersFinished = computed(
-  () => (gameStore.gameState?.rank.length ?? 0) > 0
-)
 
 onMounted(async () => {
   if (!gameStore.game) {
@@ -154,24 +123,6 @@ const saveGame = async () => {
 }
 
 watch(
-  () => gameStore.gameState?.player,
-  (userId) => {
-    if (userId) {
-      const btn = document.getElementById(userId)
-      btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
-    }
-  }
-)
-
-watch(
-  () => gameStore.gameState?.getTopRightText(),
-  (text) => {
-    if (text) setTimeout(() => speak(text), 1000)
-  },
-  { immediate: true }
-)
-
-watch(
   () => gameStore.gameState?.rank.length,
   async () => {
     if (!gameStore.game?.result.length) return
@@ -195,25 +146,3 @@ const getEloColor = (userId: string) => {
   return eloDelta > 0 ? '#127a16' : '#ad1717'
 }
 </script>
-
-<style scoped>
-.grid-users {
-  display: grid;
-  column-gap: 1em;
-  row-gap: 1em;
-  grid-template-columns: 1fr 1fr;
-}
-
-button {
-  flex: 1;
-}
-
-.outlined {
-  outline: 1px solid var(--c-green);
-}
-
-li {
-  font-size: 14pt;
-  padding-bottom: 0.5em;
-}
-</style>
