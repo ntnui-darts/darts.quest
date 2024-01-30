@@ -23,29 +23,9 @@ export const useOnlineStore = defineStore('online', {
     initRoom(userId: string) {
       this.room
         .on('presence', { event: 'sync' }, () => {
-          // hmm?
-        })
-        .on('presence', { event: 'join' }, ({ newPresences }) => {
-          newPresences.forEach((p) => {
-            // @ts-ignore
-            const presence = p as OnlinePresence
-            this.presences = this.presences.filter(
-              (p) => p.userId != presence.userId
-            )
-            this.presences.push(presence)
-          })
-        })
-        .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-          leftPresences.forEach((p) => {
-            // @ts-ignore
-            const presence = p as OnlinePresence
-            this.presences = this.presences.filter(
-              (p) => p.userId != presence.userId
-            )
-            if (presence.userId == this.spectating) {
-              this.spectating = null
-            }
-          })
+          const state = this.room.presenceState()
+          // @ts-ignore
+          this.presences = Object.values(state).flat()
         })
         .subscribe(async (status) => {
           if (status !== 'SUBSCRIBED') {
