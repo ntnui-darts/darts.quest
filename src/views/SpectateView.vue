@@ -8,6 +8,8 @@
 
     <p v-if="onlineStore.getSpectating.inGame">{{ name }} is in game.</p>
     <p v-else>{{ name }} is not in game.</p>
+
+    {{ onlineStore.spectatingGame }}
   </template>
 </template>
 
@@ -15,7 +17,7 @@
 import { router } from '@/router'
 import { useOnlineStore } from '@/stores/online'
 import { useUsersStore } from '@/stores/users'
-import { computed, watch } from 'vue'
+import { computed, onUnmounted, watch } from 'vue'
 
 const onlineStore = useOnlineStore()
 
@@ -32,4 +34,8 @@ watch(
   },
   { immediate: true }
 )
+
+onUnmounted(() => {
+  onlineStore.stopSpectating()
+})
 </script>

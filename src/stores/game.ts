@@ -12,6 +12,7 @@ import {
 } from '@/types/game'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useEloStore } from './elo'
+import { useOnlineStore } from './online'
 import { upsertLegStatistics, useStatsStore } from './stats'
 import { useUsersStore } from './users'
 
@@ -49,6 +50,7 @@ export const useGameStore = defineStore('game', {
       this.gameState = this.getController().getGameState()
       if (this.game) {
         this.game.result = this.gameState.rank
+        useOnlineStore().sendGame(this.game)
       }
       this.tryPlayWalkOn()
       return this.gameState

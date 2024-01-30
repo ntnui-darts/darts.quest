@@ -5,12 +5,7 @@
   <button
     v-for="presence in onlineStore.presences"
     :disabled="presence.userId == useAuthStore().auth?.id"
-    @click="
-      () => {
-        onlineStore.spectating = presence.userId
-        router.push({ name: 'spectate' })
-      }
-    "
+    @click="spectate(presence.userId)"
   >
     {{ useUsersStore().getUser(presence.userId)?.name }}
   </button>
@@ -23,4 +18,9 @@ import { useOnlineStore } from '@/stores/online'
 import { useUsersStore } from '@/stores/users'
 
 const onlineStore = useOnlineStore()
+
+const spectate = async (userId: string) => {
+  await onlineStore.startSpectating(userId)
+  router.push({ name: 'spectate' })
+}
 </script>

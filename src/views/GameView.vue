@@ -105,6 +105,7 @@ import Youtube from '@/components/Youtube.vue'
 import { speak } from '@/functions/speak'
 import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { router } from '@/router'
+import { useAuthStore } from '@/stores/auth'
 import { useEloStore } from '@/stores/elo'
 import { useGameStore } from '@/stores/game'
 import { useLoadingStore } from '@/stores/loading'
@@ -120,6 +121,7 @@ const gameStore = useGameStore()
 const usersStore = useUsersStore()
 const loadingStore = useLoadingStore()
 const onlineStore = useOnlineStore()
+const authStore = useAuthStore()
 
 const eloDeltas = ref<{ userId: string; eloDelta: number }[]>([])
 
@@ -149,14 +151,23 @@ const displayVisit = computed(() => {
   return { visit: visit ?? [null, null, null], isPrev: false }
 })
 
-onMounted(() => {
+onMounted(async () => {
   if (!gameStore.game) {
     quit()
   }
-  onlineStore.sendUpdate({ inGame: true })
+  await onlineStore.sendUpdate({
+    inGame: true,
+    userId: authStore.auth?.id,
+    date: new Date(),
+  })
 })
-onUnmounted(() => {
-  onlineStore.sendUpdate({ inGame: false })
+
+onUnmounted(async () => {
+  await onlineStore.sendUpdate({
+    inGame: false,
+    userId: authStore.auth?.id,
+    date: new Date(),
+  })
 })
 
 const quit = () => {
