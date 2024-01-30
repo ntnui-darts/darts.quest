@@ -45,21 +45,22 @@ export const useOnlineStore = defineStore('online', {
       this.outChannel = supabase
         .channel(`game-${userId}`)
         .on('broadcast', { event: 'input' }, (args) => {
+          console.log(args)
           const gameStore = useGameStore()
-          const gameController = gameStore.getController()
           const player = gameStore.gameState?.player
-          if (args.payload.userId == player) {
-            switch (args.payload.type) {
-              case 'hit':
-                gameController.recordHit(args.payload.segment)
-                break
-              case 'miss':
-                gameController.recordMiss()
-                break
-              case 'undo':
-                gameStore.undoScore()
-                break
-            }
+          if (args.payload.userId != player) return
+
+          const gameController = gameStore.getController()
+          switch (args.payload.type) {
+            case 'hit':
+              gameController.recordHit(args.payload.segment)
+              break
+            case 'miss':
+              gameController.recordMiss()
+              break
+            case 'undo':
+              gameStore.undoScore()
+              break
           }
         })
         .on('broadcast', { event: 'refresh' }, () => {

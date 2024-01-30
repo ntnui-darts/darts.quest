@@ -1,11 +1,6 @@
 <template>
   <div
-    v-if="
-      gameStore.game
-        ? getTypeAttribute < Boolean > (gameStore.game, 'fast', false)
-        : false
-    "
-    div
+    v-if="game ? getTypeAttribute < Boolean > (game, 'fast', false) : false"
     class="row"
     style="justify-content: space-between"
   >
@@ -20,15 +15,15 @@
     </button>
   </div>
   <div class="row" style="height: 12em">
-    <button @click="registerMiss()">&#10008;</button>
-    <button @click="registerHit()">&#10004;</button>
+    <button @click="registerMiss">&#10008;</button>
+    <button @click="registerHit">&#10004;</button>
   </div>
   <button @click="emit('undo')">&#x232B;</button>
 </template>
 
 <script lang="ts" setup>
-import { useGameStore } from '@/stores/game'
 import {
+  Game,
   Multiplier,
   Segment,
   getTypeAttribute,
@@ -36,7 +31,9 @@ import {
 } from '@/types/game'
 import { ref } from 'vue'
 
-const gameStore = useGameStore()
+const props = defineProps<{
+  game: Game
+}>()
 
 const emit = defineEmits<{
   hit: [segment: Segment]
@@ -45,7 +42,7 @@ const emit = defineEmits<{
 }>()
 
 const getDefaultMultiplier = () =>
-  gameStore.game ? getTypeAttribute<Multiplier>(gameStore.game, 'mode', 1) : 1
+  props.game ? getTypeAttribute<Multiplier>(props.game, 'mode', 1) : 1
 
 const selectedMultiplier = ref(getDefaultMultiplier())
 
@@ -55,7 +52,6 @@ const registerMiss = () => {
 }
 
 const registerHit = () => {
-  if (!gameStore.game) throw Error()
   emit('hit', { multiplier: selectedMultiplier.value, sector: -1 })
   selectedMultiplier.value = getDefaultMultiplier()
 }
