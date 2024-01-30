@@ -30,6 +30,15 @@
     @undo="gameStore.undoScore()"
     @save="saveGame"
   ></MainGame>
+
+  <template v-if="spectators.length > 0">
+    <h3>Spectators</h3>
+    <ul>
+      <li v-for="presence in spectators">
+        {{ useUsersStore().getUser(presence.userId)?.name }}
+      </li>
+    </ul>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -45,7 +54,8 @@ import { useModalStore } from '@/stores/modal'
 import { useOnlineStore } from '@/stores/online'
 import { useOptionsStore } from '@/stores/options'
 import { roundToNDecimals } from '@/stores/stats'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { useUsersStore } from '@/stores/users'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const gameStore = useGameStore()
 const loadingStore = useLoadingStore()
@@ -54,22 +64,22 @@ const authStore = useAuthStore()
 
 const eloDeltas = ref<{ userId: string; eloDelta: number }[]>([])
 
+const spectators = computed(() =>
+  onlineStore.presences.filter((p) => p.spectating == authStore.auth?.id)
+)
+
 onMounted(async () => {
   if (!gameStore.game) {
     quit()
   }
   await onlineStore.sendUpdate({
     inGame: true,
-    userId: authStore.auth?.id,
-    date: new Date(),
   })
 })
 
 onUnmounted(async () => {
   await onlineStore.sendUpdate({
     inGame: false,
-    userId: authStore.auth?.id,
-    date: new Date(),
   })
 })
 

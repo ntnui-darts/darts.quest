@@ -14,7 +14,7 @@
       :game-controller="gameController"
     ></MainGame>
   </template>
-  <p v-else-if="onlineStore.getSpectating">
+  <p v-else-if="onlineStore.getSpectating?.inGame">
     {{ name }} is playing. Waiting for update..
   </p>
   <p v-else>{{ name }} is active, but not currently playing.</p>
@@ -47,6 +47,16 @@ watch(
   (spectating) => {
     if (!spectating) {
       router.push({ name: 'spectate-lobby' })
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  () => onlineStore.getSpectating?.inGame,
+  (inGame) => {
+    if (!inGame) {
+      onlineStore.spectatingGame = null
     }
   },
   { immediate: true }

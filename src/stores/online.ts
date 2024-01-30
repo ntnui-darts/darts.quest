@@ -2,21 +2,23 @@ import { supabase } from '@/supabase'
 import { Game } from '@/types/game'
 import { RealtimeChannel } from '@supabase/supabase-js'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useAuthStore } from './auth'
 
 type OnlinePresence = {
   userId: string
   date: Date
   inGame: boolean
+  spectating: string | null
 }
 
 export const useOnlineStore = defineStore('online', {
   state: () => ({
     presences: [] as OnlinePresence[],
-    spectating: null as string | null,
     spectatingGame: null as Game | null,
     presence: {
       inGame: false,
       date: new Date(),
+      spectating: null,
     } as Partial<OnlinePresence>,
     room: null as RealtimeChannel | null,
     inChannel: null as RealtimeChannel | null,
@@ -43,16 +45,21 @@ export const useOnlineStore = defineStore('online', {
     },
 
     async sendUpdate(presence: Partial<OnlinePresence>) {
-      this.presence = { ...this.presence, ...presence }
+      this.presence = {
+        ...this.presence,
+        userId: useAuthStore().auth?.id,
+        date: new Date(),
+        ...presence,
+      }
       if (!this.presence.userId) return
-      await this.room?.track(presence)
+      await this.room?.track(this.presence)
     },
 
     async startSpectating(userId: string) {
-      this.spectating = userId
+      await this.sendUpdate({ spectating: userId })
       await this.inChannel?.unsubscribe()
       this.inChannel = supabase
-        .channel(`game-${this.spectating}`)
+        .channel(`game-${this.presence.spectating}`)
         .on('broadcast', { event: 'game' }, (game) => {
           // @ts-ignore
           this.spectatingGame = game.payload as Game
@@ -62,8 +69,8 @@ export const useOnlineStore = defineStore('online', {
 
     async stopSpectating() {
       await this.inChannel?.unsubscribe()
+      await this.sendUpdate({ spectating: null })
       this.inChannel = null
-      this.spectating = null
       this.spectatingGame = null
     },
 
@@ -78,7 +85,7 @@ export const useOnlineStore = defineStore('online', {
 
   getters: {
     getSpectating: (state) => {
-      return state.presences.find((p) => p.userId == state.spectating)
+      return state.presences.find((p) => p.userId == state.presence.spectating)
     },
   },
 })
