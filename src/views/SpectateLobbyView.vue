@@ -3,16 +3,16 @@
 
   <h2>Users</h2>
   <button
-    v-for="userId in onlineStore.usersOnline"
-    :disabled="userId == useAuthStore().auth?.id"
+    v-for="presence in onlineStore.presences"
+    :disabled="presence.userId == useAuthStore().auth?.id"
     @click="
       () => {
-        onlineStore.spectating = userId
+        onlineStore.spectating = presence.userId
         router.push({ name: 'spectate' })
       }
     "
   >
-    {{ useUsersStore().getUser(userId)?.name }}
+    {{ useUsersStore().getUser(presence.userId)?.name }}
   </button>
 </template>
 

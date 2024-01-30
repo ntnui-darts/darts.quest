@@ -4,6 +4,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 type OnlinePresence = {
   userId: string
   date: Date
+  inGame: boolean
 }
 
 export const useOnlineStore = defineStore('online', {
@@ -12,8 +13,9 @@ export const useOnlineStore = defineStore('online', {
 
     return {
       room,
-      usersOnline: new Set<string>(),
+      presences: [] as OnlinePresence[],
       spectating: null as string | null,
+      presence: {} as Partial<OnlinePresence>,
     }
   },
 
@@ -27,14 +29,19 @@ export const useOnlineStore = defineStore('online', {
           newPresences.forEach((p) => {
             // @ts-ignore
             const presence = p as OnlinePresence
-            this.usersOnline.add(presence.userId)
+            this.presences = this.presences.filter(
+              (p) => p.userId != presence.userId
+            )
+            this.presences.push(presence)
           })
         })
         .on('presence', { event: 'leave' }, ({ leftPresences }) => {
           leftPresences.forEach((p) => {
             // @ts-ignore
             const presence = p as OnlinePresence
-            this.usersOnline.delete(presence.userId)
+            this.presences = this.presences.filter(
+              (p) => p.userId != presence.userId
+            )
             if (presence.userId == this.spectating) {
               this.spectating = null
             }
@@ -45,11 +52,20 @@ export const useOnlineStore = defineStore('online', {
             return
           }
 
-          await this.room.track({
-            userId: userId,
-            date: new Date(),
-          } satisfies OnlinePresence)
+          this.sendUpdate({ userId })
         })
+    },
+
+    async sendUpdate(presence: Partial<OnlinePresence>) {
+      this.presence = { ...this.presence, ...presence }
+      if (!this.presence.userId) return
+      await this.room.track(this.presence)
+    },
+  },
+
+  getters: {
+    getSpectating: (state) => {
+      return state.presences.find((p) => p.userId == state.spectating)
     },
   },
 })

@@ -109,15 +109,17 @@ import { useEloStore } from '@/stores/elo'
 import { useGameStore } from '@/stores/game'
 import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
+import { useOnlineStore } from '@/stores/online'
 import { useOptionsStore } from '@/stores/options'
 import { roundToNDecimals } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import { getLegOfUser } from '@/types/game'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const gameStore = useGameStore()
 const usersStore = useUsersStore()
 const loadingStore = useLoadingStore()
+const onlineStore = useOnlineStore()
 
 const eloDeltas = ref<{ userId: string; eloDelta: number }[]>([])
 
@@ -133,7 +135,7 @@ const somePlayersFinished = computed(
 
 const displayVisit = computed(() => {
   if (!gameStore.game || !gameStore.gameState?.player)
-    return { visit: [null, null, null] ?? [null, null, null], isPrev: false }
+    return { visit: [null, null, null], isPrev: false }
   const leg = getLegOfUser(gameStore.game, gameStore.gameState?.player)
   const visit = leg?.visits.at(-1)
   if (
@@ -151,6 +153,10 @@ onMounted(() => {
   if (!gameStore.game) {
     quit()
   }
+  onlineStore.sendUpdate({ inGame: true })
+})
+onUnmounted(() => {
+  onlineStore.sendUpdate({ inGame: false })
 })
 
 const quit = () => {
