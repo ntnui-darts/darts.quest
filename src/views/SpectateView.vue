@@ -6,12 +6,13 @@
   <h2>Spectating {{ name }}</h2>
 
   <template v-if="onlineStore.spectatingGame && gameController && gameState">
-    <GameOverview
+    <MainGame
       :show-input="false"
+      :show-save="false"
       :game="onlineStore.spectatingGame"
       :game-state="gameState"
       :game-controller="gameController"
-    ></GameOverview>
+    ></MainGame>
   </template>
   <p v-else-if="onlineStore.getSpectating">
     {{ name }} is playing. Waiting for update..
@@ -20,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import GameOverview from '@/components/GameOverview.vue'
+import MainGame from '@/components/MainGame.vue'
 import { getGameController } from '@/games/games'
 import { router } from '@/router'
 import { useOnlineStore } from '@/stores/online'

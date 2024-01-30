@@ -77,7 +77,7 @@
         >
       </li>
     </ol>
-    <div v-if="showInput" class="col">
+    <div v-if="showSave" class="col">
       <button @click="emit('save')">Save Game</button>
     </div>
   </div>
@@ -103,6 +103,7 @@ const props = defineProps<{
   gameState: GameState
   gameController: GameController<GameState>
   showInput: boolean
+  showSave: boolean
   getEloText?: (id: string) => string
   getEloColor?: (id: string) => string
 }>()

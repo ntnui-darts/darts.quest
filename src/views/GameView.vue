@@ -16,9 +16,10 @@
     Quit
   </button>
 
-  <GameOverview
+  <MainGame
     v-if="gameStore.game && gameStore.gameState"
     :show-input="true"
+    :show-save="true"
     :game="gameStore.game"
     :game-state="gameStore.gameState"
     :game-controller="gameStore.getController()"
@@ -28,11 +29,11 @@
     @miss="gameStore.getController().recordMiss()"
     @undo="gameStore.undoScore()"
     @save="saveGame"
-  ></GameOverview>
+  ></MainGame>
 </template>
 
 <script lang="ts" setup>
-import GameOverview from '@/components/GameOverview.vue'
+import MainGame from '@/components/MainGame.vue'
 import Prompt from '@/components/Prompt.vue'
 import Youtube from '@/components/Youtube.vue'
 import { router } from '@/router'
