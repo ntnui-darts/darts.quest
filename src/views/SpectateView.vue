@@ -30,8 +30,8 @@ import { computed, onUnmounted, watch } from 'vue'
 
 const onlineStore = useOnlineStore()
 
-const name = computed(
-  () => useUsersStore().getUser(onlineStore.getSpectating?.userId)?.name
+const name = computed(() =>
+  useUsersStore().getName(onlineStore.getSpectating?.userId)
 )
 
 const gameController = computed(() =>

@@ -29,7 +29,7 @@
           style="min-width: 135px"
           @click="clickUser(userId)"
         >
-          {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
+          {{ usersStore.getName(userId) }}
           <br />
           {{ gameState?.getUserDisplayText(userId) }}
         </button>

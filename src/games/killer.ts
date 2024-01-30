@@ -44,7 +44,7 @@ export const getKillerController = (game: Game): KillerController => {
         ...gameState,
 
         getUserResultText(userId) {
-          const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const name = useUsersStore().getName(userId)
           const player = gameState.killers.find((p) => p.userId == userId)
           return `${name}, ${player?.points} points`
         },

@@ -378,7 +378,7 @@ export const getAccumulatedDataset = <T extends AnyStat>(
     let sum = initialValue
     return {
       ...options,
-      label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+      label: useUsersStore().getName(user),
       data: stats
         .filter((s) => s.legs.userId == user && getY(s) != null)
         .map((stat) => {
@@ -400,7 +400,7 @@ export const getDataset = <T extends AnyStat>(
 ) => {
   return users.map((user) => ({
     ...options,
-    label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+    label: useUsersStore().getName(user),
     data: stats
       .filter((s) => s.legs.userId == user && getY(s) != null)
       .map((stat) => ({
@@ -419,7 +419,7 @@ export const getNumberOfGamesDataset = <T extends AnyStat>(
     let y = 1
     return {
       ...options,
-      label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+      label: useUsersStore().getName(user),
       data: stats
         .filter((s) => s.legs.userId == user)
         .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),

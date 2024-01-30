@@ -7,7 +7,7 @@
     :disabled="presence.userId == useAuthStore().auth?.id"
     @click="spectate(presence.userId)"
   >
-    {{ useUsersStore().getUser(presence.userId)?.name }}
+    {{ useUsersStore().getName(presence.userId) }}
   </button>
 </template>
 

@@ -18,7 +18,7 @@
       style="flex: 1; min-width: 30%"
     >
       <div style="text-align: center">
-        {{ stringMaxLength(useUsersStore().getUser(player.id)?.name, 10) }}
+        {{ stringMaxLength(useUsersStore().getName(player.id), 10) }}
       </div>
       <button
         v-for="(_, i) in Array(6)"

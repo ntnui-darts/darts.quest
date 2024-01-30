@@ -53,7 +53,7 @@
             }"
           >
             {{ i + 1 }}.
-            {{ stringMaxLength(useUsersStore().getUser(userId)?.name, 18) }}
+            {{ stringMaxLength(useUsersStore().getName(userId), 18) }}
           </td>
           <td style="text-align: end">
             {{

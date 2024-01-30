@@ -51,7 +51,7 @@
         style="height: 4em"
         @click="selectSector(player.sector)"
       >
-        {{ useUsersStore().getUser(player.userId)?.name }} [{{ player.sector }}]
+        {{ useUsersStore().getName(player.userId) }} [{{ player.sector }}]
       </button>
     </div>
     <div class="row">

@@ -35,7 +35,7 @@
     <h3>Spectators</h3>
     <ul>
       <li v-for="presence in spectators">
-        {{ useUsersStore().getUser(presence.userId)?.name }}
+        {{ useUsersStore().getName(presence.userId) }}
       </li>
     </ul>
   </template>

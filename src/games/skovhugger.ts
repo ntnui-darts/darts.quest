@@ -28,7 +28,7 @@ export const getSkovhuggerController = (
         ...gameState,
 
         getUserResultText(userId) {
-          const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const name = useUsersStore().getName(userId)
           const score = getSkovhuggerScore(getVisitsOfUser(game, userId))
           return `${name}, ${score}`
         },

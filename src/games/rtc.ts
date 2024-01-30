@@ -55,7 +55,7 @@ export const getRtcController = (game: Game): RtcController => {
         ...simulateFirstToWinGame(game, winCondition, sortRank),
 
         getUserResultText(userId) {
-          const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const name = useUsersStore().getName(userId)
           const visits = getVisitsOfUser(game, userId)
           const hitRate = getRtcHitRate(visits)
           return `${name}, Hit rate: ${toPercentage(hitRate)}`

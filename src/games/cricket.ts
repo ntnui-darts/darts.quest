@@ -30,7 +30,7 @@ export const getCricketController = (
         ...gameState,
 
         getUserResultText(userId) {
-          const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const name = useUsersStore().getName(userId)
           const score =
             gameState.players.find((p) => p.id == userId)?.score ?? 0
           return `${name}, ${score}`
