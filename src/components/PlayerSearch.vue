@@ -15,7 +15,9 @@
       @click="select(user)"
     >
       {{ user.name }}
-      {{ useOnlineStore().usersOnline.has(user.id) ? '👋' : '' }}
+      {{
+        useOnlineStore().presences.find((p) => p.userId == user.id) ? '👋' : ''
+      }}
     </button>
     <p v-if="searchResultUsers.length == 0">No results 🤔</p>
   </div>
