@@ -67,23 +67,33 @@
 <script lang="ts" setup>
 import { stringMaxLength } from '@/functions/string'
 import { CricketGameState } from '@/games/cricket'
-import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
-import { Segment, multiplierToString } from '@/types/game'
+import {
+  Game,
+  GameController,
+  GameState,
+  Segment,
+  multiplierToString,
+} from '@/types/game'
 import { computed, ref } from 'vue'
 
-const selectedMultiplier = ref(1)
-const selectedSector = ref<number | null>(null)
-const gameState = computed(() => useGameStore().gameState as CricketGameState)
-const currentPlayer = computed(() =>
-  gameState.value.players.find((p) => p.id == gameState.value.player)
-)
+const props = defineProps<{
+  game: Game
+  gameState: CricketGameState
+  gameController: GameController<GameState>
+}>()
 
 const emit = defineEmits<{
   hit: [segment: Segment]
   miss: []
   undo: []
 }>()
+
+const selectedMultiplier = ref(1)
+const selectedSector = ref<number | null>(null)
+const currentPlayer = computed(() =>
+  props.gameState.players.find((p) => p.id == props.gameState.player)
+)
 
 const selectSector = (sector: number) => {
   if (sector == 0) {

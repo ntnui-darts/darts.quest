@@ -45,7 +45,6 @@ export const useOnlineStore = defineStore('online', {
       this.outChannel = supabase
         .channel(`game-${userId}`)
         .on('broadcast', { event: 'input' }, (args) => {
-          console.log(args)
           const gameStore = useGameStore()
           const player = gameStore.gameState?.player
           if (args.payload.userId != player) return

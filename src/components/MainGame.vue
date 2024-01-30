@@ -53,6 +53,8 @@
       v-if="showInput"
       :is="getInputComponent(game.type)"
       :game="game"
+      :game-state="gameState"
+      :game-controller="gameController"
       @hit="emit('hit', $event)"
       @miss="emit('miss')"
       @undo="emit('undo')"

@@ -24,6 +24,8 @@
 <script lang="ts" setup>
 import {
   Game,
+  GameController,
+  GameState,
   Multiplier,
   Segment,
   getTypeAttribute,
@@ -33,6 +35,8 @@ import { ref } from 'vue'
 
 const props = defineProps<{
   game: Game
+  gameState: GameState
+  gameController: GameController<GameState>
 }>()
 
 const emit = defineEmits<{
