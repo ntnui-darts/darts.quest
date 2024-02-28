@@ -15,7 +15,12 @@
         :class="{ selected: type == gameType }"
         style="font-size: larger; min-width: 140px"
         :id="type"
-        @click="emit('updateGameType', type)"
+        @click="
+          () => {
+            scrollGameTypeButtonIntoView(type)
+            emit('updateGameType', type)
+          }
+        "
       >
         {{ name }}
       </button>
@@ -35,10 +40,21 @@
 <script lang="ts" setup>
 import type { GameType } from '@/games/games'
 import { GameTypeNames, getOptionsComponent } from '@/games/games'
-defineProps<{ gameType: GameType; typeAttributes: string[] }>()
+import { onMounted } from 'vue'
+
+const props = defineProps<{ gameType: GameType; typeAttributes: string[] }>()
 
 const emit = defineEmits<{
   updateGameType: [gameType: GameType]
   updateTypeAttributes: [typeAttributes: string[]]
 }>()
+
+onMounted(() => {
+  scrollGameTypeButtonIntoView(props.gameType)
+})
+
+const scrollGameTypeButtonIntoView = (gameType: string) => {
+  const btn = document.querySelector(`button#${gameType}`)
+  btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
+}
 </script>

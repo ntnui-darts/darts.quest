@@ -17,10 +17,7 @@ export type Segment = {
 export type Visit = [Segment | null, Segment | null, Segment | null]
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
-export type Leg = Omit<
-  DbLeg,
-  'visits' | 'createdAt' | 'type' | 'finishType'
-> & {
+export type Leg = Omit<DbLeg, 'visits' | 'createdAt' | 'type'> & {
   visits: Visit[]
   createdAt: string
   type: GameType
@@ -28,8 +25,9 @@ export type Leg = Omit<
 
 export type DbGame = Database['public']['Tables']['games']['Row']
 export type Game = Prettify<
-  Omit<DbGame, 'createdAt' | 'legs' | 'type' | 'finishType'> & {
+  Omit<DbGame, 'createdAt' | 'legs' | 'type' | 'tournamentId'> & {
     createdAt?: string
+    tournamentId?: string
     legs: Leg[]
     type: GameType
   }
