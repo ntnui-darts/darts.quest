@@ -112,6 +112,7 @@ const onPlay = () => {
           createdAt: new Date().toISOString(),
         } satisfies Leg)
     ),
+    tournamentId: null,
   })
   router.push({ name: 'game' })
 }
