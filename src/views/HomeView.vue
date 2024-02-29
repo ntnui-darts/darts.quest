@@ -5,7 +5,15 @@
     <button @click="router.push({ name: 'user' })">My Profile</button>
     <button @click="router.push({ name: 'statistics' })">Statistics</button>
   </div>
-  <h2>Select Game Type</h2>
+  <div style="display: flex; justify-content: space-between">
+    <h2>Select Game Type</h2>
+    <button
+      @click="showRules"
+      style="line-height: 0px; padding: 1.5em; font-size: 18px"
+    >
+      &#9432;
+    </button>
+  </div>
   <GameSelection
     :game-type="homeStore.gameType"
     :type-attributes="homeStore.typeAttributes"
@@ -35,6 +43,7 @@
 <script lang="ts" setup>
 import ReloadView from '@/components/ReloadView.vue'
 import PlayerSelection from '@/components/PlayerSelection.vue'
+import GameRules from '@/components/GameRules.vue'
 import { router } from '@/router'
 import { Leg } from '@/types/game'
 import { useUsersStore } from '@/stores/users'
@@ -109,5 +118,8 @@ const onPlay = () => {
     ),
   })
   router.push({ name: 'game' })
+}
+const showRules = () => {
+  useModalStore().push(GameRules, {}, {})
 }
 </script>
