@@ -7,14 +7,9 @@
   </div>
   <button @click="router.push({ name: 'spectate-lobby' })">Spectate</button>
 
-  <div style="display: flex; justify-content: space-between">
+  <div style="display: flex; justify-content: space-between; align-items: end">
     <h2>Select Game Type</h2>
-    <button
-      @click="showRules"
-      style="line-height: 0px; padding: 1.5em; font-size: 18px"
-    >
-      &#9432;
-    </button>
+    <InfoSvg @click="showRules"></InfoSvg>
   </div>
 
   <GameSelection
@@ -48,6 +43,7 @@
 <script lang="ts" setup>
 import GameRules from '@/components/GameRules.vue'
 import GameSelection from '@/components/GameSelection.vue'
+import InfoSvg from '@/components/InfoIcon.vue'
 import InstallationPrompt from '@/components/InstallationPrompt.vue'
 import PlayerSelection from '@/components/PlayerSelection.vue'
 import ReloadView from '@/components/ReloadView.vue'
