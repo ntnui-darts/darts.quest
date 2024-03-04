@@ -1,4 +1,8 @@
 <template>
+  <div style="display: flex; justify-content: end">
+    <ExitIcon @click="useModalStore().pop"></ExitIcon>
+  </div>
+
   <div class="rules-content">
     <h2>Game Rules</h2>
     <h3>X01</h3>
@@ -48,9 +52,13 @@
   </div>
 </template>
 
+<script lang="ts" setup>
+import { useModalStore } from '@/stores/modal'
+import ExitIcon from './ExitIcon.vue'
+</script>
+
 <style scoped>
 .rules-content {
   overflow-y: auto;
 }
 </style>
-```
