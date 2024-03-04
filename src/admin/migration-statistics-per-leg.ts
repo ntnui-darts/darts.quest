@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/auth'
-// import { upsertLegStatistics } from '@/stores/stats'
+// import  { upsertLegStatistics } from '@/stores/stats'
 import { supabase } from '@/supabase'
 import { Leg } from '@/types/game'
 

@@ -12,8 +12,8 @@
 </template>
 
 <script lang="ts" setup>
+import { DynamicComponent, useModalStore } from '@/stores/modal'
 import IconButton from './IconButton.vue'
-import { useModalStore, DynamicComponent } from '@/stores/modal'
 
 const modalStore = useModalStore()
 

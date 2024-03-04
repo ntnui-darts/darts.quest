@@ -1,17 +1,23 @@
-import X01OptionsInput from '@/components/X01OptionsInput.vue'
-import X01GameInput from '@/components/X01GameInput.vue'
-import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
-import RtcGameInput from '@/components/RtcGameInput.vue'
-import NoOptionsInput from '@/components/NoOptionsInput.vue'
-import KillerGameInput from '@/components/KillerGameInput.vue'
 import CricketGameInput from '@/components/CricketGameInput.vue'
-import { Game, GameController, Leg, getTypeAttribute } from '@/types/game'
-import { getX01Controller } from './x01'
-import { getRtcRandomController } from './rtc-random'
+import KillerGameInput from '@/components/KillerGameInput.vue'
+import NoOptionsInput from '@/components/NoOptionsInput.vue'
+import RtcGameInput from '@/components/RtcGameInput.vue'
+import RtcOptionsInput from '@/components/RtcOptionsInput.vue'
+import X01GameInput from '@/components/X01GameInput.vue'
+import X01OptionsInput from '@/components/X01OptionsInput.vue'
+import {
+  Game,
+  GameController,
+  GameState,
+  Leg,
+  getTypeAttribute,
+} from '@/types/game'
+import { getCricketController } from './cricket'
 import { getKillerController } from './killer'
 import { getRtcController } from './rtc'
+import { getRtcRandomController } from './rtc-random'
 import { getSkovhuggerController } from './skovhugger'
-import { getCricketController } from './cricket'
+import { getX01Controller } from './x01'
 
 export type GameType = 'x01' | 'rtc' | 'killer' | 'skovhugger' | 'cricket'
 
@@ -93,7 +99,7 @@ export const getGamePoints = (game: {
   }
 }
 
-export const getGameController = (game: Game): GameController => {
+export const getGameController = (game: Game): GameController<GameState> => {
   switch (game.type) {
     case 'x01':
       return getX01Controller(game)

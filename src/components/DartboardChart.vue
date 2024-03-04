@@ -3,11 +3,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue'
-import { Chart } from 'chart.js'
-import { Visit } from '@/types/game'
-import { rtcStats } from '@/games/rtc'
 import { GameType } from '@/games/games'
+import { rtcStats } from '@/games/rtc'
+import { Visit } from '@/types/game'
+import { Chart } from 'chart.js'
+import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
   visits: Visit[]

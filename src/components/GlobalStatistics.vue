@@ -53,7 +53,7 @@
             }"
           >
             {{ i + 1 }}.
-            {{ stringMaxLength(useUsersStore().getUser(userId)?.name, 18) }}
+            {{ stringMaxLength(useUsersStore().getName(userId), 18) }}
           </td>
           <td style="text-align: end">
             {{
@@ -86,14 +86,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { useStatsStore, toPercentage, roundToNDecimals } from '@/stores/stats'
-import { useUsersStore } from '@/stores/users'
-import { GameTypeNames } from '@/games/games'
-import type { GameType } from '@/games/games'
-import { addDays } from 'date-fns'
-import { useAuthStore } from '@/stores/auth'
 import { stringMaxLength } from '@/functions/string'
+import type { GameType } from '@/games/games'
+import { GameTypeNames } from '@/games/games'
+import { useAuthStore } from '@/stores/auth'
+import { roundToNDecimals, toPercentage, useStatsStore } from '@/stores/stats'
+import { useUsersStore } from '@/stores/users'
+import { addDays } from 'date-fns'
+import { computed, ref } from 'vue'
 
 const store = useStatsStore()
 
@@ -262,7 +262,10 @@ const getStats = (gameType: GameType, subCategory: SubCategory): Stat[] => {
             {
               text: 'Fewest Darts',
               userStats: (d) =>
-                store.getMin(store.getRtc({ since: d, fast: false }), 'darts'),
+                store.getMin(
+                  store.getRtc({ since: d, fast: false, forced: false }),
+                  'darts'
+                ),
             },
             {
               text: 'Longest Streak',

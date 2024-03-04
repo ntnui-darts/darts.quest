@@ -7,13 +7,13 @@
 </template>
 
 <script lang="ts" setup>
-import DartboardChart from './DartboardChart.vue'
-import { Leg } from '@/types/game'
-import { User } from '@/stores/users'
-import { computed } from 'vue'
-import { getFirst9Avg, getAvgVisitScore } from '@/games/x01'
 import { getRtcHitRate } from '@/games/rtc'
+import { getAvgVisitScore, getFirst9Avg } from '@/games/x01'
 import { roundToNDecimals, toPercentage } from '@/stores/stats'
+import { User } from '@/stores/users'
+import { Leg } from '@/types/game'
+import { computed } from 'vue'
+import DartboardChart from './DartboardChart.vue'
 
 const props = defineProps<{ leg: Leg; user: User }>()
 

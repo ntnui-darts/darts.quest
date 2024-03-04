@@ -16,141 +16,73 @@
     Quit
   </button>
 
-  <div class="row spaced">
-    <h3>
-      {{ getGameDisplayName(gameStore.game) }}
-    </h3>
-    <h3>
-      {{ gameStore.gameState?.getTopRightText() }}
-    </h3>
-  </div>
+  <MainGame
+    v-if="gameStore.game && gameStore.gameState"
+    :show-input="
+      !spectators.find((p) => p.userId == gameStore.gameState?.player)
+    "
+    :show-save="true"
+    :game="gameStore.game"
+    :game-state="gameStore.gameState"
+    :game-controller="gameStore.getController()"
+    :get-elo-text="getEloText"
+    :get-elo-color="getEloColor"
+    @hit="gameStore.getController().recordHit($event)"
+    @miss="gameStore.getController().recordMiss()"
+    @undo="gameStore.undoScore()"
+    @save="saveGame"
+  ></MainGame>
 
-  <div v-if="gameStore.game && !allPlayersFinished" class="col">
-    <div
-      class="col shadow"
-      style="
-        background-color: rgb(43, 43, 43);
-        border-radius: 0.5em;
-        padding: 1em 0;
-        margin-bottom: 1.5em;
-        overflow: hidden;
-        gap: 1.5em;
-      "
-    >
-      <div class="row" style="overflow: auto; padding: 0 1em">
-        <button
-          v-for="userId in gameStore.gameState?.playersLeft ?? []"
-          :class="{ selected: gameStore.gameState?.player == userId }"
-          :key="userId"
-          :id="userId"
-          style="min-width: 135px"
-          @click="clickUser(userId)"
-        >
-          {{ usersStore.getUser(userId)?.name ?? 'Unknown' }}
-          <br />
-          {{ gameStore.gameState?.getUserDisplayText(userId) }}
-        </button>
-      </div>
-      <div class="row" style="margin: 0 1em">
-        <button
-          v-for="(segment, i) in displayVisit.visit"
-          :class="{
-            outlined:
-              (!displayVisit.isPrev && i == displayVisit.visit.indexOf(null)) ||
-              (displayVisit.isPrev && i == 0),
-          }"
-          :disabled="displayVisit.isPrev || segment == null"
-        >
-          {{ gameStore.getController().getSegmentText(segment) }}
-        </button>
-      </div>
-    </div>
-
-    <component
-      :is="getInputComponent(gameStore.game.type)"
-      @hit="gameStore.getController().recordHit($event)"
-      @miss="gameStore.getController().recordMiss()"
-      @undo="gameStore.undoScore()"
-    ></component>
-  </div>
-
-  <div v-if="gameStore.game && somePlayersFinished">
-    <button v-if="allPlayersFinished" @click="gameStore.undoScore()">
-      &#x232B;
-    </button>
-    <h2>Results</h2>
-    <ol>
-      <li
-        v-for="(id, i) in gameStore.gameState?.rank"
-        style="display: flex; justify-content: space-between"
-      >
-        <span>
-          {{ i + 1 }}. {{ gameStore.gameState?.getUserResultText(id) }}
-        </span>
-        <span style="margin-left: 1em" :style="{ color: getEloColor(id) }">{{
-          getEloText(id)
-        }}</span>
+  <template v-if="spectators.length > 0">
+    <h3>Spectators</h3>
+    <ul>
+      <li v-for="presence in spectators">
+        {{ useUsersStore().getName(presence.userId) }}
       </li>
-    </ol>
-    <div class="col">
-      <button @click="saveGame">Save Game</button>
-    </div>
-  </div>
+    </ul>
+  </template>
 </template>
 
 <script lang="ts" setup>
-import Youtube from '@/components/Youtube.vue'
+import MainGame from '@/components/MainGame.vue'
 import Prompt from '@/components/Prompt.vue'
-import InGameSummary from '@/components/InGameSummary.vue'
-import { onMounted, computed, watch, ref } from 'vue'
+import Youtube from '@/components/Youtube.vue'
 import { router } from '@/router'
-import { useUsersStore } from '@/stores/users'
+import { useAuthStore } from '@/stores/auth'
+import { useEloStore } from '@/stores/elo'
+import { useGameStore } from '@/stores/game'
 import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
-import { useGameStore } from '@/stores/game'
-import { getGameDisplayName, getInputComponent } from '@/games/games'
-import { getLegOfUser } from '@/types/game'
-import { speak } from '@/functions/speak'
+import { useOnlineStore } from '@/stores/online'
 import { useOptionsStore } from '@/stores/options'
-import { useEloStore } from '@/stores/elo'
 import { roundToNDecimals } from '@/stores/stats'
+import { useUsersStore } from '@/stores/users'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const gameStore = useGameStore()
-const usersStore = useUsersStore()
 const loadingStore = useLoadingStore()
+const onlineStore = useOnlineStore()
+const authStore = useAuthStore()
 
 const eloDeltas = ref<{ userId: string; eloDelta: number }[]>([])
 
-const allPlayersFinished = computed(
-  () =>
-    (gameStore.game?.legs.length ?? 0) ==
-    (gameStore.gameState?.rank.length ?? 0)
+const spectators = computed(() =>
+  onlineStore.presences.filter((p) => p.spectating == authStore.auth?.id)
 )
 
-const somePlayersFinished = computed(
-  () => (gameStore.gameState?.rank.length ?? 0) > 0
-)
-
-const displayVisit = computed(() => {
-  if (!gameStore.game || !gameStore.gameState?.player)
-    return { visit: [null, null, null] ?? [null, null, null], isPrev: false }
-  const leg = getLegOfUser(gameStore.game, gameStore.gameState?.player)
-  const visit = leg?.visits.at(-1)
-  if (
-    (!visit || visit?.indexOf(null) == -1) &&
-    gameStore.gameState?.prevPlayer
-  ) {
-    const leg = getLegOfUser(gameStore.game, gameStore.gameState?.prevPlayer)
-    const visit = leg?.visits.at(-1)
-    return { visit: visit ?? [null, null, null], isPrev: true }
-  }
-  return { visit: visit ?? [null, null, null], isPrev: false }
-})
-
-onMounted(() => {
+onMounted(async () => {
   if (!gameStore.game) {
     quit()
   }
+  await onlineStore.sendUpdate({
+    inGame: true,
+  })
+})
+
+onUnmounted(async () => {
+  await onlineStore.sendUpdate({
+    inGame: false,
+  })
 })
 
 const quit = () => {
@@ -203,32 +135,6 @@ const saveGame = async () => {
   })
 }
 
-const clickUser = (userId: string) => {
-  if (!gameStore.game) return
-  const leg = getLegOfUser(gameStore.game, userId)
-  const user = usersStore.getUser(userId)
-  if (!leg || !user) return
-  useModalStore().push(InGameSummary, { leg, user }, {})
-}
-
-watch(
-  () => gameStore.gameState?.player,
-  (userId) => {
-    if (userId) {
-      const btn = document.getElementById(userId)
-      btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
-    }
-  }
-)
-
-watch(
-  () => gameStore.gameState?.getTopRightText(),
-  (text) => {
-    if (text) setTimeout(() => speak(text), 1000)
-  },
-  { immediate: true }
-)
-
 watch(
   () => gameStore.gameState?.rank.length,
   async () => {
@@ -253,25 +159,3 @@ const getEloColor = (userId: string) => {
   return eloDelta > 0 ? '#127a16' : '#ad1717'
 }
 </script>
-
-<style scoped>
-.grid-users {
-  display: grid;
-  column-gap: 1em;
-  row-gap: 1em;
-  grid-template-columns: 1fr 1fr;
-}
-
-button {
-  flex: 1;
-}
-
-.outlined {
-  outline: 1px solid var(--c-green);
-}
-
-li {
-  font-size: 14pt;
-  padding-bottom: 0.5em;
-}
-</style>

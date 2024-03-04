@@ -1,19 +1,19 @@
+import { speak } from '@/functions/speak'
+import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
+import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
-  Segment,
-  Visit,
   Game,
   GameController,
-  getVisitsOfUser,
-  getTypeAttribute,
   GameState,
+  Segment,
+  Visit,
+  getTypeAttribute,
+  getVisitsOfUser,
 } from '@/types/game'
-import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { GameType, getGamePoints } from './games'
-import { useGameStore } from '@/stores/game'
-import { speak } from '@/functions/speak'
 
-export const getX01Controller = (game: Game): GameController => {
+export const getX01Controller = (game: Game): GameController<GameState> => {
   return {
     ...getGenericController(game),
 
@@ -25,12 +25,11 @@ export const getX01Controller = (game: Game): GameController => {
         ),
 
         getUserResultText(userId) {
-          const name = useUsersStore().getUser(userId)?.name ?? 'Unknown'
+          const name = useUsersStore().getName(userId)
           const visits = getVisitsOfUser(game, userId)
           const avg = getAvgVisitScore(
             game.legs.find((leg) => leg.userId == userId)?.visits ?? [],
-            game,
-            true
+            game
           ).toFixed(1)
           return `${name}, ${visits?.length} visits, ${avg} average`
         },
@@ -90,14 +89,13 @@ export const getX01LegScore = (
   game: {
     type: GameType
     typeAttributes: string[]
-  },
-  includeUnfinished = true
+  }
 ) => {
   let score = 0
   const points = getGamePoints(game)
   const finishType = getTypeAttribute(game, 'finish', 1)
   visits?.forEach((v) => {
-    const visitScore = getX01VisitScore(v, includeUnfinished)
+    const visitScore = getX01VisitScore(v)
     if (score + visitScore == points) {
       if (
         finishType == 1 ||
@@ -120,15 +118,12 @@ export const getAvgVisitScore = (
   game: {
     type: GameType
     typeAttributes: string[]
-  },
-  includeUnfinished = false
+  }
 ) => {
   if (!visits || visits.length == 0) return 0
-  const count = includeUnfinished
-    ? visits.length
-    : visits.filter((visit) => !visit.includes(null)).length
-  if (!count) return 0
-  return getX01LegScore(visits, game, includeUnfinished) / count
+  const segmentCount = visits.flat().filter((visit) => visit != null).length
+  if (!segmentCount) return 0
+  return (getX01LegScore(visits, game) * 3) / segmentCount
 }
 
 export const getFirst9Avg = (
@@ -140,11 +135,10 @@ export const getFirst9Avg = (
 ) => {
   if (!visits) return 0
   const first9 = visits.slice(0, 3)
-  return getAvgVisitScore(first9, game, true)
+  return getAvgVisitScore(first9, game)
 }
 
-export const getX01VisitScore = (visit: Visit, includeUnfinished = true) => {
-  if (!includeUnfinished && visit.includes(null)) return 0
+export const getX01VisitScore = (visit: Visit) => {
   return visit.reduce((prev, current) => prev + getSegmentScore(current), 0)
 }
 

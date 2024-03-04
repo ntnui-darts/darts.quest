@@ -13,10 +13,10 @@
 </template>
 
 <script lang="ts" setup>
-import DartboardChart from './DartboardChart.vue'
-import { Leg } from '@/types/game'
-import { useModalStore } from '@/stores/modal'
 import { getGameDisplayName } from '@/games/games'
+import { useModalStore } from '@/stores/modal'
+import { Leg } from '@/types/game'
+import DartboardChart from './DartboardChart.vue'
 
 const props = defineProps<{
   leg: Leg

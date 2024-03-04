@@ -1,8 +1,8 @@
+import { compareCreatedAt } from '@/functions/compare'
 import { supabase } from '@/supabase'
 import { Database } from '@/types/supabase'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
-import { compareCreatedAt } from '@/functions/compare'
 
 export type User = Database['public']['Tables']['users']['Row']
 
@@ -23,6 +23,10 @@ export const useUsersStore = defineStore('users', {
 
     getUser(id?: string) {
       return this.users.find((user) => user.id == id)
+    },
+
+    getName(id?: string) {
+      return this.users.find((user) => user.id == id)?.name ?? 'Unknown'
     },
 
     getUserSelectionHistory() {

@@ -7,8 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import ModalView from './components/ModalView.vue'
 import { RouterView } from 'vue-router'
+import ModalView from './components/ModalView.vue'
 import { useLoadingStore } from './stores/loading'
 
 const loadingStore = useLoadingStore()

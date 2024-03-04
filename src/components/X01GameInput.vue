@@ -43,11 +43,23 @@
 </template>
 
 <script lang="ts" setup>
-import { Segment, multiplierToString } from '@/types/game'
+import {
+  Game,
+  GameController,
+  GameState,
+  Segment,
+  multiplierToString,
+} from '@/types/game'
 import { ref } from 'vue'
 
 const selectedMultiplier = ref(1)
 const selectedSector = ref<number | null>(null)
+
+defineProps<{
+  game: Game
+  gameState: GameState
+  gameController: GameController<GameState>
+}>()
 
 const emit = defineEmits<{
   hit: [segment: Segment]

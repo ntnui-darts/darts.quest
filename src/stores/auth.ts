@@ -1,15 +1,21 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { User as AuthUser } from '@supabase/supabase-js'
 import { supabase } from '@/supabase'
-import { User, useUsersStore } from './users'
+import { User as AuthUser } from '@supabase/supabase-js'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useOnlineStore } from './online'
 import { useStatsStore } from './stats'
+import { User, useUsersStore } from './users'
+
+const initAuth = async (auth: AuthUser) => {
+  useAuthStore().auth = auth
+  useOnlineStore().initRoom(auth.id)
+  await useUsersStore().fetchUsers()
+  await useStatsStore().fetchAll()
+}
 
 supabase.auth.onAuthStateChange(async (_, session) => {
   const user = session?.user
-  if (user && useAuthStore().auth?.id != user?.id) {
-    useAuthStore().auth = user
-    await useUsersStore().fetchUsers()
-    await useStatsStore().fetchAll()
+  if (user && useAuthStore().auth?.id != user.id) {
+    initAuth(user)
   }
 })
 
@@ -23,9 +29,8 @@ export const useAuthStore = defineStore('auth', {
       const prevAuth = this.auth
       const response = await supabase.auth.getSession()
       this.auth = response.data.session?.user
-      if (this.auth != prevAuth) {
-        await useUsersStore().fetchUsers()
-        await useStatsStore().fetchAll()
+      if (this.auth && this.auth.id != prevAuth?.id) {
+        initAuth(this.auth)
       }
     },
 

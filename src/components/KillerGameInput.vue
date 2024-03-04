@@ -51,7 +51,7 @@
         style="height: 4em"
         @click="selectSector(player.sector)"
       >
-        {{ useUsersStore().getUser(player.userId)?.name }} [{{ player.sector }}]
+        {{ useUsersStore().getName(player.userId) }} [{{ player.sector }}]
       </button>
     </div>
     <div class="row">
@@ -79,22 +79,25 @@
 
 <script lang="ts" setup>
 import { KillerController, KillerPlayer } from '@/games/killer'
-import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
-import { Segment, multiplierToString } from '@/types/game'
-import { ref, onMounted } from 'vue'
+import { Game, GameState, Segment, multiplierToString } from '@/types/game'
+import { onMounted, ref } from 'vue'
 
-const selectedMultiplier = ref(1)
-const selectedSector = ref<number | null>(null)
-const gameStore = useGameStore()
-
-const players = ref<KillerPlayer[]>([])
+const props = defineProps<{
+  game: Game
+  gameState: GameState
+  gameController: KillerController
+}>()
 
 const emit = defineEmits<{
   hit: [segment: Segment]
   miss: []
   undo: []
 }>()
+
+const selectedMultiplier = ref(1)
+const selectedSector = ref<number | null>(null)
+const players = ref<KillerPlayer[]>([])
 
 const selectSector = (sector: number | null) => {
   if (sector == null) throw Error()
@@ -112,10 +115,9 @@ const selectSector = (sector: number | null) => {
 
 const updatePlayers = () => {
   players.value =
-    (useGameStore().getController() as KillerController)
+    props.gameController
       .getKillerPlayers()
-      .filter((player) => !gameStore.gameState?.rank.includes(player.userId)) ??
-    []
+      .filter((player) => !props.gameState?.rank.includes(player.userId)) ?? []
 }
 
 onMounted(() => {

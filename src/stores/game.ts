@@ -1,19 +1,20 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { upsertLegStatistics, useStatsStore } from './stats'
+import { speak } from '@/functions/speak'
+import { getGameController, getGameDisplayName } from '@/games/games'
 import { supabase } from '@/supabase'
 import {
+  GameController,
   Game as GameData,
+  GameState,
   Segment,
   Visit,
   getLegOfUser,
-  GameController,
-  GameState,
   getVisitsOfUser,
 } from '@/types/game'
-import { useUsersStore } from './users'
-import { getGameController, getGameDisplayName } from '@/games/games'
-import { speak } from '@/functions/speak'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useEloStore } from './elo'
+import { useOnlineStore } from './online'
+import { upsertLegStatistics, useStatsStore } from './stats'
+import { useUsersStore } from './users'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -25,7 +26,7 @@ export const useGameStore = defineStore('game', {
     walkOnEndTime: 0,
 
     // Don't access controller directly, use getController()
-    _controller: null as GameController | null,
+    _controller: null as GameController<GameState> | null,
   }),
 
   actions: {
@@ -37,7 +38,7 @@ export const useGameStore = defineStore('game', {
       this.refreshGameState()
     },
 
-    getController(): GameController {
+    getController(): GameController<GameState> {
       if (!this.game) throw Error()
       if (this.game != this._controller?.game) {
         this._controller = getGameController(this.game)
@@ -50,6 +51,7 @@ export const useGameStore = defineStore('game', {
       if (this.game) {
         this.game.result = this.gameState.rank
       }
+      useOnlineStore().sendGame()
       this.tryPlayWalkOn()
       return this.gameState
     },

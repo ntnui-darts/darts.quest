@@ -2,6 +2,7 @@ import { useGameStore } from '@/stores/game'
 import {
   Game,
   GameController,
+  GameState,
   Multiplier,
   Visit,
   getVisitsOfUser,
@@ -27,7 +28,7 @@ export const getGenericController = (game: Game) => {
     recordMiss() {
       useGameStore().saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
-  } satisfies Partial<GameController>
+  } satisfies Partial<GameController<GameState>>
 }
 
 export type SimulationState = {
@@ -70,7 +71,8 @@ export const nextState = (
 
 export const simulateFirstToWinGame = (
   game: Game,
-  winCondition: (game: Game, visits: Visit[]) => boolean
+  winCondition: (game: Game, visits: Visit[]) => boolean,
+  sortRank?: (a: string, b: string) => number
 ) => {
   let state: SimulationState = {
     player: null,
@@ -89,6 +91,9 @@ export const simulateFirstToWinGame = (
 
     if (winCondition(game, visits)) {
       state.rank.push(state.player)
+      if (sortRank) {
+        state.rank.sort(sortRank)
+      }
       continue
     }
 

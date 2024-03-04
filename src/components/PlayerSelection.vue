@@ -37,11 +37,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onMounted } from 'vue'
-import { User, useUsersStore } from '@/stores/users'
 import { useModalStore } from '@/stores/modal'
-import PlayerSearch from './PlayerSearch.vue'
+import { User, useUsersStore } from '@/stores/users'
+import { onMounted, ref, watch } from 'vue'
 import PlayerOptions from './PlayerOptions.vue'
+import PlayerSearch from './PlayerSearch.vue'
 
 export type UserCurrentInfo = User & {
   arrows?: string

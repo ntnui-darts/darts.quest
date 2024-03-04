@@ -1,8 +1,8 @@
-// import { useAuthStore } from '@/stores/auth'
-// import { supabase } from '@/supabase'
+// import  { useAuthStore } from '@/stores/auth'
+// import  { supabase } from '@/supabase'
 
-// const email = import.meta.env.VITE_EMAIL
-// const password = import.meta.env.VITE_PASSWORD
+// const email = import .meta.env.VITE_EMAIL
+// const password = import .meta.env.VITE_PASSWORD
 
 export const migrateTypeToArray = async () => {
   throw Error('deprecated')

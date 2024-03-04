@@ -1,11 +1,11 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
-import { createPinia } from 'pinia'
-import { router } from './router'
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue'
 import { Chart, registerables } from 'chart.js'
 import { polyfill } from 'mobile-drag-drop'
+import { createPinia } from 'pinia'
+import { createApp } from 'vue'
+import App from './App.vue'
+import { router } from './router'
+import './style.css'
 
 Chart.register(...registerables)
 

@@ -1,8 +1,8 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import type { Game } from '@/types/game'
 import type { GameType } from '@/games/games'
 import { supabase } from '@/supabase'
+import type { Game } from '@/types/game'
 import { Database } from '@/types/supabase'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
 
 export const initialElo = 1000
@@ -31,7 +31,6 @@ export const useEloStore = defineStore('elo', {
         const elo = await this.fetchElo(id, game.type)
         eloPlayers.push({ id, elo })
       }
-      console.log(eloPlayers)
       const eloDeltas: { userId: string; eloDelta: number }[] = []
       for (const player of eloPlayers) {
         let eloDelta = 0

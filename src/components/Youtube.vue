@@ -6,8 +6,8 @@
   ></iframe>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue'
 import { parseYoutube } from '@/components/youtube'
+import { computed } from 'vue'
 
 const props = defineProps<{
   videoId: string

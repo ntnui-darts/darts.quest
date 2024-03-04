@@ -15,6 +15,9 @@
       @click="select(user)"
     >
       {{ user.name }}
+      {{
+        useOnlineStore().presences.find((p) => p.userId == user.id) ? '👋' : ''
+      }}
     </button>
     <p v-if="searchResultUsers.length == 0">No results 🤔</p>
   </div>
@@ -22,8 +25,9 @@
 
 <script lang="ts" setup>
 import { useModalStore } from '@/stores/modal'
+import { useOnlineStore } from '@/stores/online'
 import { User, useUsersStore } from '@/stores/users'
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import PlayerOptions from './PlayerOptions.vue'
 
 const props = defineProps<{

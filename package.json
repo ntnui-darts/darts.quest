@@ -12,23 +12,23 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.0",
-    "@supabase/supabase-js": "^2.36.0",
+    "@supabase/supabase-js": "^2.39.3",
     "@types/node": "^20.7.1",
     "chart.js": "^4.4.0",
     "chartjs-adapter-date-fns": "^3.0.0",
-    "date-fns": "^2.30.0",
+    "date-fns": "^3.3.1",
     "mobile-drag-drop": "^3.0.0-rc.0",
     "nanoid": "^5.0.1",
     "pinia": "^2.1.6",
-    "vue": "^3.3.4",
+    "vue": "^3.4.15",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.2.3",
-    "supabase": "^1.99.5",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vitest": "^0.34.6",
-    "vue-tsc": "^1.8.5"
+    "@vitejs/plugin-vue": "^5.0.3",
+    "supabase": "^1.136.3",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vitest": "^1.2.2",
+    "vue-tsc": "^1.8.27"
   }
 }

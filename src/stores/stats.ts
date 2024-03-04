@@ -1,15 +1,15 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { supabase } from '@/supabase'
-import { DbGame, Game, GameState, Leg, getTypeAttribute } from '@/types/game'
-import { useAuthStore } from './auth'
-import { Database } from '@/types/supabase'
-import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
+import { compareCreatedAt } from '@/functions/compare'
+import { CricketGameState } from '@/games/cricket'
+import type { GameType } from '@/games/games'
 import { getMaxStreak, getRtcHitRate } from '@/games/rtc'
 import { getSkovhuggerScore } from '@/games/skovhugger'
-import { compareCreatedAt } from '@/functions/compare'
-import type { GameType } from '@/games/games'
+import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
+import { supabase } from '@/supabase'
+import { DbGame, Game, GameState, Leg, getTypeAttribute } from '@/types/game'
+import { Database } from '@/types/supabase'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useAuthStore } from './auth'
 import { useUsersStore } from './users'
-import { CricketGameState } from '@/games/cricket'
 
 type LegJoin = {
   legs: {
@@ -261,6 +261,7 @@ export const useStatsStore = defineStore('stats', {
       allowUnfinished?: boolean
       mode?: 1 | 2 | 3
       fast?: boolean
+      forced?: boolean
     }) {
       return this.rtcStats.filter((stat) => {
         if (
@@ -280,6 +281,13 @@ export const useStatsStore = defineStore('stats', {
         if (
           options.fast != undefined &&
           getTypeAttribute<boolean>(stat.legs, 'fast', false) != options.fast
+        )
+          return false
+
+        if (
+          options.forced != undefined &&
+          getTypeAttribute<boolean>(stat.legs, 'forced', false) !=
+            options.forced
         )
           return false
 
@@ -370,7 +378,7 @@ export const getAccumulatedDataset = <T extends AnyStat>(
     let sum = initialValue
     return {
       ...options,
-      label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+      label: useUsersStore().getName(user),
       data: stats
         .filter((s) => s.legs.userId == user && getY(s) != null)
         .map((stat) => {
@@ -392,7 +400,7 @@ export const getDataset = <T extends AnyStat>(
 ) => {
   return users.map((user) => ({
     ...options,
-    label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+    label: useUsersStore().getName(user),
     data: stats
       .filter((s) => s.legs.userId == user && getY(s) != null)
       .map((stat) => ({
@@ -411,7 +419,7 @@ export const getNumberOfGamesDataset = <T extends AnyStat>(
     let y = 1
     return {
       ...options,
-      label: useUsersStore().getUser(user)?.name ?? 'Unknown',
+      label: useUsersStore().getName(user),
       data: stats
         .filter((s) => s.legs.userId == user)
         .map((stat) => ({ x: new Date(stat.legs.createdAt), y: y++ })),

@@ -13,9 +13,9 @@
 </template>
 
 <script lang="ts" setup>
-import { watch, ref, onMounted } from 'vue'
 import { Chart, ChartDataset } from 'chart.js'
 import 'chartjs-adapter-date-fns'
+import { onMounted, ref, watch } from 'vue'
 import { Point, smoothPoints } from './chart'
 
 const props = withDefaults(
