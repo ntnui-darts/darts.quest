@@ -5,10 +5,13 @@
     <button @click="router.push({ name: 'user' })">My Profile</button>
     <button @click="router.push({ name: 'statistics' })">Statistics</button>
   </div>
-
   <button @click="router.push({ name: 'spectate-lobby' })">Spectate</button>
 
-  <h2>Select Game Type</h2>
+  <div style="display: flex; justify-content: space-between; align-items: end">
+    <h2>Select Game Type</h2>
+    <InfoSvg @click="showRules"></InfoSvg>
+  </div>
+
   <GameSelection
     :game-type="homeStore.gameType"
     :type-attributes="homeStore.typeAttributes"
@@ -38,7 +41,9 @@
 </template>
 
 <script lang="ts" setup>
+import GameRules from '@/components/GameRules.vue'
 import GameSelection from '@/components/GameSelection.vue'
+import InfoSvg from '@/components/InfoIcon.vue'
 import InstallationPrompt from '@/components/InstallationPrompt.vue'
 import PlayerSelection from '@/components/PlayerSelection.vue'
 import ReloadView from '@/components/ReloadView.vue'
@@ -115,5 +120,8 @@ const onPlay = () => {
     tournamentId: null,
   })
   router.push({ name: 'game' })
+}
+const showRules = () => {
+  useModalStore().push(GameRules, {}, {})
 }
 </script>
