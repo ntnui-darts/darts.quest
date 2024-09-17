@@ -1,14 +1,41 @@
+import Prompt from '@/components/Prompt.vue'
 import { supabase } from '@/supabase'
 import { User as AuthUser } from '@supabase/supabase-js'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useLoadingStore } from './loading'
+import { useModalStore } from './modal'
 import { useOnlineStore } from './online'
-import { useStatsStore } from './stats'
 import { User, useUsersStore } from './users'
+import { useStatsStore } from './stats'
 
 const initAuth = async (auth: AuthUser) => {
   useAuthStore().auth = auth
   useOnlineStore().initRoom(auth.id)
-  await useUsersStore().fetchUsers()
+  const usersStore = useUsersStore()
+  await usersStore.fetchUsers()
+  if (!usersStore.getCurrentUser) {
+    // uh oh!
+    useModalStore().push(
+      Prompt,
+      {
+        text: "Something went wrong! Your username has been reset. Go to 'My Profile' to edit.",
+        buttons: [
+          {
+            text: 'Ok.',
+            onClick: async () => {
+              useLoadingStore().loading = true
+              await useAuthStore().setUserParams({ name: '<?>' })
+              useLoadingStore().loading = false
+              useModalStore().pop()
+              await initAuth(auth)
+            },
+          },
+        ],
+      },
+      {}
+    )
+    return
+  }
   await useStatsStore().fetchAll()
   await supabase
     .from('users')
@@ -72,12 +99,12 @@ export const useAuthStore = defineStore('auth', {
         // because user from parameter may include other fields
         name: user.name,
         createdAt: user.createdAt,
-        id: user.id,
+        id: user.id ?? this.auth.id,
         walkOn: user.walkOn,
         walkOnTime: user.walkOnTime,
         walkOnEndTime: user.walkOnEndTime,
       } satisfies Partial<User>
-      if (prevName.data?.length == 0) {
+      if (!prevName.data) {
         await supabase.from('users').insert(copy)
       } else {
         await supabase.from('users').update(copy).eq('id', this.auth.id)

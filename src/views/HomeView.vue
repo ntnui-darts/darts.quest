@@ -19,10 +19,7 @@
     @update-type-attributes="homeStore.typeAttributes = $event"
   ></GameSelection>
 
-  <PlayerSelection
-    :players="homeStore.players"
-    @update="homeStore.players = $event"
-  ></PlayerSelection>
+  <PlayerSelection v-model:players="homeStore.players"></PlayerSelection>
 
   <br />
   <button

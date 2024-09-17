@@ -2,7 +2,7 @@
   <h2>Select Players</h2>
   <div class="col" v-auto-animate>
     <button
-      v-for="user in selectedUsers"
+      v-for="user in players"
       :style="{
         opacity: user == draggedUser ? 0.3 : user == hoverUser ? 0.6 : 1,
       }"
@@ -48,38 +48,28 @@ export type UserCurrentInfo = User & {
   beers?: number
 }
 
-const props = defineProps<{
-  players: UserCurrentInfo[]
-}>()
-
-const emit = defineEmits<{
-  update: [players: UserCurrentInfo[]]
-}>()
+const players = defineModel<UserCurrentInfo[]>('players', { required: true })
 
 const usersStore = useUsersStore()
-
-const selectedUsers = ref<UserCurrentInfo[]>(props.players)
 const draggedUser = ref<UserCurrentInfo | null>(null)
 const hoverUser = ref<UserCurrentInfo | null>(null)
 
 const clearPlayers = () => {
-  if (!usersStore.getCurrentUser || selectedUsers.value.length == 1) {
-    selectedUsers.value = []
+  if (!usersStore.getCurrentUser || players.value.length == 1) {
+    players.value = []
   } else {
-    selectedUsers.value = [usersStore.getCurrentUser]
+    players.value = [usersStore.getCurrentUser]
   }
-  emit('update', selectedUsers.value)
 }
 
 const searchForPlayer = () => {
   useModalStore().push(
     PlayerSearch,
-    { selectedUsers: selectedUsers.value },
+    { selectedUsers: players.value },
     {
       select: (user) => {
-        selectedUsers.value.push(user)
+        players.value.push(user)
         useModalStore().pop()
-        emit('update', selectedUsers.value)
       },
     }
   )
@@ -91,9 +81,9 @@ const editUser = (user: UserCurrentInfo) => {
     { user, leftButtonText: 'Remove' },
     {
       cancel: () => {
-        const index = selectedUsers.value.indexOf(user)
+        const index = players.value.indexOf(user)
         if (index >= 0) {
-          selectedUsers.value.splice(index, 1)
+          players.value.splice(index, 1)
         }
         useModalStore().pop()
       },
@@ -104,25 +94,26 @@ const editUser = (user: UserCurrentInfo) => {
       },
     }
   )
-  emit('update', selectedUsers.value)
 }
 
 const dragUser = (from: UserCurrentInfo | null, to: UserCurrentInfo) => {
   if (!from) return
-  const fromIndex = selectedUsers.value.indexOf(from)
-  const toIndex = selectedUsers.value.indexOf(to)
-  selectedUsers.value[fromIndex] = to
-  selectedUsers.value[toIndex] = from
+  const fromIndex = players.value.indexOf(from)
+  const toIndex = players.value.indexOf(to)
+  players.value[fromIndex] = to
+  players.value[toIndex] = from
   draggedUser.value = null
-  emit('update', selectedUsers.value)
 }
 
 watch(
   () => usersStore.getCurrentUser,
   (user) => {
-    if (user && !selectedUsers.value.find((u) => u.id == user.id)) {
-      selectedUsers.value.push(user)
-      emit('update', selectedUsers.value)
+    if (!user) return
+    const player = players.value.find((p) => p.id == user.id)
+    if (!player) {
+      players.value.push(user)
+    } else {
+      Object.assign(player, user)
     }
   },
   { immediate: true }
