@@ -6,7 +6,7 @@
       <th>Elo Rating</th>
     </thead>
     <tbody>
-      <tr v-for="(value, name) in eloStore.personalElo">
+      <tr v-for="(value, name) in personalElo">
         <td>{{ GameTypeNames[name] }}</td>
         <td>{{ Math.round(value ?? initialElo) }}</td>
       </tr>
@@ -127,6 +127,16 @@ const setLastDays = (days: 7 | 30 | 365) => {
 }
 
 const userId = computed(() => useAuthStore().auth?.id)
+const personalElo = computed(() => {
+  if (!eloStore.personalElo) return null
+  const elo: Record<GameType, number | null> = structuredClone(
+    eloStore.personalElo
+  )
+  if ('lastUpdate' in elo) {
+    delete elo['lastUpdate']
+  }
+  return elo
+})
 
 const x01Legs = computed(() => legs.value.filter((leg) => leg.type == 'x01'))
 const x01Visits = computed(() =>
@@ -139,8 +149,8 @@ const x01Visits = computed(() =>
     .map((leg) => leg.visits)
     .flat()
 )
-const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
 
+const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
 const rtcVisitsDartboard = computed(() =>
   rtcLegs.value
     .filter(
