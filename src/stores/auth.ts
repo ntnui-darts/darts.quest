@@ -10,6 +10,10 @@ const initAuth = async (auth: AuthUser) => {
   useOnlineStore().initRoom(auth.id)
   await useUsersStore().fetchUsers()
   await useStatsStore().fetchAll()
+  await supabase
+    .from('users')
+    .update({ lastActive: new Date().toISOString() })
+    .eq('id', auth.id)
 }
 
 supabase.auth.onAuthStateChange(async (_, session) => {
