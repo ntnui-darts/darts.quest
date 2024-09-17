@@ -14,6 +14,7 @@ export type Database = {
           cricket: number | null
           id: string
           killer: number | null
+          lastUpdate: string | null
           rtc: number | null
           skovhugger: number | null
           x01: number | null
@@ -22,6 +23,7 @@ export type Database = {
           cricket?: number | null
           id: string
           killer?: number | null
+          lastUpdate?: string | null
           rtc?: number | null
           skovhugger?: number | null
           x01?: number | null
@@ -30,6 +32,7 @@ export type Database = {
           cricket?: number | null
           id?: string
           killer?: number | null
+          lastUpdate?: string | null
           rtc?: number | null
           skovhugger?: number | null
           x01?: number | null
