@@ -58,7 +58,7 @@ export const useEloStore = defineStore('elo', {
       return eloDeltas
     },
 
-    async fetchElo(userId: string, gameType: GameType) {
+    async fetchElo(userId: string, gameType: GameType): Promise<number> {
       const eloResponse = await supabase
         .from('elo')
         .select(gameType)

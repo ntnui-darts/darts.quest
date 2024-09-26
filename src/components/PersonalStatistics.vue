@@ -104,7 +104,7 @@ import { initialElo, useEloStore } from '@/stores/elo'
 import { useStatsStore } from '@/stores/stats'
 import { getTypeAttribute } from '@/types/game'
 import { addDays } from 'date-fns'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import Chart from './Chart.vue'
 import HistoryStatistics from './HistoryStatistics.vue'
 
@@ -129,13 +129,14 @@ const setLastDays = (days: 7 | 30 | 365) => {
 const userId = computed(() => useAuthStore().auth?.id)
 const personalElo = computed(() => {
   if (!eloStore.personalElo) return null
-  const elo: Record<GameType, number | null> = structuredClone(
-    eloStore.personalElo
-  )
-  if ('lastUpdate' in elo) {
-    delete elo['lastUpdate']
-  }
-  return elo
+
+  return {
+    x01: eloStore.personalElo.x01,
+    cricket: eloStore.personalElo.cricket,
+    killer: eloStore.personalElo.killer,
+    rtc: eloStore.personalElo.rtc,
+    skovhugger: eloStore.personalElo.skovhugger,
+  } satisfies Record<GameType, number | null>
 })
 
 const x01Legs = computed(() => legs.value.filter((leg) => leg.type == 'x01'))
@@ -167,6 +168,13 @@ onMounted(async () => {
 
   eloStore.fetchPersonalElo()
 })
+
+watch(
+  () => useAuthStore().auth,
+  () => {
+    eloStore.fetchPersonalElo()
+  }
+)
 
 const legs = computed(() => {
   return statsStore.legs.filter((leg) => {
