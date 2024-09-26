@@ -147,7 +147,6 @@ watch(
 )
 
 const getEloText = (userId: string) => {
-  if ((gameStore.game?.result.length ?? 0) < 2) return ''
   const eloDelta =
     eloDeltas.value.find((eloDelta) => eloDelta.userId == userId)?.eloDelta ?? 0
   return `${eloDelta > 0 ? '+' : ''}${roundToNDecimals(eloDelta, 1)}`
