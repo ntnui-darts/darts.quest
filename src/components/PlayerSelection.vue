@@ -68,6 +68,7 @@ const searchForPlayer = () => {
     { selectedUsers: players.value },
     {
       select: (user) => {
+        usersStore.recordUserSelection(user.id)
         players.value.push(user)
         useModalStore().pop()
       },
