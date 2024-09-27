@@ -85,7 +85,6 @@
   <HistoryStatistics
     v-if="userId"
     :user-id="userId"
-    :border-color="borderColor"
     :ignore="['numberOfGames']"
   ></HistoryStatistics>
 
@@ -104,7 +103,7 @@ import { initialElo, useEloStore } from '@/stores/elo'
 import { useStatsStore } from '@/stores/stats'
 import { getTypeAttribute } from '@/types/game'
 import { addDays } from 'date-fns'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Chart from './Chart.vue'
 import HistoryStatistics from './HistoryStatistics.vue'
 
@@ -118,7 +117,6 @@ const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
 const rtcModeDartboard = ref('1')
 const startScore = ref('All')
-const borderColor = 'rgb(19, 221, 97)'
 
 const setLastDays = (days: 7 | 30 | 365) => {
   endDate.value = toYyyyMmDd(addDays(new Date(), 1))
@@ -165,16 +163,7 @@ const rtcVisitsDartboard = computed(() =>
 
 onMounted(async () => {
   setLastDays(7)
-
-  eloStore.fetchPersonalElo()
 })
-
-watch(
-  () => useAuthStore().auth,
-  () => {
-    eloStore.fetchPersonalElo()
-  }
-)
 
 const legs = computed(() => {
   return statsStore.legs.filter((leg) => {

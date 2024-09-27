@@ -56,9 +56,10 @@ const hoverUser = ref<UserCurrentInfo | null>(null)
 
 const clearPlayers = () => {
   if (!usersStore.getCurrentUser || players.value.length == 1) {
-    players.value = []
+    players.value.splice(0, players.value.length)
   } else {
-    players.value = [usersStore.getCurrentUser]
+    players.value.splice(0, players.value.length)
+    players.value.push(usersStore.getCurrentUser)
   }
 }
 

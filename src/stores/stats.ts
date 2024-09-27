@@ -9,6 +9,7 @@ import { Game, GameState, Leg, getTypeAttribute } from '@/types/game'
 import { Database } from '@/types/supabase'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
+import { useEloStore } from './elo'
 import { useUsersStore } from './users'
 
 type LegJoin = {
@@ -56,6 +57,7 @@ export const useStatsStore = defineStore('stats', {
   actions: {
     async fetchAll() {
       this.loading = true
+      await useEloStore().fetchPersonalElo()
       await this.fetchLegs()
       await this.fetchStats()
       this.loading = false
