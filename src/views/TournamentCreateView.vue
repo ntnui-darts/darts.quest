@@ -16,13 +16,13 @@
     @update-type-attributes="gameSelectionStore.gameTypeAttributes = $event"
   ></GameSelection>
 
-  <label for="setsPerMatch">Sets Per Match</label>
+  <label for="setsPerMatch">Sets Per Match (First to ..)</label>
   <input
     id="setsPerMatch"
     type="number"
     v-model="gameSelectionStore.setsPerMatch"
   />
-  <label for="legsPerSet">Legs Per Set</label>
+  <label for="legsPerSet">Legs Per Set (First to ..)</label>
   <input
     id="legsPerSet"
     type="number"

@@ -5,8 +5,12 @@
   <template v-if="tournament">
     <h2>{{ tournament.name }}, {{ GameTypeNames[tournament.gameType] }}</h2>
     <div>
-      <span>{{ new Date(tournament.createdAt).toDateString() }}</span>
-      <span> by {{ usersStore.getName(tournament.userId) }}</span>
+      {{ new Date(tournament.createdAt).toDateString() }}
+      by {{ usersStore.getName(tournament.userId) }}
+    </div>
+    <div>
+      First to {{ tournament.setsPerMatch }} sets, where each set has
+      {{ tournament.legsPerSet }} legs. Notation is ( wonSets : wonLegs ).
     </div>
 
     <div class="row spaced">
@@ -33,32 +37,37 @@
         >
           <template v-for="player in column">
             <button
-              :class="{ outlined: player == usersStore.getCurrentUser?.id }"
+              :class="{ outlined: player?.id == usersStore.getCurrentUser?.id }"
             >
-              {{ usersStore.getName(player) }}
+              {{ usersStore.getName(player?.id) }}
+              {{ player && `${player.setWins}:${player.legWins}` }}
             </button>
           </template>
         </div>
       </template>
     </div>
 
-    <h3>Current Matches</h3>
-    <template v-for="match in tournamentState.matches">
-      <div style="display: flex; gap: 1em; align-items: center">
-        <button
-          style="flex: 1"
-          :class="{ outlined: match[0] == usersStore.getCurrentUser?.id }"
-        >
-          {{ usersStore.getName(match[0]) }}
-        </button>
-        <span>VS</span>
-        <button
-          style="flex: 1"
-          :class="{ outlined: match[1] == usersStore.getCurrentUser?.id }"
-        >
-          {{ usersStore.getName(match[1]) }}
-        </button>
-      </div>
+    <template v-if="tournamentState.matches.length">
+      <h3>Current Matches</h3>
+      <template v-for="match in tournamentState.matches">
+        <div style="display: flex; gap: 1em; align-items: center">
+          <button
+            style="flex: 1"
+            :class="{ outlined: match[0].id == usersStore.getCurrentUser?.id }"
+          >
+            {{ usersStore.getName(match[0].id) }}
+            {{ match[0] && ` ${match[0].setWins}:${match[0].legWins}` }}
+          </button>
+          <span>VS</span>
+          <button
+            style="flex: 1"
+            :class="{ outlined: match[1].id == usersStore.getCurrentUser?.id }"
+          >
+            {{ usersStore.getName(match[1].id) }}
+            {{ match[1] && ` ${match[1].setWins}:${match[1].legWins}` }}
+          </button>
+        </div>
+      </template>
     </template>
     <br />
     <br />
@@ -69,8 +78,12 @@
         style="position: sticky; bottom: 2em"
         @click="onPlay"
       >
-        Play against {{ usersStore.getName(myOpponent) }}
+        Play against {{ usersStore.getName(myOpponent?.id) }}
       </button>
+    </template>
+
+    <template v-if="finalWinner">
+      <h2>{{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
     </template>
   </template>
 </template>
@@ -104,49 +117,54 @@ onMounted(async () => {
   refreshTournamentState()
 })
 
-const findWinner = async (a: string | undefined, b: string | undefined) => {
+type PlayerMatchState = {
+  id: string | undefined
+  legWins: number
+  setWins: number
+}
+const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
+  // Will set values in a and b.
   if (!tournament.value) return undefined
   if (!a || !b) return undefined
+  a.legWins = 0
+  a.setWins = 0
+  b.legWins = 0
+  b.setWins = 0
 
   const gamesResponse = await supabase
     .from('games')
     .select('*')
     .eq('tournamentId', tournament.value.id)
-    .contains('players', [a, b])
+    .contains('players', [a.id, b.id])
   if (!gamesResponse.data || gamesResponse.data.length == 0) return undefined
 
   const games = gamesResponse.data.toSorted(compareCreatedAt)
-  let aLegWins = 0
-  let aSetWins = 0
-  let bLegWins = 0
-  let bSetWins = 0
 
   for (const game of games) {
     const winner = game.result[0]
-    if (winner == a) {
-      aLegWins += 1
-      if (aLegWins >= tournament.value.legsPerSet) {
-        aSetWins += 1
-        aLegWins = 0
-        bLegWins = 0
-        if (aSetWins >= tournament.value.setsPerMatch) {
+    if (winner == a.id) {
+      a.legWins += 1
+      if (a.legWins >= tournament.value.legsPerSet) {
+        a.setWins += 1
+        a.legWins = 0
+        b.legWins = 0
+        if (a.setWins >= tournament.value.setsPerMatch) {
           return a
         }
       }
     }
-    if (winner == b) {
-      bLegWins += 1
-      if (bLegWins >= tournament.value.legsPerSet) {
-        bSetWins += 1
-        aLegWins = 0
-        bLegWins = 0
-        if (bSetWins >= tournament.value.setsPerMatch) {
+    if (winner == b.id) {
+      b.legWins += 1
+      if (b.legWins >= tournament.value.legsPerSet) {
+        b.setWins += 1
+        a.legWins = 0
+        b.legWins = 0
+        if (b.setWins >= tournament.value.setsPerMatch) {
           return b
         }
       }
     }
   }
-
   return undefined
 }
 
@@ -155,9 +173,14 @@ const getTournamentState = async () => {
 
   useLoadingStore().loading = true
 
-  let prevRound: (string | undefined)[] = [...tournament.value.players]
+  let prevRound: (PlayerMatchState | undefined)[] =
+    tournament.value.players.map((id) => ({
+      id,
+      legWins: 0,
+      setWins: 0,
+    }))
   const grid = []
-  const matches: [string, string][] = []
+  const matches: [PlayerMatchState, PlayerMatchState][] = []
   const n_rounds = Math.ceil(Math.log2(prevRound.length)) + 1
   for (let round = 0; round < n_rounds; round++) {
     grid.push(prevRound)
@@ -165,7 +188,8 @@ const getTournamentState = async () => {
     for (let i = 0; i < prevRound.length - 1; i += 2) {
       const a = prevRound[i]
       const b = prevRound[i + 1]
-      const winner = await findWinner(a, b)
+      const winner = await getMatchState(a, b)
+      console.log(a, b, winner)
       thisRound.push(winner)
       if (a && b && !winner) {
         matches.push([a, b])
@@ -187,17 +211,22 @@ const refreshTournamentState = async () => {
 }
 
 const myMatch = computed(() =>
-  tournamentState.value.matches.find(
-    (match) =>
-      usersStore.getCurrentUser && match.includes(usersStore.getCurrentUser.id)
+  tournamentState.value.matches.find((match) =>
+    match.some(
+      (p) => usersStore.getCurrentUser && p.id == usersStore.getCurrentUser.id
+    )
   )
 )
 
 const myOpponent = computed(() => {
   if (!myMatch.value || !usersStore.getCurrentUser) return undefined
-  if (myMatch.value[0] == usersStore.getCurrentUser.id) return myMatch.value[1]
-  if (myMatch.value[1] == usersStore.getCurrentUser.id) return myMatch.value[0]
+  if (myMatch.value[0].id == usersStore.getCurrentUser.id)
+    return myMatch.value[1]
+  if (myMatch.value[1].id == usersStore.getCurrentUser.id)
+    return myMatch.value[0]
 })
+
+const finalWinner = computed(() => tournamentState.value.grid.at(-1)?.at(0))
 
 const onPlay = () => {
   if (!tournament.value) return
