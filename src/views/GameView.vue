@@ -87,7 +87,11 @@ onUnmounted(async () => {
 
 const quit = () => {
   localStorage.removeItem('game')
-  router.push('/')
+  if (gameStore.game?.tournamentId) {
+    router.push({ name: 'tournament' })
+  } else {
+    router.push('/')
+  }
 }
 
 const promptQuit = (prompt: string, yesFunc?: () => void) => {
