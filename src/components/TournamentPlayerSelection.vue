@@ -11,7 +11,7 @@ import { ref } from 'vue'
 import PlayerSelection, { UserCurrentInfo } from './PlayerSelection.vue'
 
 const props = defineProps<{
-  players: string[]
+  playerIds: string[]
 }>()
 
 const emit = defineEmits<{
@@ -19,6 +19,6 @@ const emit = defineEmits<{
 }>()
 
 const players = ref(
-  props.players.map((p) => useUsersStore().getUser(p)).filter((u) => !!u)
+  props.playerIds.map((p) => useUsersStore().getUser(p)).filter((u) => !!u)
 )
 </script>

@@ -205,7 +205,7 @@ const onPlay = () => {
   const t = tournament.value
   useModalStore().push(
     TournamentPlayerSelection,
-    { players: myMatch.value },
+    { playerIds: myMatch.value },
     {
       submit: (players: UserCurrentInfo[]) => {
         if (!tournament.value) return
