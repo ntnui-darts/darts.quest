@@ -70,6 +70,12 @@
       </template>
     </template>
     <br />
+
+    <template v-if="finalWinner">
+      <h2>{{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
+    </template>
+    <br />
+
     <template v-if="tournament.userId == usersStore.getCurrentUser?.id">
       <button @click="onDeleteTournament">Delete tournament</button>
     </template>
@@ -83,10 +89,6 @@
       >
         Play against {{ usersStore.getName(myOpponent?.id) }}
       </button>
-    </template>
-
-    <template v-if="finalWinner">
-      <h2>{{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
     </template>
   </template>
 </template>
@@ -263,7 +265,17 @@ const onDeleteTournament = async () => {
     .select('tournamentId')
     .eq('tournamentId', t.id)
     .limit(1)
-  if (gamesResponse.data && gamesResponse.data.length > 0) return
+  if (gamesResponse.data && gamesResponse.data.length > 0) {
+    useModalStore().push(
+      Prompt,
+      {
+        text: `Cannot delete ${t.name} because it has been started.`,
+        buttons: [{ text: 'Ok', onClick: () => useModalStore().pop() }],
+      },
+      {}
+    )
+    return
+  }
 
   useModalStore().push(
     Prompt,
