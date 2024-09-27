@@ -54,16 +54,10 @@ import PlayerSelection from '@/components/PlayerSelection.vue'
 import ReloadView from '@/components/ReloadView.vue'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
-import { useGameStore } from '@/stores/game'
 import { useGameSelectionStore } from '@/stores/gameSelection'
 import { useModalStore } from '@/stores/modal'
-import { useUsersStore } from '@/stores/users'
-import { Leg } from '@/types/game'
-import { nanoid } from 'nanoid'
 import { onMounted } from 'vue'
 
-const gameStore = useGameStore()
-const usersStore = useUsersStore()
 const authStore = useAuthStore()
 const gameSelectionStore = useGameSelectionStore()
 
@@ -78,37 +72,7 @@ onMounted(async () => {
 })
 
 const onPlay = () => {
-  if (gameSelectionStore.players.length == 0) return
-  if (!gameSelectionStore.gameType) return
-  if (!usersStore.getCurrentUser) return
-
-  const gameId = nanoid()
-  gameStore.setCurrentGame({
-    id: gameId,
-    userId: usersStore.getCurrentUser.id,
-    typeAttributes: gameSelectionStore.gameTypeAttributes,
-    type: gameSelectionStore.gameType,
-    result: [],
-    players: gameSelectionStore.players.map((player) => player.id),
-    legs: gameSelectionStore.players.map(
-      (player) =>
-        ({
-          id: nanoid(),
-          userId: player.id,
-          visits: [],
-          arrows: player.arrows ?? 'unknown',
-          confirmed: false,
-          gameId: gameId,
-          typeAttributes: gameSelectionStore.gameTypeAttributes,
-          type: gameSelectionStore.gameType!,
-          beers: player.beers ?? null,
-          finish: false,
-          createdAt: new Date().toISOString(),
-        } satisfies Leg)
-    ),
-    tournamentId: undefined,
-  })
-  router.push({ name: 'game' })
+  gameSelectionStore.play({ tournamentId: undefined })
 }
 const showRules = () => {
   useModalStore().push(GameRules, {}, {})

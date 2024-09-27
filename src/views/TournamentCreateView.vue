@@ -30,8 +30,7 @@
   />
 
   <PlayerSelection
-    :players="gameSelectionStore.players"
-    @update="gameSelectionStore.players = $event"
+    v-model:players="gameSelectionStore.players"
   ></PlayerSelection>
 
   <br />
@@ -53,6 +52,7 @@
 <script lang="ts" setup>
 import GameSelection from '@/components/GameSelection.vue'
 import PlayerSelection from '@/components/PlayerSelection.vue'
+import { shuffle } from '@/functions/shuffle'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { useGameSelectionStore } from '@/stores/gameSelection'
@@ -82,7 +82,7 @@ const onCreateTournament = async () => {
     type: 'elimination', // TODO
     name: gameSelectionStore.tournamentName,
     userId: usersStore.getCurrentUser.id,
-    players: gameSelectionStore.players.map((p) => p.id),
+    players: shuffle(gameSelectionStore.players.map((p) => p.id)),
     gameType: gameSelectionStore.gameType,
     gameTypeAttributes: gameSelectionStore.gameTypeAttributes,
     legsPerSet: gameSelectionStore.legsPerSet,

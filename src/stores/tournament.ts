@@ -21,7 +21,7 @@ export const useTournamentStore = defineStore('tournament', {
 
   actions: {
     fetchTournament(id: string) {
-      this.currentTournament = null
+      this.currentTournament = this.tournaments.find((t) => t.id == id) ?? null
     },
     async fetchTournaments() {
       const id = useAuthStore().auth?.id
