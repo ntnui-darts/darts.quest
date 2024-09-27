@@ -1,11 +1,22 @@
 <template>
-  <div class="row spaced">
-    <h3>
-      {{ getGameDisplayName(game) }}
-    </h3>
-    <h3>
-      {{ gameState?.getTopRightText() }}
-    </h3>
+  <div>
+    <template v-if="tournament">
+      <h3>
+        {{ tournament.name }}
+        {{ new Date(tournament.createdAt).toDateString() }}
+        by
+        {{ useUsersStore().getName(tournament.userId) }}
+      </h3>
+    </template>
+
+    <div class="row spaced">
+      <h3>
+        {{ getGameDisplayName(game) }}
+      </h3>
+      <h3>
+        {{ gameState?.getTopRightText() }}
+      </h3>
+    </div>
   </div>
 
   <div v-if="game && !allPlayersFinished" class="col">
@@ -90,6 +101,7 @@
 import { speak } from '@/functions/speak'
 import { getGameDisplayName, getInputComponent } from '@/games/games'
 import { useModalStore } from '@/stores/modal'
+import { useTournamentStore } from '@/stores/tournament'
 import { useUsersStore } from '@/stores/users'
 import {
   Game,
@@ -123,11 +135,9 @@ const usersStore = useUsersStore()
 const allPlayersFinished = computed(
   () => (props.game?.legs.length ?? 0) == (props.gameState?.rank.length ?? 0)
 )
-
 const somePlayersFinished = computed(
   () => (props.gameState?.rank.length ?? 0) > 0
 )
-
 const displayVisit = computed(() => {
   if (!props.game || !props.gameState?.player)
     return { visit: [null, null, null], isPrev: false }
@@ -140,6 +150,9 @@ const displayVisit = computed(() => {
   }
   return { visit: visit ?? [null, null, null], isPrev: false }
 })
+const tournament = computed(() =>
+  useTournamentStore().tournaments.find((t) => t.id == props.game.tournamentId)
+)
 
 const clickUser = (userId: string) => {
   if (!props.game) return
@@ -154,7 +167,11 @@ watch(
   (userId) => {
     if (userId) {
       const btn = document.getElementById(userId)
-      btn?.scrollIntoView({ behavior: 'smooth', inline: 'center' })
+      btn?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      })
     }
   }
 )
@@ -178,10 +195,6 @@ watch(
 
 button {
   flex: 1;
-}
-
-.outlined {
-  outline: 1px solid var(--c-green);
 }
 
 li {

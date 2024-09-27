@@ -10,6 +10,9 @@ const StatisticsView = () => import('@/views/StatisticsView.vue')
 const AdminView = () => import('@/views/AdminView.vue')
 const SpectateLobbyView = () => import('@/views/SpectateLobbyView.vue')
 const SpectateView = () => import('@/views/SpectateView.vue')
+const TournamentLobbyView = () => import('@/views/TournamentLobbyView.vue')
+const TournamentCreateView = () => import('@/views/TournamentCreateView.vue')
+const TournamentView = () => import('@/views/TournamentView.vue')
 
 const routes: Readonly<RouteRecordRaw[]> = [
   { path: '/', name: 'root', redirect: { name: 'home' } },
@@ -25,6 +28,21 @@ const routes: Readonly<RouteRecordRaw[]> = [
     path: '/spectate-lobby',
     name: 'spectate-lobby',
     component: SpectateLobbyView,
+  },
+  {
+    path: '/tournament-lobby',
+    name: 'tournament-lobby',
+    component: TournamentLobbyView,
+  },
+  {
+    path: '/tournament-create',
+    name: 'tournament-create',
+    component: TournamentCreateView,
+  },
+  {
+    path: '/tournament',
+    name: 'tournament',
+    component: TournamentView,
   },
   // { path: '/:pathMatch(.*)*', name: 'not-found', redirect: '/' },
 ]

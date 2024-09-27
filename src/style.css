@@ -56,6 +56,9 @@ button.primary {
   background-color: var(--c-green) !important;
   color: black !important;
 }
+button.outlined {
+  outline: 1px solid var(--c-green);
+}
 
 .options {
   border-radius: 0.5em;

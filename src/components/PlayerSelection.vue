@@ -25,6 +25,7 @@
       {{ user.name }}
     </button>
     <div
+      v-if="!readonly"
       class="row"
       id="player-selection-buttons"
       key="player-selection-buttons"
@@ -49,6 +50,8 @@ export type UserCurrentInfo = User & {
 }
 
 const players = defineModel<UserCurrentInfo[]>('players', { required: true })
+
+defineProps<{ readonly?: boolean }>()
 
 const usersStore = useUsersStore()
 const draggedUser = ref<UserCurrentInfo | null>(null)

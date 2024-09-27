@@ -1,5 +1,5 @@
 <template>
-  <PlayerSelection v-if="!userId" :players="players"></PlayerSelection>
+  <PlayerSelection v-if="!userId" v-model:players="players"></PlayerSelection>
   <h2>Game Type</h2>
   <GameSelection
     :game-type="gameType"

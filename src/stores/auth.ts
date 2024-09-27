@@ -5,8 +5,8 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useLoadingStore } from './loading'
 import { useModalStore } from './modal'
 import { useOnlineStore } from './online'
-import { User, useUsersStore } from './users'
 import { useStatsStore } from './stats'
+import { User, useUsersStore } from './users'
 
 const initAuth = async (auth: AuthUser) => {
   useAuthStore().auth = auth
@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', {
       const response = await supabase.auth.getSession()
       this.auth = response.data.session?.user
       if (this.auth && this.auth.id != prevAuth?.id) {
-        initAuth(this.auth)
+        await initAuth(this.auth)
       }
     },
 
