@@ -9,6 +9,7 @@ export const useGameSelectionStore = defineStore('game-selection', {
     players: [] as UserCurrentInfo[],
     setsPerMatch: 1,
     legsPerSet: 1,
+    tournamentName: 'Casual Tournament',
   }),
 
   actions: {},

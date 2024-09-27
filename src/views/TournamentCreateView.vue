@@ -5,6 +5,9 @@
 
   <h2>New Tournament</h2>
 
+  <label for="setsPerMatch">Tournament Name</label>
+  <input id="tournamentName" v-model="gameSelectionStore.tournamentName" />
+
   <h2>Select Game Type</h2>
   <GameSelection
     :game-type="gameSelectionStore.gameType"
@@ -77,6 +80,7 @@ const onCreateTournament = async () => {
   await supabase.from('tournaments').insert({
     id: nanoid(),
     type: 'elimination', // TODO
+    name: gameSelectionStore.tournamentName,
     userId: usersStore.getCurrentUser.id,
     players: gameSelectionStore.players.map((p) => p.id),
     gameType: gameSelectionStore.gameType,
