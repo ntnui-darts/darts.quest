@@ -21,14 +21,6 @@ export const useUsersStore = defineStore('users', {
       }
     },
 
-    getUser(id?: string) {
-      return this.users.find((user) => user.id == id)
-    },
-
-    getName(id?: string) {
-      return this.users.find((user) => user.id == id)?.name ?? 'Unknown'
-    },
-
     getUserSelectionHistory() {
       const json = localStorage.getItem('userSelectionHistory')
       return json ? (JSON.parse(json) as string[]) : []
@@ -58,6 +50,14 @@ export const useUsersStore = defineStore('users', {
         ...authUser,
         ...user,
       }
+    },
+
+    getUser: (state) => (id?: string) => {
+      return state.users.find((user) => user.id == id)
+    },
+
+    getName: (state) => (id?: string) => {
+      return state.users.find((user) => user.id == id)?.name ?? 'Unknown'
     },
   },
 })

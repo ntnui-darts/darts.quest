@@ -24,11 +24,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useModalStore } from '@/stores/modal'
 import { useOnlineStore } from '@/stores/online'
 import { User, useUsersStore } from '@/stores/users'
 import { computed, onMounted, ref } from 'vue'
-import PlayerOptions from './PlayerOptions.vue'
 
 const props = defineProps<{
   selectedUsers: User[]
@@ -64,21 +62,7 @@ onMounted(() => {
 })
 
 const select = (user: User) => {
-  useModalStore().push(
-    PlayerOptions,
-    { user },
-    {
-      cancel: () => useModalStore().pop(),
-      submit: (data: { beers: number; arrows: string }) => {
-        usersStore.recordUserSelection(user.id)
-        emit('select', {
-          ...user,
-          ...data,
-        })
-        useModalStore().pop()
-      },
-    }
-  )
+  emit('select', user)
 }
 </script>
 

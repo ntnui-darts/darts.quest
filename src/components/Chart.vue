@@ -51,6 +51,7 @@ const buildChart = async () => {
       {
         ...dataset,
         label: `Smooth`,
+        borderColor: 'rgb(19, 221, 97)',
         data: smoothPoints(dataset.data),
         cubicInterpolationMode: 'monotone',
         pointHoverRadius: 12,
@@ -68,6 +69,10 @@ const buildChart = async () => {
         pointRadius: 0,
       },
     ]
+  }
+
+  if (datasets.length == 1) {
+    datasets[0].borderColor = 'rgb(19, 221, 97)'
   }
 
   if (chart) {

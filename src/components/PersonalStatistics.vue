@@ -6,7 +6,7 @@
       <th>Elo Rating</th>
     </thead>
     <tbody>
-      <tr v-for="(value, name) in eloStore.personalElo">
+      <tr v-for="(value, name) in personalElo">
         <td>{{ GameTypeNames[name] }}</td>
         <td>{{ Math.round(value ?? initialElo) }}</td>
       </tr>
@@ -85,7 +85,6 @@
   <HistoryStatistics
     v-if="userId"
     :user-id="userId"
-    :border-color="borderColor"
     :ignore="['numberOfGames']"
   ></HistoryStatistics>
 
@@ -118,7 +117,6 @@ const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
 const rtcModeDartboard = ref('1')
 const startScore = ref('All')
-const borderColor = 'rgb(19, 221, 97)'
 
 const setLastDays = (days: 7 | 30 | 365) => {
   endDate.value = toYyyyMmDd(addDays(new Date(), 1))
@@ -127,6 +125,17 @@ const setLastDays = (days: 7 | 30 | 365) => {
 }
 
 const userId = computed(() => useAuthStore().auth?.id)
+const personalElo = computed(() => {
+  if (!eloStore.personalElo) return null
+
+  return {
+    x01: eloStore.personalElo.x01,
+    cricket: eloStore.personalElo.cricket,
+    killer: eloStore.personalElo.killer,
+    rtc: eloStore.personalElo.rtc,
+    skovhugger: eloStore.personalElo.skovhugger,
+  } satisfies Record<GameType, number | null>
+})
 
 const x01Legs = computed(() => legs.value.filter((leg) => leg.type == 'x01'))
 const x01Visits = computed(() =>
@@ -139,8 +148,8 @@ const x01Visits = computed(() =>
     .map((leg) => leg.visits)
     .flat()
 )
-const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
 
+const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
 const rtcVisitsDartboard = computed(() =>
   rtcLegs.value
     .filter(
@@ -154,8 +163,6 @@ const rtcVisitsDartboard = computed(() =>
 
 onMounted(async () => {
   setLastDays(7)
-
-  eloStore.fetchPersonalElo()
 })
 
 const legs = computed(() => {

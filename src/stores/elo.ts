@@ -58,7 +58,7 @@ export const useEloStore = defineStore('elo', {
       return eloDeltas
     },
 
-    async fetchElo(userId: string, gameType: GameType) {
+    async fetchElo(userId: string, gameType: GameType): Promise<number> {
       const eloResponse = await supabase
         .from('elo')
         .select(gameType)
@@ -72,7 +72,11 @@ export const useEloStore = defineStore('elo', {
     },
 
     async upsertElo(userId: string, gameType: GameType, elo: number) {
-      await supabase.from('elo').upsert({ id: userId, [gameType]: elo })
+      await supabase.from('elo').upsert({
+        id: userId,
+        [gameType]: elo,
+        lastUpdate: new Date().toISOString(),
+      })
     },
 
     async fetchPersonalElo() {
@@ -80,7 +84,7 @@ export const useEloStore = defineStore('elo', {
       if (!userId) return
       const eloResponse = await supabase
         .from('elo')
-        .select('x01, rtc, killer, skovhugger, cricket')
+        .select('*')
         .eq('id', userId)
       if (eloResponse.data?.length) {
         this.personalElo = eloResponse.data[0]

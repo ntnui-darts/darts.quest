@@ -13,7 +13,11 @@
     </button>
   </div>
 
-  <h2>Select Game Type</h2>
+  <div style="display: flex; justify-content: space-between; align-items: end">
+    <h2>Select Game Type</h2>
+    <InfoSvg @click="showRules"></InfoSvg>
+  </div>
+
   <GameSelection
     :game-type="gameSelectionStore.gameType"
     :type-attributes="gameSelectionStore.gameTypeAttributes"
@@ -22,8 +26,7 @@
   ></GameSelection>
 
   <PlayerSelection
-    :players="gameSelectionStore.players"
-    @update="gameSelectionStore.players = $event"
+    v-model:players="gameSelectionStore.players"
   ></PlayerSelection>
 
   <br />
@@ -43,7 +46,9 @@
 </template>
 
 <script lang="ts" setup>
+import GameRules from '@/components/GameRules.vue'
 import GameSelection from '@/components/GameSelection.vue'
+import InfoSvg from '@/components/InfoIcon.vue'
 import InstallationPrompt from '@/components/InstallationPrompt.vue'
 import PlayerSelection from '@/components/PlayerSelection.vue'
 import ReloadView from '@/components/ReloadView.vue'
@@ -101,8 +106,11 @@ const onPlay = () => {
           createdAt: new Date().toISOString(),
         } satisfies Leg)
     ),
-    tournamentId: null,
+    tournamentId: undefined,
   })
   router.push({ name: 'game' })
+}
+const showRules = () => {
+  useModalStore().push(GameRules, {}, {})
 }
 </script>

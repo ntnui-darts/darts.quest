@@ -5,10 +5,11 @@ import { getMaxStreak, getRtcHitRate } from '@/games/rtc'
 import { getSkovhuggerScore } from '@/games/skovhugger'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
 import { supabase } from '@/supabase'
-import { DbGame, Game, GameState, Leg, getTypeAttribute } from '@/types/game'
+import { Game, GameState, Leg, getTypeAttribute } from '@/types/game'
 import { Database } from '@/types/supabase'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
+import { useEloStore } from './elo'
 import { useUsersStore } from './users'
 
 type LegJoin = {
@@ -46,7 +47,6 @@ export const useStatsStore = defineStore('stats', {
   state: () => ({
     loading: true,
     legs: [] as Leg[],
-    games: [] as DbGame[],
     x01Stats: [] as X01Stat[],
     rtcStats: [] as RtcStat[],
     killerStats: [] as KillerStat[],
@@ -57,7 +57,7 @@ export const useStatsStore = defineStore('stats', {
   actions: {
     async fetchAll() {
       this.loading = true
-      await this.fetchGames()
+      await useEloStore().fetchPersonalElo()
       await this.fetchLegs()
       await this.fetchStats()
       this.loading = false
@@ -69,18 +69,6 @@ export const useStatsStore = defineStore('stats', {
       const legs = await supabase.from('legs').select('*').eq('userId', id)
       if (legs.data) {
         this.legs = (legs.data as Leg[]).toSorted(compareCreatedAt)
-      }
-    },
-
-    async fetchGames() {
-      const id = useAuthStore().auth?.id
-      if (!id) return
-      const games = await supabase
-        .from('games')
-        .select('*')
-        .contains('players', [id])
-      if (games.data) {
-        this.games = games.data.toSorted(compareCreatedAt)
       }
     },
 
@@ -338,29 +326,7 @@ export const useStatsStore = defineStore('stats', {
     },
   },
 
-  getters: {
-    getNumberOfWins: (state) => {
-      return state.games.filter(
-        (game) =>
-          game.players.length > 1 &&
-          game.result.length > 0 &&
-          game.result[0] == useAuthStore().auth?.id
-      ).length
-    },
-
-    getNumberOfLosses: (state) => {
-      return state.games.filter(
-        (game) =>
-          game.players.length > 1 &&
-          game.result.length > 0 &&
-          game.result[0] != useAuthStore().auth?.id
-      ).length
-    },
-
-    getNumberOfSoloGames: (state) => {
-      return state.games.filter((game) => game.players.length < 2).length
-    },
-  },
+  getters: {},
 })
 
 if (import.meta.hot) {

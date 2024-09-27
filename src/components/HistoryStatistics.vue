@@ -1,4 +1,5 @@
 <template>
+  <PlayerSelection v-if="!userId" :players="players"></PlayerSelection>
   <h2>Game Type</h2>
   <GameSelection
     :game-type="gameType"
@@ -91,67 +92,81 @@ import {
 import { computed, ref } from 'vue'
 import Chart from './Chart.vue'
 import GameSelection from './GameSelection.vue'
+import PlayerSelection, { UserCurrentInfo } from './PlayerSelection.vue'
+
+const props = defineProps<{
+  userId?: string
+  ignore?: string[]
+}>()
 
 const statsStore = useStatsStore()
 
 const gameType = ref<GameType>('x01')
 const typeAttributes = ref<string[]>([])
-
-const props = defineProps<{
-  userId?: string
-  borderColor?: string
-  ignore?: string[]
-}>()
+const players = ref<UserCurrentInfo[]>([])
 
 const checkTypeAttribute = (ta: string, typeAttributes: string[]) =>
   typeAttributes.includes(ta) ||
   (ta.endsWith(':false') &&
     !typeAttributes.includes(`${ta.split(':')[0]}:true`))
 
-const options = computed(() => ({
-  borderColor: props.borderColor,
-}))
+const options = computed(() => ({}))
+
+const hasSelectedPlayer = (
+  stat: { legs: { userId: string } },
+  players: UserCurrentInfo[]
+) => {
+  return (
+    stat.legs.userId == props.userId ||
+    players.some((p) => p.id == stat.legs.userId)
+  )
+}
 
 const rtcStats = computed(() =>
-  statsStore.rtcStats.filter((stat) =>
-    typeAttributes.value.every((ta) =>
-      checkTypeAttribute(ta, stat.legs.typeAttributes)
-    )
+  statsStore.rtcStats.filter(
+    (stat) =>
+      typeAttributes.value.every((ta) =>
+        checkTypeAttribute(ta, stat.legs.typeAttributes)
+      ) && hasSelectedPlayer(stat, players.value)
   )
 )
 const x01Stats = computed(() =>
-  statsStore.x01Stats.filter((stat) =>
-    typeAttributes.value.every((ta) =>
-      checkTypeAttribute(ta, stat.legs.typeAttributes)
-    )
+  statsStore.x01Stats.filter(
+    (stat) =>
+      typeAttributes.value.every((ta) =>
+        checkTypeAttribute(ta, stat.legs.typeAttributes)
+      ) && hasSelectedPlayer(stat, players.value)
   )
 )
 const killerStats = computed(() =>
-  statsStore.killerStats.filter((stat) =>
-    typeAttributes.value.every((ta) =>
-      checkTypeAttribute(ta, stat.legs.typeAttributes)
-    )
+  statsStore.killerStats.filter(
+    (stat) =>
+      typeAttributes.value.every((ta) =>
+        checkTypeAttribute(ta, stat.legs.typeAttributes)
+      ) && hasSelectedPlayer(stat, players.value)
   )
 )
 const skovhuggerStats = computed(() =>
-  statsStore.skovhuggerStats.filter((stat) =>
-    typeAttributes.value.every((ta) =>
-      checkTypeAttribute(ta, stat.legs.typeAttributes)
-    )
+  statsStore.skovhuggerStats.filter(
+    (stat) =>
+      typeAttributes.value.every((ta) =>
+        checkTypeAttribute(ta, stat.legs.typeAttributes)
+      ) && hasSelectedPlayer(stat, players.value)
   )
 )
 const cricketStats = computed(() =>
-  statsStore.cricketStats.filter((stat) =>
-    typeAttributes.value.every((ta) =>
-      checkTypeAttribute(ta, stat.legs.typeAttributes)
-    )
+  statsStore.cricketStats.filter(
+    (stat) =>
+      typeAttributes.value.every((ta) =>
+        checkTypeAttribute(ta, stat.legs.typeAttributes)
+      ) && hasSelectedPlayer(stat, players.value)
   )
 )
 
 const rtcUsers = computed(() =>
   props.userId
     ? [props.userId]
-    : Array.from(new Set(statsStore.rtcStats.map((s) => s.legs.userId)))
+    : Array.from(new Set(rtcStats.value.map((s) => s.legs.userId)))
 )
 const rtcNumberOfGamesDataset = computed(() => {
   return getNumberOfGamesDataset(rtcUsers.value, rtcStats.value, options.value)
@@ -185,7 +200,7 @@ const rtcEloDataset = computed(() => {
 const x01Users = computed(() =>
   props.userId
     ? [props.userId]
-    : Array.from(new Set(statsStore.x01Stats.map((s) => s.legs.userId)))
+    : Array.from(new Set(x01Stats.value.map((s) => s.legs.userId)))
 )
 const x01NumberOfGamesDataset = computed(() => {
   return getNumberOfGamesDataset(x01Users.value, x01Stats.value, options.value)
@@ -227,7 +242,7 @@ const x01EloDataset = computed(() => {
 const killerUsers = computed(() =>
   props.userId
     ? [props.userId]
-    : Array.from(new Set(statsStore.killerStats.map((s) => s.legs.userId)))
+    : Array.from(new Set(killerStats.value.map((s) => s.legs.userId)))
 )
 const killerNumberOfGamesDataset = computed(() => {
   return getNumberOfGamesDataset(
@@ -257,7 +272,7 @@ const killerEloDataset = computed(() => {
 const skovhuggerUsers = computed(() =>
   props.userId
     ? [props.userId]
-    : Array.from(new Set(statsStore.skovhuggerStats.map((s) => s.legs.userId)))
+    : Array.from(new Set(skovhuggerStats.value.map((s) => s.legs.userId)))
 )
 const skovhuggerNumberOfGamesDataset = computed(() => {
   return getNumberOfGamesDataset(
@@ -287,7 +302,7 @@ const skovhuggerEloDataset = computed(() => {
 const cricketUsers = computed(() =>
   props.userId
     ? [props.userId]
-    : Array.from(new Set(statsStore.cricketStats.map((s) => s.legs.userId)))
+    : Array.from(new Set(cricketStats.value.map((s) => s.legs.userId)))
 )
 const cricketNumberOfGamesDataset = computed(() => {
   return getNumberOfGamesDataset(
