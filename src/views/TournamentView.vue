@@ -70,6 +70,9 @@
       </template>
     </template>
     <br />
+    <template v-if="tournament.userId == usersStore.getCurrentUser?.id">
+      <button @click="onDeleteTournament">Delete tournament</button>
+    </template>
     <br />
 
     <template v-if="myMatch">
@@ -90,6 +93,7 @@
 
 <script lang="ts" setup>
 import { UserCurrentInfo } from '@/components/PlayerSelection.vue'
+import Prompt from '@/components/Prompt.vue'
 import TournamentPlayerSelection from '@/components/TournamentPlayerSelection.vue'
 import { compareCreatedAt } from '@/functions/compare'
 import { GameTypeNames } from '@/games/games'
@@ -133,7 +137,7 @@ const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
 
   const gamesResponse = await supabase
     .from('games')
-    .select('*')
+    .select('tournamentId, result, createdAt')
     .eq('tournamentId', tournament.value.id)
     .contains('players', [a.id, b.id])
   if (!gamesResponse.data || gamesResponse.data.length == 0) return undefined
@@ -246,6 +250,38 @@ const onPlay = () => {
         useModalStore().pop()
       },
     }
+  )
+}
+
+const onDeleteTournament = async () => {
+  const t = tournament.value
+  if (!t) return
+
+  // Don't allow delete if there are connected games
+  const gamesResponse = await supabase
+    .from('games')
+    .select('tournamentId')
+    .eq('tournamentId', t.id)
+    .limit(1)
+  if (gamesResponse.data && gamesResponse.data.length > 0) return
+
+  useModalStore().push(
+    Prompt,
+    {
+      text: `Are you sure you want to cancel and delete ${t.name}?`,
+      buttons: [
+        { text: 'No', onClick: () => useModalStore().pop() },
+        {
+          text: 'Yes',
+          onClick: async () => {
+            await supabase.from('tournaments').delete().eq('id', t.id)
+            useModalStore().pop()
+            router.push({ name: 'tournament-lobby' })
+          },
+        },
+      ],
+    },
+    {}
   )
 }
 </script>
