@@ -11,16 +11,7 @@
 
     <div class="row spaced">
       <h3>Overview</h3>
-      <button
-        style="flex: 0"
-        @click="
-          ;async () => {
-            tournamentState = await getTournamentState()
-          }
-        "
-      >
-        Refresh
-      </button>
+      <button style="flex: 0" @click="refreshTournamentState">Refresh</button>
     </div>
     <div
       style="
@@ -110,7 +101,7 @@ onMounted(async () => {
   if (!tournament.value) {
     router.push({ name: 'tournament-lobby' })
   }
-  tournamentState.value = await getTournamentState()
+  refreshTournamentState()
 })
 
 const findWinner = async (a: string | undefined, b: string | undefined) => {
@@ -189,6 +180,10 @@ const getTournamentState = async () => {
   useLoadingStore().loading = false
 
   return { grid, matches }
+}
+
+const refreshTournamentState = async () => {
+  tournamentState.value = await getTournamentState()
 }
 
 const myMatch = computed(() =>
