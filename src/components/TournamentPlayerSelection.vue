@@ -1,7 +1,7 @@
 <template>
   <PlayerSelection v-model:players="players" :readonly="true"></PlayerSelection>
   <hr style="min-width: 300px; visibility: hidden" />
-  <button class="primary" @click="emit('submit', players)">Submit</button>
+  <button class="primary" @click="onSubmit">Submit</button>
   <br />
 </template>
 
@@ -19,6 +19,12 @@ const emit = defineEmits<{
 }>()
 
 const players = ref(
-  props.playerIds.map((p) => useUsersStore().getUser(p)).filter((u) => !!u)
+  props.playerIds
+    .map((p) => useUsersStore().getUser(p))
+    .filter((u) => !!u) as UserCurrentInfo[]
 )
+
+const onSubmit = () => {
+  emit('submit', players.value)
+}
 </script>
