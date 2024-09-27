@@ -189,7 +189,6 @@ const getTournamentState = async () => {
       const a = prevRound[i]
       const b = prevRound[i + 1]
       const winner = await getMatchState(a, b)
-      console.log(a, b, winner)
       thisRound.push(winner)
       if (a && b && !winner) {
         matches.push([a, b])
@@ -234,7 +233,7 @@ const onPlay = () => {
   const t = tournament.value
   useModalStore().push(
     TournamentPlayerSelection,
-    { playerIds: myMatch.value },
+    { playerIds: myMatch.value.map((p) => p.id) },
     {
       submit: (players: UserCurrentInfo[]) => {
         if (!tournament.value) return
