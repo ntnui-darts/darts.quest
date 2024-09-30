@@ -1,10 +1,39 @@
+import Prompt from '@/components/Prompt.vue'
 import { compareCreatedAt } from '@/functions/compare'
 import { supabase } from '@/supabase'
 import { Database } from '@/types/supabase'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
+import { useLoadingStore } from './loading'
+import { useModalStore } from './modal'
 
 export type User = Database['public']['Tables']['users']['Row']
+
+const validateUserParams = async () => {
+  if (!useUsersStore().getCurrentUser) {
+    // uh oh!
+    useModalStore().push(
+      Prompt,
+      {
+        text: "Something went wrong! Your username has been reset. Go to 'My Profile' to edit.",
+        buttons: [
+          {
+            text: 'Ok.',
+            onClick: async () => {
+              useLoadingStore().loading = true
+              await useAuthStore().setUserParams({ name: '<?>' })
+              useLoadingStore().loading = false
+              useModalStore().pop()
+              await validateUserParams()
+            },
+          },
+        ],
+      },
+      {}
+    )
+    return
+  }
+}
 
 export const useUsersStore = defineStore('users', {
   state: () => ({
@@ -18,6 +47,8 @@ export const useUsersStore = defineStore('users', {
         this.users = fetchedUsers
           .filter((user) => user.visible || user.id == useAuthStore().auth?.id)
           .toSorted(compareCreatedAt)
+
+        await validateUserParams()
       }
     },
 

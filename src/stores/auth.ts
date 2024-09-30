@@ -1,41 +1,19 @@
-import Prompt from '@/components/Prompt.vue'
 import { supabase } from '@/supabase'
 import { User as AuthUser } from '@supabase/supabase-js'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { useLoadingStore } from './loading'
-import { useModalStore } from './modal'
 import { useOnlineStore } from './online'
 import { useStatsStore } from './stats'
 import { User, useUsersStore } from './users'
 
 const initAuth = async (auth: AuthUser) => {
-  useAuthStore().auth = auth
-  useOnlineStore().initRoom(auth.id)
-  const usersStore = useUsersStore()
-  await usersStore.fetchUsers()
-  if (!usersStore.getCurrentUser) {
-    // uh oh!
-    useModalStore().push(
-      Prompt,
-      {
-        text: "Something went wrong! Your username has been reset. Go to 'My Profile' to edit.",
-        buttons: [
-          {
-            text: 'Ok.',
-            onClick: async () => {
-              useLoadingStore().loading = true
-              await useAuthStore().setUserParams({ name: '<?>' })
-              useLoadingStore().loading = false
-              useModalStore().pop()
-              await initAuth(auth)
-            },
-          },
-        ],
-      },
-      {}
-    )
-    return
+  const authStore = useAuthStore()
+  authStore.auth = auth
+  if (authStore.signUpName) {
+    await authStore.setUserParams({ name: authStore.signUpName })
+    authStore.signUpName = null
   }
+  useOnlineStore().initRoom(auth.id)
+  await useUsersStore().fetchUsers()
   await useStatsStore().fetchAll()
   await supabase
     .from('users')
@@ -45,7 +23,8 @@ const initAuth = async (auth: AuthUser) => {
 
 supabase.auth.onAuthStateChange(async (_, session) => {
   const user = session?.user
-  if (user && useAuthStore().auth?.id != user.id) {
+  const authStore = useAuthStore()
+  if (user && authStore.auth?.id != user.id) {
     initAuth(user)
   }
 })
@@ -53,6 +32,7 @@ supabase.auth.onAuthStateChange(async (_, session) => {
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     auth: undefined as AuthUser | undefined,
+    signUpName: null as string | null,
   }),
 
   actions: {
@@ -66,8 +46,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async signUp(name: string, email: string, password: string) {
+      this.signUpName = name
       await supabase.auth.signUp({ email, password })
-      await this.setUserParams({ name })
     },
 
     async signIn(email: string, password: string) {
@@ -91,25 +71,19 @@ export const useAuthStore = defineStore('auth', {
 
     async setUserParams(user: Partial<User>) {
       if (!this.auth) throw Error()
-      const prevName = await supabase
-        .from('users')
-        .select('name')
-        .eq('id', this.auth.id)
+
       const copy = {
         // because user from parameter may include other fields
+        id: user.id ?? this.auth.id,
         name: user.name,
         createdAt: user.createdAt,
-        id: user.id ?? this.auth.id,
         walkOn: user.walkOn,
         walkOnTime: user.walkOnTime,
         walkOnEndTime: user.walkOnEndTime,
       } satisfies Partial<User>
-      if (!prevName.data) {
-        await supabase.from('users').insert(copy)
-      } else {
-        await supabase.from('users').update(copy).eq('id', this.auth.id)
-        await useUsersStore().fetchUsers()
-      }
+
+      await supabase.from('users').upsert(copy)
+      await useUsersStore().fetchUsers()
     },
   },
 })
