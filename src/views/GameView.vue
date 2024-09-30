@@ -19,7 +19,9 @@
   <MainGame
     v-if="gameStore.game && gameStore.gameState"
     :show-input="
-      !spectators.find((p) => p.userId == gameStore.gameState?.player)
+      !onlineStore.presence.remotePlayers?.find(
+        (p) => p == gameStore.gameState?.player
+      )
     "
     :show-save="true"
     :game="gameStore.game"

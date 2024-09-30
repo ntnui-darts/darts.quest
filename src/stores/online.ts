@@ -10,6 +10,7 @@ type OnlinePresence = {
   date: Date
   inGame: boolean
   spectating: string | null
+  remotePlayers: string[]
 }
 
 export const useOnlineStore = defineStore('online', {
@@ -20,6 +21,7 @@ export const useOnlineStore = defineStore('online', {
       inGame: false,
       date: new Date(),
       spectating: null,
+      remotePlayers: [],
     } as Partial<OnlinePresence>,
     room: null as RealtimeChannel | null,
     inChannel: null as RealtimeChannel | null,
@@ -47,7 +49,8 @@ export const useOnlineStore = defineStore('online', {
         .on('broadcast', { event: 'input' }, (args) => {
           const gameStore = useGameStore()
           const player = gameStore.gameState?.player
-          if (args.payload.userId != player) return
+          if (!player || args.payload.userId != player) return
+          if (!this.presence.remotePlayers?.includes(player)) return
 
           const gameController = gameStore.getController()
           switch (args.payload.type) {

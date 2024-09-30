@@ -47,6 +47,7 @@ import PlayerSearch from './PlayerSearch.vue'
 export type UserCurrentInfo = User & {
   arrows?: string
   beers?: number
+  allowRemote?: boolean
 }
 
 const players = defineModel<UserCurrentInfo[]>('players', { required: true })
@@ -92,9 +93,14 @@ const editUser = (user: UserCurrentInfo) => {
         }
         useModalStore().pop()
       },
-      submit: (data: { beers: number; arrows: string }) => {
+      submit: (data: {
+        beers: number
+        arrows: string
+        allowRemote: boolean
+      }) => {
         user.arrows = data.arrows
         user.beers = data.beers
+        user.allowRemote = data.allowRemote
         useModalStore().pop()
       },
     }

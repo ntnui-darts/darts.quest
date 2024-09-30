@@ -8,7 +8,9 @@
   <template v-if="onlineStore.spectatingGame && gameController && gameState">
     <MainGame
       :show-input="
-        !!gameState.player && gameState.player == useAuthStore().auth?.id
+        !!gameState.player &&
+        gameState.player == useAuthStore().auth?.id &&
+        !!onlineStore.getSpectating?.remotePlayers.includes(gameState.player)
       "
       :show-save="false"
       :game="onlineStore.spectatingGame"

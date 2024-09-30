@@ -5,6 +5,7 @@ import { Leg } from '@/types/game'
 import { nanoid } from 'nanoid'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useGameStore } from './game'
+import { useOnlineStore } from './online'
 import { useUsersStore } from './users'
 
 export const useGameSelectionStore = defineStore('game-selection', {
@@ -35,6 +36,11 @@ export const useGameSelectionStore = defineStore('game-selection', {
       if (players.length == 0) return
       if (!this.gameType) return
       if (!usersStore.getCurrentUser) return
+
+      useOnlineStore().presence.remotePlayers = players
+        .filter((p) => p.allowRemote)
+        .map((p) => p.id)
+
       const gameId = nanoid()
       useGameStore().setCurrentGame({
         id: gameId,
