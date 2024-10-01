@@ -46,6 +46,9 @@
                 'outlined-green': player && player.wonMatch === true,
               }"
             >
+              <div v-if="player && x == tournamentState.grid.length - 1">
+                👑
+              </div>
               {{ usersStore.getName(player?.id) }}
               <span v-if="player && x < tournamentState.grid.length - 1">
                 {{ `${player.setWins}:${player.legWins}` }}
@@ -99,7 +102,7 @@
     </template>
 
     <template v-if="finalWinner">
-      <h2>{{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
+      <h2>👑 {{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
     </template>
     <br />
 
@@ -198,8 +201,8 @@ const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
         a.legWins = 0
         b.legWins = 0
         if (b.setWins >= tournament.value.setsPerMatch) {
-          a.wonMatch = true
-          b.wonMatch = false
+          a.wonMatch = false
+          b.wonMatch = true
           return b
         }
       }
