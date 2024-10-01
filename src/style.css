@@ -1,6 +1,7 @@
 :root {
   --c-green-light: rgb(108, 255, 164);
   --c-green: rgb(19, 221, 97);
+  --c-red: rgb(198, 34, 67);
   --c-background: #242424;
 
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -57,6 +58,15 @@ button.primary {
   color: black !important;
 }
 button.outlined {
+  outline: 1px solid var(--c-green);
+}
+button.outlined-white {
+  outline: 1px solid white;
+}
+button.outlined-red {
+  outline: 1px solid var(--c-red);
+}
+button.outlined-green {
   outline: 1px solid var(--c-green);
 }
 

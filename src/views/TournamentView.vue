@@ -26,22 +26,46 @@
         padding: 2px;
       "
     >
-      <template v-for="column in tournamentState.grid">
+      <template v-for="(column, x) in tournamentState.grid">
         <div
           style="
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
-            gap: 1em;
+            align-items: center;
           "
         >
-          <template v-for="player in column">
+          <div style="flex: 2; min-height: 48px"></div>
+          <template v-for="(player, y) in column">
             <button
-              :class="{ outlined: player?.id == usersStore.getCurrentUser?.id }"
+              style="width: 100%"
+              :class="{
+                'outlined-white':
+                  player && player.id == usersStore.getCurrentUser?.id,
+                'outlined-red': player && player.wonMatch === false,
+                'outlined-green': player && player.wonMatch === true,
+              }"
             >
               {{ usersStore.getName(player?.id) }}
-              {{ player && `${player.setWins}:${player.legWins}` }}
+              <span v-if="player && x < tournamentState.grid.length - 1">
+                {{ `${player.setWins}:${player.legWins}` }}
+              </span>
             </button>
+
+            <div
+              v-if="y % 2 == 1 || column.length == y + 1"
+              style="flex: 2; min-height: 48px"
+            ></div>
+            <div
+              v-if="y % 2 == 0 && column.length > y + 1"
+              style="
+                flex: 1;
+                min-height: 24px;
+                margin: 1px;
+                background-color: gray;
+                width: 4px;
+              "
+            ></div>
           </template>
         </div>
       </template>
@@ -53,7 +77,9 @@
         <div style="display: flex; gap: 1em; align-items: center">
           <button
             style="flex: 1"
-            :class="{ outlined: match[0].id == usersStore.getCurrentUser?.id }"
+            :class="{
+              'outlined-white': match[0].id == usersStore.getCurrentUser?.id,
+            }"
           >
             {{ usersStore.getName(match[0].id) }}
             {{ match[0] && ` ${match[0].setWins}:${match[0].legWins}` }}
@@ -61,7 +87,9 @@
           <span>VS</span>
           <button
             style="flex: 1"
-            :class="{ outlined: match[1].id == usersStore.getCurrentUser?.id }"
+            :class="{
+              'outlined-white': match[1].id == usersStore.getCurrentUser?.id,
+            }"
           >
             {{ usersStore.getName(match[1].id) }}
             {{ match[1] && ` ${match[1].setWins}:${match[1].legWins}` }}
@@ -69,7 +97,6 @@
         </div>
       </template>
     </template>
-    <br />
 
     <template v-if="finalWinner">
       <h2>{{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
@@ -127,6 +154,7 @@ type PlayerMatchState = {
   id: string | undefined
   legWins: number
   setWins: number
+  wonMatch: boolean | undefined
 }
 const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
   // Will set values in a and b.
@@ -134,8 +162,10 @@ const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
   if (!a || !b) return undefined
   a.legWins = 0
   a.setWins = 0
+  a.wonMatch = undefined
   b.legWins = 0
   b.setWins = 0
+  b.wonMatch = undefined
 
   const gamesResponse = await supabase
     .from('games')
@@ -155,6 +185,8 @@ const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
         a.legWins = 0
         b.legWins = 0
         if (a.setWins >= tournament.value.setsPerMatch) {
+          a.wonMatch = true
+          b.wonMatch = false
           return a
         }
       }
@@ -166,6 +198,8 @@ const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
         a.legWins = 0
         b.legWins = 0
         if (b.setWins >= tournament.value.setsPerMatch) {
+          a.wonMatch = true
+          b.wonMatch = false
           return b
         }
       }
@@ -184,6 +218,7 @@ const getTournamentState = async () => {
       id,
       legWins: 0,
       setWins: 0,
+      wonMatch: undefined,
     }))
   const grid = []
   const matches: [PlayerMatchState, PlayerMatchState][] = []
@@ -203,7 +238,7 @@ const getTournamentState = async () => {
     if (prevRound.length % 2 == 1) {
       thisRound.push(prevRound.at(-1))
     }
-    prevRound = [...thisRound]
+    prevRound = structuredClone(thisRound)
   }
 
   useLoadingStore().loading = false
