@@ -161,6 +161,10 @@ const getEloText = (userId: string) => {
 const getEloColor = (userId: string) => {
   const eloDelta =
     eloDeltas.value.find((eloDelta) => eloDelta.userId == userId)?.eloDelta ?? 0
-  return eloDelta > 0 ? '#127a16' : '#ad1717'
+  return eloDelta == 0
+    ? 'gray'
+    : eloDelta > 0
+    ? 'var(--c-green)'
+    : 'var(--c-red)'
 }
 </script>
