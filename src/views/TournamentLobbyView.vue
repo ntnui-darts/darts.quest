@@ -6,7 +6,7 @@
 
   <h2>Tournaments</h2>
   <button
-    v-for="tournament in tournamentStore.tournaments"
+    v-for="tournament in tournamentStore.tournaments.toReversed()"
     @click="viewTournament(tournament.id)"
   >
     <span>{{ tournament.name }}</span>
