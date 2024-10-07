@@ -226,21 +226,34 @@ const getTournamentState = async () => {
   const grid = []
   const matches: [PlayerMatchState, PlayerMatchState][] = []
   const n_rounds = Math.ceil(Math.log2(prevRound.length)) + 1
+
   for (let round = 0; round < n_rounds; round++) {
-    grid.push(prevRound)
+    const readonlyPrevRound = [...prevRound]
+
     const thisRound = []
-    for (let i = 0; i < prevRound.length - 1; i += 2) {
-      const a = prevRound[i]
-      const b = prevRound[i + 1]
+
+    const n_matches =
+      2 * readonlyPrevRound.length -
+      Math.pow(2, Math.ceil(Math.log2(readonlyPrevRound.length)))
+
+    for (let i = 0; i < n_matches; i += 2) {
+      const a = readonlyPrevRound[i]
+      const b = readonlyPrevRound[i + 1]
       const winner = await getMatchState(a, b)
       thisRound.push(winner)
       if (a && b && !winner) {
         matches.push([a, b])
       }
     }
-    if (prevRound.length % 2 == 1) {
-      thisRound.push(prevRound.at(-1))
+    for (let i = n_matches; i < readonlyPrevRound.length; i++) {
+      thisRound.push(readonlyPrevRound[i])
+      const index = prevRound.indexOf(readonlyPrevRound[i])
+      if (index >= 0) {
+        prevRound.splice(index + 1, 0, undefined)
+      }
     }
+
+    grid.push(prevRound)
     prevRound = structuredClone(thisRound)
   }
 
