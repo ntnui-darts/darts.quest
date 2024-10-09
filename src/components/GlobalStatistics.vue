@@ -43,7 +43,7 @@
         <tr
           v-for="(userId, i) in new Set([
             ...Object.keys(stat.last14Days),
-            ...Object.keys(stat.allTime),
+            // ...Object.keys(stat.allTime),
           ])"
         >
           <td
@@ -59,8 +59,8 @@
             {{
               stat.last14Days[userId] != null
                 ? stat.transform
-                  ? stat.transform(stat.last14Days[userId]!)
-                  : roundToNDecimals(stat.last14Days[userId]!, 2)
+                  ? stat.transform(stat.last14Days[userId])
+                  : roundToNDecimals(stat.last14Days[userId], 2)
                 : null
             }}
           </td>
@@ -68,8 +68,8 @@
             {{
               stat.allTime[userId] != null
                 ? stat.transform
-                  ? stat.transform(stat.allTime[userId]!)
-                  : roundToNDecimals(stat.allTime[userId]!, 2)
+                  ? stat.transform(stat.allTime[userId])
+                  : roundToNDecimals(stat.allTime[userId], 2)
                 : null
             }}
           </td>
