@@ -82,12 +82,6 @@
     title="RTC"
   ></DartboardChart>
 
-  <HistoryStatistics
-    v-if="userId"
-    :user-id="userId"
-    :ignore="['numberOfGames']"
-  ></HistoryStatistics>
-
   <h3>Last 10 Games</h3>
   <div v-for="leg in legs.slice(-10).toReversed()">
     <LegStats :leg="leg"></LegStats>
@@ -105,7 +99,6 @@ import { getTypeAttribute } from '@/types/game'
 import { addDays } from 'date-fns'
 import { computed, onMounted, ref } from 'vue'
 import Chart from './Chart.vue'
-import HistoryStatistics from './HistoryStatistics.vue'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
