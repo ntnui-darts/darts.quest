@@ -127,7 +127,6 @@
 import { UserCurrentInfo } from '@/components/PlayerSelection.vue'
 import Prompt from '@/components/Prompt.vue'
 import TournamentPlayerSelection from '@/components/TournamentPlayerSelection.vue'
-import { compareCreatedAt } from '@/functions/compare'
 import { GameTypeNames } from '@/games/games'
 import { router } from '@/router'
 import { useGameSelectionStore } from '@/stores/gameSelection'
@@ -145,6 +144,14 @@ const usersStore = useUsersStore()
 
 const tournament = computed(() => tournamentStore.currentTournament)
 const tournamentState = ref<TournamentState>({ grid: [], matches: [] })
+const tournamentGames = ref<
+  {
+    tournamentId: string | null
+    result: string[]
+    createdAt: string
+    players: string[]
+  }[]
+>([])
 
 onMounted(async () => {
   if (!tournament.value) {
@@ -159,9 +166,11 @@ type PlayerMatchState = {
   setWins: number
   wonMatch: boolean | undefined
 }
-const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
+const getMatchState = async (_a?: PlayerMatchState, _b?: PlayerMatchState) => {
   // Will set values in a and b.
   if (!tournament.value) return undefined
+  const a = _a
+  const b = _b
   if (!a || !b) return undefined
   a.legWins = 0
   a.setWins = 0
@@ -170,14 +179,11 @@ const getMatchState = async (a?: PlayerMatchState, b?: PlayerMatchState) => {
   b.setWins = 0
   b.wonMatch = undefined
 
-  const gamesResponse = await supabase
-    .from('games')
-    .select('tournamentId, result, createdAt')
-    .eq('tournamentId', tournament.value.id)
-    .contains('players', [a.id, b.id])
-  if (!gamesResponse.data || gamesResponse.data.length == 0) return undefined
+  if (tournamentGames.value.length == 0) return undefined
 
-  const games = gamesResponse.data.toSorted(compareCreatedAt)
+  const games = tournamentGames.value.filter(
+    (g) => a.id && b.id && g.players.includes(a.id) && g.players.includes(b.id)
+  )
 
   for (const game of games) {
     const winner = game.result[0]
@@ -215,6 +221,17 @@ const getTournamentState = async () => {
   if (!tournament.value) return { grid: [], matches: [] }
 
   useLoadingStore().loading = true
+
+  const gamesResponse = await supabase
+    .from('games')
+    .select('tournamentId, result, createdAt, players')
+    .eq('tournamentId', tournament.value.id)
+
+  if (gamesResponse.data) {
+    tournamentGames.value = gamesResponse.data
+  } else {
+    tournamentGames.value = []
+  }
 
   let prevRound: (PlayerMatchState | undefined)[] =
     tournament.value.players.map((id) => ({
