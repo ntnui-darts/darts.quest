@@ -90,8 +90,8 @@ import {
   useStatsStore,
 } from '@/stores/stats'
 import { computed, ref } from 'vue'
-import Chart from './Chart.vue'
 import GameSelection from './GameSelection.vue'
+import Chart from './LineChart.vue'
 import PlayerSelection, { UserCurrentInfo } from './PlayerSelection.vue'
 
 const props = defineProps<{

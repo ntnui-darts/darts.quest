@@ -34,7 +34,7 @@ onMounted(async () => {
 })
 
 const viewTournament = async (tournamentId: string) => {
-  await tournamentStore.fetchTournament(tournamentId)
+  tournamentStore.fetchTournament(tournamentId)
   router.push({ name: 'tournament' })
 }
 

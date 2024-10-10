@@ -68,10 +68,12 @@ export const getVisitsOfUser = (game: Game, userId?: string | null) => {
 }
 
 export const getTypeAttribute = <T>(
-  data: { typeAttributes: string[] },
+  data: { typeAttributes: string[] } | null,
   name: string,
   _default: T
 ) => {
+  if (!data) return _default
+
   for (const attr of data.typeAttributes) {
     if (!attr.includes(':')) continue
     const [key, value] = attr.split(':')

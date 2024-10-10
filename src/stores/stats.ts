@@ -19,6 +19,8 @@ type LegJoin = {
     typeAttributes: string[]
     userId: string
     finish: boolean
+    beers: number | null
+    type: GameType
   }
 }
 export type X01Stat = Database['public']['Tables']['statistics_x01']['Row'] &
@@ -76,7 +78,10 @@ export const useStatsStore = defineStore('stats', {
       const users = useUsersStore().users
       const x01Stats = await supabase
         .from('statistics_x01')
-        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+        .select(
+          '*, legs (id, type, createdAt, typeAttributes, userId, finish, beers)'
+        )
+
       if (x01Stats.data) {
         this.x01Stats = (
           x01Stats.data.filter(
@@ -86,7 +91,9 @@ export const useStatsStore = defineStore('stats', {
       }
       const rtcStats = await supabase
         .from('statistics_rtc')
-        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+        .select(
+          '*, legs (id, type, createdAt, typeAttributes, userId, finish, beers)'
+        )
       if (rtcStats.data) {
         this.rtcStats = (
           rtcStats.data.filter(
@@ -96,7 +103,9 @@ export const useStatsStore = defineStore('stats', {
       }
       const killerStats = await supabase
         .from('statistics_killer')
-        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+        .select(
+          '*, legs (id, type, createdAt, typeAttributes, userId, finish, beers)'
+        )
       if (killerStats.data) {
         this.killerStats = (
           killerStats.data.filter(
@@ -106,7 +115,9 @@ export const useStatsStore = defineStore('stats', {
       }
       const skovhuggerStats = await supabase
         .from('statistics_skovhugger')
-        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+        .select(
+          '*, legs (id, type, createdAt, typeAttributes, userId, finish, beers)'
+        )
       if (skovhuggerStats.data) {
         this.skovhuggerStats = (
           skovhuggerStats.data.filter(
@@ -116,7 +127,9 @@ export const useStatsStore = defineStore('stats', {
       }
       const cricketStats = await supabase
         .from('statistics_cricket')
-        .select('*, legs (id, createdAt, typeAttributes, userId, finish)')
+        .select(
+          '*, legs (id, type, createdAt, typeAttributes, userId, finish, beers)'
+        )
       if (cricketStats.data) {
         this.cricketStats = (
           cricketStats.data.filter(
@@ -228,17 +241,17 @@ export const useStatsStore = defineStore('stats', {
         if (!options.allowUnfinished && !stat.legs.finish) return false
 
         if (
-          options.startScore != undefined &&
+          options.startScore !== undefined &&
           getTypeAttribute<number>(stat.legs, 'startScore', 0) !=
             options.startScore
         )
           return false
+
         if (
-          options.finish != undefined &&
+          options.finish !== undefined &&
           getTypeAttribute<number>(stat.legs, 'finish', 0) != options.finish
         )
-          return
-        false
+          return false
 
         return true
       })
@@ -261,19 +274,19 @@ export const useStatsStore = defineStore('stats', {
         if (!options.allowUnfinished && !stat.legs.finish) return false
 
         if (
-          options.mode != undefined &&
+          options.mode !== undefined &&
           getTypeAttribute<number>(stat.legs, 'mode', 0) != options.mode
         )
           return false
 
         if (
-          options.fast != undefined &&
+          options.fast !== undefined &&
           getTypeAttribute<boolean>(stat.legs, 'fast', false) != options.fast
         )
           return false
 
         if (
-          options.forced != undefined &&
+          options.forced !== undefined &&
           getTypeAttribute<boolean>(stat.legs, 'forced', false) !=
             options.forced
         )
@@ -323,6 +336,16 @@ export const useStatsStore = defineStore('stats', {
 
         return true
       })
+    },
+
+    getAll(options: { allowUnfinished?: boolean }) {
+      return [
+        ...this.getX01(options),
+        ...this.getCricket(options),
+        ...this.getKiller(options),
+        ...this.getSkovhugger(options),
+        ...this.getRtc(options),
+      ]
     },
   },
 

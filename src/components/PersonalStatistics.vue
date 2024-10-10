@@ -98,7 +98,7 @@ import { useStatsStore } from '@/stores/stats'
 import { getTypeAttribute } from '@/types/game'
 import { addDays } from 'date-fns'
 import { computed, onMounted, ref } from 'vue'
-import Chart from './Chart.vue'
+import Chart from './LineChart.vue'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
