@@ -40,7 +40,6 @@
       shadow: true,
     }"
     :disabled="!gameSelectionStore.tournamentReady"
-    style="position: sticky; bottom: 2em"
     @click="onCreateTournament"
   >
     Create tournament
