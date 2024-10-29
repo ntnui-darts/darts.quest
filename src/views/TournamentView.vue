@@ -211,9 +211,8 @@ const getMatchState = async (
         winner.wonMatch = true
         loser.wonMatch = false
         return winner
-      } else {
-        loser.legWins = 0
       }
+      loser.legWins = 0
     }
   }
   return undefined
@@ -259,7 +258,7 @@ const getTournamentState = async () => {
     for (let i = 0; i < n_matches; i += 2) {
       const a = readonlyPrevRound[i]
       const b = readonlyPrevRound[i + 1]
-      const winner = await getMatchState(a, b, i)
+      const winner = await getMatchState(a, b, round)
       thisRound.push(winner)
       if (a && b && !winner) {
         matches.push([a, b])
