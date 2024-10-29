@@ -192,11 +192,12 @@ const getMatchState = async (_a?: PlayerMatchState, _b?: PlayerMatchState) => {
       if (a.legWins >= tournament.value.legsPerSet) {
         a.setWins += 1
         a.legWins = 0
-        b.legWins = 0
         if (a.setWins >= tournament.value.setsPerMatch) {
           a.wonMatch = true
           b.wonMatch = false
           return a
+        } else {
+          b.legWins = 0
         }
       }
     }
@@ -204,12 +205,13 @@ const getMatchState = async (_a?: PlayerMatchState, _b?: PlayerMatchState) => {
       b.legWins += 1
       if (b.legWins >= tournament.value.legsPerSet) {
         b.setWins += 1
-        a.legWins = 0
         b.legWins = 0
         if (b.setWins >= tournament.value.setsPerMatch) {
           a.wonMatch = false
           b.wonMatch = true
           return b
+        } else {
+          a.legWins = 0
         }
       }
     }
