@@ -17,17 +17,37 @@
   ></GameSelection>
 
   <label for="setsPerMatch">Sets Per Match (First to ..)</label>
-  <input
-    id="setsPerMatch"
-    type="number"
-    v-model="gameSelectionStore.setsPerMatch"
-  />
+  <div class="row">
+    <template v-for="(value, i) in gameSelectionStore.setsPerMatchArray">
+      <input
+        id="setsPerMatch"
+        style="min-width: 16px; flex: 1"
+        type="number"
+        :min="1"
+        :max="1000"
+        :value="value"
+        @input="(e) => {
+          gameSelectionStore.setsPerMatchArray[i] = (e.target as HTMLInputElement)?.valueAsNumber ?? 1
+        }"
+      />
+    </template>
+  </div>
   <label for="legsPerSet">Legs Per Set (First to ..)</label>
-  <input
-    id="legsPerSet"
-    type="number"
-    v-model="gameSelectionStore.legsPerSet"
-  />
+  <div class="row">
+    <template v-for="(value, i) in gameSelectionStore.legsPerSetArray">
+      <input
+        id="legsPerSet"
+        style="min-width: 16px; flex: 1"
+        type="number"
+        :min="1"
+        :max="1000"
+        :value="value"
+        @input="(e) => {
+          gameSelectionStore.legsPerSetArray[i] = (e.target as HTMLInputElement)?.valueAsNumber ?? 1
+        }"
+      />
+    </template>
+  </div>
 
   <PlayerSelection
     v-model:players="gameSelectionStore.players"
@@ -55,10 +75,11 @@ import { shuffle } from '@/functions/shuffle'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { useGameSelectionStore } from '@/stores/gameSelection'
+import { tournamentNumberOfRounds } from '@/stores/tournament'
 import { useUsersStore } from '@/stores/users'
 import { supabase } from '@/supabase'
 import { nanoid } from 'nanoid'
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 
 const usersStore = useUsersStore()
 const authStore = useAuthStore()
@@ -76,6 +97,8 @@ const onCreateTournament = async () => {
   if (!gameSelectionStore.gameType) return
   if (!usersStore.getCurrentUser) return
 
+  validateLegsPerSetAndSetsPerMatch()
+
   await supabase.from('tournaments').insert({
     id: nanoid(),
     type: 'elimination', // TODO
@@ -84,10 +107,32 @@ const onCreateTournament = async () => {
     players: shuffle(gameSelectionStore.players.map((p) => p.id)),
     gameType: gameSelectionStore.gameType,
     gameTypeAttributes: gameSelectionStore.gameTypeAttributes,
-    legsPerSet: gameSelectionStore.legsPerSet,
-    setsPerMatch: gameSelectionStore.setsPerMatch,
+    legsPerSetArray: gameSelectionStore.legsPerSetArray,
+    setsPerMatchArray: gameSelectionStore.setsPerMatchArray,
   })
 
   router.push({ name: 'tournament-lobby' })
 }
+
+const validateLegsPerSetAndSetsPerMatch = () => {
+  const numRounds = tournamentNumberOfRounds(gameSelectionStore.players.length)
+  for (const arr of [
+    gameSelectionStore.legsPerSetArray,
+    gameSelectionStore.setsPerMatchArray,
+  ]) {
+    while (arr.length > numRounds) {
+      arr.pop()
+    }
+    while (arr.length < numRounds) {
+      arr.push(arr.at(-1) ?? 1)
+    }
+  }
+}
+
+watch(
+  () => gameSelectionStore.players.length,
+  () => {
+    validateLegsPerSetAndSetsPerMatch()
+  }
+)
 </script>

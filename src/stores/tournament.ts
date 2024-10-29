@@ -42,3 +42,6 @@ export const useTournamentStore = defineStore('tournament', {
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useTournamentStore, import.meta.hot))
 }
+
+export const tournamentNumberOfRounds = (numberOfPlayers: number) =>
+  Math.ceil(Math.log2(Math.max(2, numberOfPlayers)))

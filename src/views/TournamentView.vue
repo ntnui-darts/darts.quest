@@ -9,8 +9,8 @@
       by {{ usersStore.getName(tournament.userId) }}
     </div>
     <div>
-      First to {{ tournament.setsPerMatch }} sets, where each set has
-      {{ tournament.legsPerSet }} legs. Notation is ( wonSets : wonLegs ).
+      First to {{ tournament.setsPerMatchArray }} sets, where each set has
+      {{ tournament.legsPerSetArray }} legs. Notation is ( wonSets : wonLegs ).
     </div>
 
     <div class="row spaced">
@@ -132,7 +132,10 @@ import { router } from '@/router'
 import { useGameSelectionStore } from '@/stores/gameSelection'
 import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
-import { useTournamentStore } from '@/stores/tournament'
+import {
+  tournamentNumberOfRounds,
+  useTournamentStore,
+} from '@/stores/tournament'
 import { useUsersStore } from '@/stores/users'
 import { supabase } from '@/supabase'
 import { computed, onMounted, ref } from 'vue'
@@ -166,7 +169,11 @@ type PlayerMatchState = {
   setWins: number
   wonMatch: boolean | undefined
 }
-const getMatchState = async (_a?: PlayerMatchState, _b?: PlayerMatchState) => {
+const getMatchState = async (
+  _a: PlayerMatchState | undefined,
+  _b: PlayerMatchState | undefined,
+  matchIndex: number
+) => {
   // Will set values in a and b.
   if (!tournament.value) return undefined
   const a = _a
@@ -192,10 +199,15 @@ const getMatchState = async (_a?: PlayerMatchState, _b?: PlayerMatchState) => {
     if (!winner || !loser) continue
 
     winner.legWins += 1
-    if (winner.legWins >= tournament.value.legsPerSet) {
+    if (
+      winner.legWins >= (tournament.value.legsPerSetArray?.at(matchIndex) ?? 1)
+    ) {
       winner.setWins += 1
       winner.legWins = 0
-      if (winner.setWins >= tournament.value.setsPerMatch) {
+      if (
+        winner.setWins >=
+        (tournament.value.setsPerMatchArray?.at(matchIndex) ?? 1)
+      ) {
         winner.wonMatch = true
         loser.wonMatch = false
         return winner
@@ -232,9 +244,10 @@ const getTournamentState = async () => {
     }))
   const grid = []
   const matches: [PlayerMatchState, PlayerMatchState][] = []
-  const n_rounds = Math.ceil(Math.log2(prevRound.length)) + 1
+  const n_columns =
+    tournamentNumberOfRounds(tournament.value.players.length) + 1
 
-  for (let round = 0; round < n_rounds; round++) {
+  for (let round = 0; round < n_columns; round++) {
     const readonlyPrevRound = [...prevRound]
 
     const thisRound = []
@@ -246,7 +259,7 @@ const getTournamentState = async () => {
     for (let i = 0; i < n_matches; i += 2) {
       const a = readonlyPrevRound[i]
       const b = readonlyPrevRound[i + 1]
-      const winner = await getMatchState(a, b)
+      const winner = await getMatchState(a, b, i)
       thisRound.push(winner)
       if (a && b && !winner) {
         matches.push([a, b])

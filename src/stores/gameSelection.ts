@@ -15,8 +15,8 @@ export const useGameSelectionStore = defineStore('game-selection', {
     players: [] as UserCurrentInfo[],
 
     // Create tournament
-    setsPerMatch: 1,
-    legsPerSet: 1,
+    setsPerMatchArray: [1],
+    legsPerSetArray: [1],
     tournamentName: 'Casual Tournament',
   }),
 
