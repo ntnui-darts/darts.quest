@@ -172,12 +172,12 @@ const getMatchState = async (_a?: PlayerMatchState, _b?: PlayerMatchState) => {
   const a = _a
   const b = _b
   if (!a || !b) return undefined
-  a.legWins = 0
-  a.setWins = 0
-  a.wonMatch = undefined
-  b.legWins = 0
-  b.setWins = 0
-  b.wonMatch = undefined
+  if (a.id == b.id) return undefined
+  for (const p of [a, b]) {
+    p.legWins = 0
+    p.setWins = 0
+    p.wonMatch = undefined
+  }
 
   if (tournamentGames.value.length == 0) return undefined
 
@@ -186,33 +186,21 @@ const getMatchState = async (_a?: PlayerMatchState, _b?: PlayerMatchState) => {
   )
 
   for (const game of games) {
-    const winner = game.result[0]
-    if (winner == a.id) {
-      a.legWins += 1
-      if (a.legWins >= tournament.value.legsPerSet) {
-        a.setWins += 1
-        a.legWins = 0
-        if (a.setWins >= tournament.value.setsPerMatch) {
-          a.wonMatch = true
-          b.wonMatch = false
-          return a
-        } else {
-          b.legWins = 0
-        }
-      }
-    }
-    if (winner == b.id) {
-      b.legWins += 1
-      if (b.legWins >= tournament.value.legsPerSet) {
-        b.setWins += 1
-        b.legWins = 0
-        if (b.setWins >= tournament.value.setsPerMatch) {
-          a.wonMatch = false
-          b.wonMatch = true
-          return b
-        } else {
-          a.legWins = 0
-        }
+    const winnerId = game.result[0]
+    const [winner, loser] =
+      a.id == winnerId ? [a, b] : b.id == winnerId ? [b, a] : [null, null]
+    if (!winner || !loser) continue
+
+    winner.legWins += 1
+    if (winner.legWins >= tournament.value.legsPerSet) {
+      winner.setWins += 1
+      winner.legWins = 0
+      if (winner.setWins >= tournament.value.setsPerMatch) {
+        winner.wonMatch = true
+        loser.wonMatch = false
+        return winner
+      } else {
+        loser.legWins = 0
       }
     }
   }
