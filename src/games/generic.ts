@@ -32,7 +32,7 @@ export const getGenericController = (game: Game) => {
 
     recordResign() {
       useGameStore().saveScore('resigned')
-    }
+    },
   } satisfies Partial<GameController<GameState>>
 }
 
@@ -59,7 +59,7 @@ export const nextState = (
       resignees: [],
     }
   state.prevPlayer = state.player
-  if (state.rank.length == players.length) {
+  if (state.rank.length + state.resignees.length == players.length) {
     state.player = null
     return state
   }
@@ -102,22 +102,24 @@ export const simulateFirstToWinGame = (
       if (sortRank) {
         state.rank.sort(sortRank)
       }
-      
+
       continue
     }
 
     const visit = allVisits.at(state.visitIndex)
-    
-    if (visit?.includes('resigned')){
+
+    if (visit?.includes('resigned')) {
       state.resignees.push(state.player)
-      continue  // TODO: FIX FOR FORCED RTC
+      continue // TODO: FIX FOR FORCED RTC
     }
-    
+
     if (!visit || visit.includes(null)) break
   }
 
   return {
     ...state,
-    playersLeft: game.players.filter((p) => !state.rank.includes(p)),
+    playersLeft: game.players.filter(
+      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+    ),
   }
 }

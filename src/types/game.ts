@@ -13,9 +13,13 @@ export type Segment = {
   multiplier: Multiplier
   sector: number
 }
-export type Resigned = 'resigned' 
+export type Resigned = 'resigned'
 
-export type Visit = [Segment | null | Resigned, Segment | null | Resigned, Segment | null | Resigned]
+export type Visit = [
+  Segment | null | Resigned,
+  Segment | null | Resigned,
+  Segment | null | Resigned
+]
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
 export type Leg = Omit<DbLeg, 'visits' | 'createdAt' | 'type'> & {

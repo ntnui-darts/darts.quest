@@ -100,7 +100,9 @@ const simulateSkovhugger = (game: Game) => {
 
   return {
     ...state,
-    playersLeft: game.players.filter((p) => !state.rank.includes(p)),
+    playersLeft: game.players.filter(
+      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+    ),
   }
 }
 
@@ -146,7 +148,7 @@ const getSkovhuggerVisitScore = (visit: Visit, visitIndex: number) => {
   }
 
   for (const s of visit) {
-    if(s == 'resigned'){
+    if (s == 'resigned') {
       continue
     }
 

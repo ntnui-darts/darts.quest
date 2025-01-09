@@ -49,7 +49,9 @@ export const getCricketController = (
     },
 
     speakVisit(visit, leg) {
-      const hits = visit.filter((s) => (s != null && s != 'resigned') && s.sector > 0).length
+      const hits = visit.filter(
+        (s) => s != null && s != 'resigned' && s.sector > 0
+      ).length
       let text = `${hits} hits`
 
       const gameState = this.getGameState()
@@ -80,7 +82,10 @@ const simulateCricket = (game: Game) => {
     scorePrev: 0,
     hits: new Map<number, number>(),
   }))
-  const playersLeft = () => players.filter((p) => !state.rank.includes(p.id))
+  const playersLeft = () =>
+    players.filter(
+      (p) => !state.rank.includes(p.id) && !state.resignees.includes(p.id)
+    )
 
   while (true) {
     state = nextState(game.players, state)
@@ -141,7 +146,9 @@ const simulateCricket = (game: Game) => {
 
   return {
     ...state,
-    playersLeft: game.players.filter((p) => !state.rank.includes(p)),
+    playersLeft: game.players.filter(
+      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+    ),
     players,
     unlocks,
   }

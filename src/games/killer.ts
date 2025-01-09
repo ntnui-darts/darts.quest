@@ -186,6 +186,8 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
   return {
     ...state,
     killers,
-    playersLeft: players.filter((p) => !state.rank.includes(p)),
+    playersLeft: players.filter(
+      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+    ),
   }
 }
