@@ -73,6 +73,7 @@ const simulateSkovhugger = (game: Game) => {
     prevPlayer: null,
     visitIndex: 0,
     rank: [],
+    resignees: [],
   }
 
   while (true) {
@@ -145,6 +146,10 @@ const getSkovhuggerVisitScore = (visit: Visit, visitIndex: number) => {
   }
 
   for (const s of visit) {
+    if(s == 'resigned'){
+      continue
+    }
+
     if (s && targets[visitIndex](s)) {
       score += getSegmentScore(s)
     }

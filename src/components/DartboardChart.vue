@@ -27,7 +27,7 @@ onMounted(() => {
   buildChart()
 })
 const x01Stats = (visits: Visit[]) =>
-  numbers.map((n) => visits.flat().filter((s) => s?.sector == n).length)
+  numbers.map((n) => visits.flat().filter((s) => s && s != 'resigned' && s.sector == n).length)
 
 watch(
   () => props.visits,

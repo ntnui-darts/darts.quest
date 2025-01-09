@@ -43,7 +43,10 @@
       </li>
     </ul>
   </template>
+<button @click="resign()">Resign</button>
+
 </template>
+
 
 <script lang="ts" setup>
 import MainGame from '@/components/MainGame.vue'
@@ -119,6 +122,27 @@ const promptQuit = (prompt: string, yesFunc?: () => void) => {
     {}
   )
 }
+
+const resign = () => {
+  useModalStore().push(
+    Prompt,
+    {
+      text: 'Are you sure that you want to resign?',
+      buttons: [
+        { text: 'No', onClick: () => useModalStore().pop() },
+        {
+          text: 'Yes',
+          onClick: () => {
+            gameStore.getController().recordResign()
+            useModalStore().pop()
+          },
+        },
+      ],
+    },
+    {}
+  )
+}
+
 
 const saveGame = async () => {
   promptQuit('Save game and exit?', async () => {

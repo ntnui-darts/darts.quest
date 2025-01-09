@@ -97,9 +97,11 @@ export const getX01LegScore = (
   visits?.forEach((v) => {
     const visitScore = getX01VisitScore(v)
     if (score + visitScore == points) {
+      const lastSegment = v.findLast((s) => s != null)
       if (
         finishType == 1 ||
-        (v.findLast((s) => s != null)?.multiplier ?? 0) == finishType
+        lastSegment != 'resigned' &&
+        (lastSegment?.multiplier ?? 0) == finishType
       ) {
         score += visitScore
       }
@@ -142,6 +144,7 @@ export const getX01VisitScore = (visit: Visit) => {
   return visit.reduce((prev, current) => prev + getSegmentScore(current), 0)
 }
 
-export const getSegmentScore = (segment: Segment | null) => {
+export const getSegmentScore = (segment: Segment | null | 'resigned') => {
+  if (segment == 'resigned') return 0
   return segment ? segment.multiplier * segment.sector : 0
 }
