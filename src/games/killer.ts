@@ -103,6 +103,7 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
         player: killers[i].userId,
         prevPlayer: null,
         rank: [],
+        resignees: [],
         playersLeft: killers.map((p) => p.userId),
         killers,
       }

@@ -43,10 +43,14 @@
       </li>
     </ul>
   </template>
-<button @click="resign()">Resign</button>
 
+  <button
+    v-if="gameStore.game && ['x01', 'rtc'].includes(gameStore.game.type)"
+    @click="recordResign"
+  >
+    Resign
+  </button>
 </template>
-
 
 <script lang="ts" setup>
 import MainGame from '@/components/MainGame.vue'
@@ -123,7 +127,7 @@ const promptQuit = (prompt: string, yesFunc?: () => void) => {
   )
 }
 
-const resign = () => {
+const recordResign = () => {
   useModalStore().push(
     Prompt,
     {
@@ -142,7 +146,6 @@ const resign = () => {
     {}
   )
 }
-
 
 const saveGame = async () => {
   promptQuit('Save game and exit?', async () => {
@@ -166,12 +169,16 @@ const saveGame = async () => {
 }
 
 watch(
-  () => gameStore.gameState?.rank.length,
+  () => [
+    gameStore.gameState?.rank.length,
+    gameStore.gameState?.resignees.length,
+  ],
   async () => {
-    if (!gameStore.game?.result.length) return
+    if (!gameStore.game) return
     eloDeltas.value = await useEloStore().updateEloFromGame(
       gameStore.game,
-      false
+      false,
+      gameStore.gameState
     )
   }
 )

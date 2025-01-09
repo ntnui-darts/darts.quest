@@ -84,7 +84,6 @@ export const useGameStore = defineStore('game', {
       if (this.gameState.rank.includes(player))
         throw Error('User has already finished')
 
-
       let visit = this.getCurrentLeg.visits.at(-1)
       const index = visit?.indexOf(null)
       if (!visit || !index || index < 0) {
