@@ -13,8 +13,13 @@ export type Segment = {
   multiplier: Multiplier
   sector: number
 }
+export type Resigned = 'resigned'
 
-export type Visit = [Segment | null, Segment | null, Segment | null]
+export type Visit = [
+  Segment | null | Resigned,
+  Segment | null | Resigned,
+  Segment | null | Resigned
+]
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
 export type Leg = Omit<DbLeg, 'visits' | 'createdAt' | 'type'> & {
@@ -35,6 +40,7 @@ export type Game = Prettify<
 
 export interface GameState {
   rank: string[]
+  resignees: string[]
   player: string | null
   prevPlayer: string | null
   playersLeft: string[]
@@ -48,7 +54,8 @@ export interface GameController<T extends GameState> {
   getGameState(): T
   recordHit(segment: Segment): void
   recordMiss(): void
-  getSegmentText(segment?: Segment | null): string
+  recordResign(): void
+  getSegmentText(segment?: Segment | null | Resigned): string
   speakVisit(visit: Visit, leg: Leg): void
 }
 

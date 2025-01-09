@@ -15,6 +15,7 @@ export const getGenericController = (game: Game) => {
 
     getSegmentText(segment) {
       if (!segment) return '-'
+      if (segment == 'resigned') return '💀'
       if (!segment.multiplier || segment.multiplier == 1)
         return segment.sector.toString()
       return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
@@ -28,6 +29,10 @@ export const getGenericController = (game: Game) => {
     recordMiss() {
       useGameStore().saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
+
+    recordResign() {
+      useGameStore().saveScore('resigned')
+    },
   } satisfies Partial<GameController<GameState>>
 }
 
@@ -36,6 +41,7 @@ export type SimulationState = {
   player: null | string
   visitIndex: number
   rank: string[]
+  resignees: string[]
 }
 
 export const nextState = (
@@ -50,9 +56,10 @@ export const nextState = (
       player: players[0],
       visitIndex: 0,
       rank: [],
+      resignees: [],
     }
   state.prevPlayer = state.player
-  if (state.rank.length == players.length) {
+  if (state.rank.length + state.resignees.length == players.length) {
     state.player = null
     return state
   }
@@ -62,7 +69,7 @@ export const nextState = (
   if (nextIndex == 0) state.visitIndex += 1
   const nextPlayer = players[nextIndex]
 
-  if (state.rank.includes(nextPlayer)) {
+  if (state.rank.includes(nextPlayer) || state.resignees.includes(nextPlayer)) {
     return nextState(players, state, nextIndex)
   }
   state.player = players[nextIndex]
@@ -79,6 +86,7 @@ export const simulateFirstToWinGame = (
     prevPlayer: null,
     visitIndex: 0,
     rank: [],
+    resignees: [],
   }
 
   while (true) {
@@ -94,15 +102,24 @@ export const simulateFirstToWinGame = (
       if (sortRank) {
         state.rank.sort(sortRank)
       }
+
       continue
     }
 
     const visit = allVisits.at(state.visitIndex)
+
+    if (visit?.includes('resigned')) {
+      state.resignees.push(state.player)
+      continue // TODO: FIX FOR FORCED RTC
+    }
+
     if (!visit || visit.includes(null)) break
   }
 
   return {
     ...state,
-    playersLeft: game.players.filter((p) => !state.rank.includes(p)),
+    playersLeft: game.players.filter(
+      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+    ),
   }
 }

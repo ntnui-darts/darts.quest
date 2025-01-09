@@ -49,7 +49,9 @@ export const getCricketController = (
     },
 
     speakVisit(visit, leg) {
-      const hits = visit.filter((s) => s != null && s.sector > 0).length
+      const hits = visit.filter(
+        (s) => s != null && s != 'resigned' && s.sector > 0
+      ).length
       let text = `${hits} hits`
 
       const gameState = this.getGameState()
@@ -69,6 +71,7 @@ const simulateCricket = (game: Game) => {
     prevPlayer: null,
     visitIndex: 0,
     rank: [],
+    resignees: [],
   }
 
   const sectors = [15, 16, 17, 18, 19, 20, 25]
@@ -79,7 +82,10 @@ const simulateCricket = (game: Game) => {
     scorePrev: 0,
     hits: new Map<number, number>(),
   }))
-  const playersLeft = () => players.filter((p) => !state.rank.includes(p.id))
+  const playersLeft = () =>
+    players.filter(
+      (p) => !state.rank.includes(p.id) && !state.resignees.includes(p.id)
+    )
 
   while (true) {
     state = nextState(game.players, state)
@@ -99,7 +105,7 @@ const simulateCricket = (game: Game) => {
     player.scorePrev = player.score
 
     for (const segment of visit) {
-      if (segment == null) continue
+      if (segment == null || segment == 'resigned') continue
 
       const prevHits = player.hits.get(segment.sector) ?? 0
       const totalHits = prevHits + segment.multiplier
@@ -140,7 +146,9 @@ const simulateCricket = (game: Game) => {
 
   return {
     ...state,
-    playersLeft: game.players.filter((p) => !state.rank.includes(p)),
+    playersLeft: game.players.filter(
+      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+    ),
     players,
     unlocks,
   }

@@ -83,7 +83,7 @@ export const getRtcController = (game: Game): RtcController => {
     },
 
     getSegmentText(segment) {
-      return segment ? `${segment.sector}` : '-'
+      return (segment && segment != 'resigned') ? `${segment.sector}` : '-'
     },
 
     getSequence() {
@@ -99,7 +99,7 @@ export const getRtcController = (game: Game): RtcController => {
     },
 
     speakVisit(visit) {
-      const score = visit.filter((v) => v && v.sector > 0).length
+      const score = visit.filter((s) => (s && s != 'resigned') && s.sector > 0).length
       if (!score) speak('No score!')
       else speak(`${score}!`)
     },
@@ -124,8 +124,8 @@ export const getRtcLegScore = (game: Game, visits: Visit[]) => {
 const getVisitScore = (game: Game, visit: Visit) => {
   const isFast = getTypeAttribute<Boolean>(game, 'fast', false)
   return sumNumbers(
-    visit.map((seg) =>
-      seg ? (isFast ? seg.multiplier : Math.min(1, seg.sector)) : 0
+    visit.map((s) =>
+      (s && s != 'resigned') ? (isFast ? s.multiplier : Math.min(1, s.sector)) : 0
     )
   )
 }
@@ -142,8 +142,9 @@ export const getRtcHitRate = (visits: Visit[]) => {
 
 export const sectorsHit = (visits: Visit[]) => {
   const sectors = new Set()
+
   visits.flat().forEach((s) => {
-    if (s && s.sector > 0) {
+    if ((s && s != 'resigned') && s.sector > 0) {
       sectors.add(s.sector)
     }
   })
@@ -156,14 +157,15 @@ export const rtcStats = (visits: Visit[]) => {
   const missCountList = Array(20).fill(0)
   const hitCountList = Array(20).fill(0)
   for (let i = 0; i < visitsFlat.length; i++) {
-    const visit = visitsFlat[i]
-    if (!visit) {
+    const segment = visitsFlat[i]
+    if (!segment || segment == "resigned") {
       continue
     }
-    if (visit.sector == 0) {
+    
+    if (segment.sector == 0) {
       count++
     } else {
-      const index = numbers.indexOf(visit.sector)
+      const index = numbers.indexOf(segment.sector)
       missCountList[index] += count
       hitCountList[index] += 1
       count = 0
@@ -179,7 +181,7 @@ export const getMaxStreak = (visits: Visit[]) => {
   let currentRtcStreak = 0
   let maxRtcStreak = 0
   visits.flat().forEach((s) => {
-    if (s != null && s.sector != 0) {
+    if (s != null && s != 'resigned' && s.sector != 0) {
       currentRtcStreak += 1
       maxRtcStreak = Math.max(maxRtcStreak, currentRtcStreak)
     } else {

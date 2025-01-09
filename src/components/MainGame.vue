@@ -90,6 +90,18 @@
           >{{ getEloText(id) }}</span
         >
       </li>
+      <li
+        v-for="id in gameState?.resignees"
+        style="display: flex; justify-content: space-between"
+      >
+        <span> ?. {{ gameState?.getUserResultText(id) }} </span>
+        <span
+          v-if="getEloText && getEloColor"
+          style="margin-left: 1em"
+          :style="{ color: getEloColor(id) }"
+          >{{ getEloText(id) }}</span
+        >
+      </li>
     </ol>
     <div v-if="showSave" class="col">
       <button @click="emit('save')">Save Game</button>
@@ -135,8 +147,10 @@ const usersStore = useUsersStore()
 const allPlayersFinished = computed(
   () => (props.game?.legs.length ?? 0) == (props.gameState?.rank.length ?? 0)
 )
-const somePlayersFinished = computed(
-  () => (props.gameState?.rank.length ?? 0) > 0
+const somePlayersFinished = computed(() =>
+  props.gameState
+    ? props.gameState.rank.length + props.gameState.resignees.length > 0
+    : false
 )
 const displayVisit = computed(() => {
   if (!props.game || !props.gameState?.player)

@@ -1,6 +1,6 @@
 import type { GameType } from '@/games/games'
 import { supabase } from '@/supabase'
-import type { Game } from '@/types/game'
+import type { Game, GameState } from '@/types/game'
 import { Database } from '@/types/supabase'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
@@ -24,7 +24,11 @@ export const useEloStore = defineStore('elo', {
   }),
 
   actions: {
-    async updateEloFromGame(game: Game, upsert: boolean) {
+    async updateEloFromGame(
+      game: Game,
+      upsert: boolean,
+      gameState?: GameState | null
+    ) {
       const eloPlayers: { id: string; elo: number }[] = []
 
       for (const id of game.players) {
@@ -38,11 +42,19 @@ export const useEloStore = defineStore('elo', {
           if (player.id == other.id) continue
           const index = game.result.indexOf(player.id)
           const otherIndex = game.result.indexOf(other.id)
-          if (index == -1 && otherIndex == -1) continue
           let result = 0
-          if (index < otherIndex) result = 1
-          if (otherIndex == -1) result = 1
-          if (index == -1) result = 0
+          if (index == -1 && otherIndex == -1) {
+            if (!gameState) continue
+            const playerResigned = gameState.resignees.includes(player.id)
+            const otherResigned = gameState.resignees.includes(other.id)
+            if (!playerResigned && otherResigned) {
+              result = 1
+            }
+          } else {
+            if (index < otherIndex) result = 1
+            if (otherIndex == -1) result = 1
+            if (index == -1) result = 0
+          }
           const expected = getExpectedResult(player.elo, other.elo)
           eloDelta += getEloDelta(expected, result)
         }

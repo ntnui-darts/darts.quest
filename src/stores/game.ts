@@ -5,6 +5,7 @@ import {
   GameController,
   Game as GameData,
   GameState,
+  Resigned,
   Segment,
   Visit,
   getLegOfUser,
@@ -74,7 +75,7 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    saveScore(segment: Segment) {
+    saveScore(segment: Segment | Resigned) {
       if (!this.game) throw Error()
       if (!this.getCurrentLeg) throw Error()
       if (!this.gameState) throw Error()

@@ -103,6 +103,7 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
         player: killers[i].userId,
         prevPlayer: null,
         rank: [],
+        resignees: [],
         playersLeft: killers.map((p) => p.userId),
         killers,
       }
@@ -114,6 +115,7 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
     prevPlayer: null,
     visitIndex: 0,
     rank: [],
+    resignees: [],
   }
   const gamePoints = getGamePoints(game)
   const players = killers
@@ -150,7 +152,7 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
     for (const segment of visit) {
       if (winIfAlone()) break
 
-      if (!segment) break
+      if (!segment || segment == 'resigned') break
       const playerHit = killersLeft().find((p) => p.sector == segment.sector)
       if (!playerHit) continue
 
@@ -185,6 +187,8 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
   return {
     ...state,
     killers,
-    playersLeft: players.filter((p) => !state.rank.includes(p)),
+    playersLeft: players.filter(
+      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+    ),
   }
 }
