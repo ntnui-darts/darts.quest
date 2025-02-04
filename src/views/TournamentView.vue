@@ -387,7 +387,7 @@ const onDownloadBracket = () => {
     const columnWidth = divElement.children[0].getBoundingClientRect().width
     const imageWidth = Math.ceil(numRounds * columnWidth + numRounds * fontSize)
     htmlToPng(divElement, {
-      backgroundColor: 'var(--c-background)',
+      backgroundColor: '#242424', // var(--c-background)
       width: imageWidth,
       style: {
         justifyContent: 'space-evenly',
