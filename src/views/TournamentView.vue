@@ -105,7 +105,7 @@
 
     <template v-if="finalWinner">
       <h2>👑 {{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
-      <button @click="onDownloadBracket">Download bracket</button>
+      <button @click="onDownloadBracket">Export as image</button>
     </template>
     <br />
 
