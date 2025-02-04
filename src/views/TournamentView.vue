@@ -19,7 +19,7 @@
     </div>
     <div
       id="tournament-bracket"
-      ref="tournamentBracket"
+      ref="tournamentBracketDiv"
       style="
         display: flex;
         flex-direction: row;
@@ -374,9 +374,9 @@ const onDeleteTournament = async () => {
 }
 
 const onDownloadBracket = () => {
-  if (!tournamentBracketDiv.value) return
-
   const divElement = tournamentBracketDiv.value
+  if (!divElement) return
+
   // get font size to convert em to pixels
   // (flex gap between columns is specified in em)
   const fontSize = parseFloat(
