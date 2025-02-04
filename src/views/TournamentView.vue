@@ -18,6 +18,8 @@
       <button style="flex: 0" @click="refreshTournamentState">Refresh</button>
     </div>
     <div
+      id="tournament-bracket"
+      ref="tournamentBracketDiv"
       style="
         display: flex;
         flex-direction: row;
@@ -103,6 +105,7 @@
 
     <template v-if="finalWinner">
       <h2>👑 {{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
+      <button @click="onDownloadBracket">Export as image</button>
     </template>
     <br />
 
@@ -138,6 +141,7 @@ import {
 } from '@/stores/tournament'
 import { useUsersStore } from '@/stores/users'
 import { supabase } from '@/supabase'
+import { toPng as htmlToPng } from 'html-to-image'
 import { computed, onMounted, ref } from 'vue'
 
 type TournamentState = Awaited<ReturnType<typeof getTournamentState>>
@@ -155,6 +159,8 @@ const tournamentGames = ref<
     players: string[]
   }[]
 >([])
+
+const tournamentBracketDiv = ref<HTMLDivElement | null>(null)
 
 onMounted(async () => {
   if (!tournament.value) {
@@ -365,5 +371,37 @@ const onDeleteTournament = async () => {
     },
     {}
   )
+}
+
+const onDownloadBracket = () => {
+  const divElement = tournamentBracketDiv.value
+  if (!divElement) return
+
+  // get font size to convert em to pixels
+  // (flex gap between columns is specified in em)
+  const fontSize = parseFloat(
+    window
+      .getComputedStyle(divElement.parentElement as HTMLElement, null)
+      .getPropertyValue('font-size')
+  )
+  const numRounds = tournamentState.value.grid.length
+  const columnWidth = divElement.children[0].getBoundingClientRect().width
+  const imageWidth = Math.ceil(numRounds * columnWidth + numRounds * fontSize)
+  htmlToPng(divElement, {
+    backgroundColor: '#242424', // var(--c-background)
+    width: imageWidth,
+    style: {
+      justifyContent: 'space-evenly',
+    },
+  }).then((dataUrl) => {
+    // download on click
+    const link = document.createElement('a')
+    link.hidden = true
+    link.download = `${tournament.value?.name}.png`
+    link.href = dataUrl
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  })
 }
 </script>
