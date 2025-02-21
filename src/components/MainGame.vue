@@ -42,7 +42,7 @@
         >
           {{ usersStore.getName(userId) }}
           <br />
-          {{ gameState?.getUserDisplayText(userId) }}
+          <span style="font-size=large">{{ gameState?.getUserDisplayText(userId) }}</span>
         </button>
       </div>
       <div class="row" style="margin: 0 1em">
