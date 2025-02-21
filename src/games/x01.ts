@@ -37,8 +37,7 @@ export const getX01Controller = (game: Game): GameController<GameState> => {
         getUserDisplayText(userId) {
           const visits = getVisitsOfUser(game, userId)
           const rest = getGamePoints(game) - getX01LegScore(visits, game)
-          const avg = getAvgVisitScore(visits, game).toFixed(1)
-          return `${rest}\t(${avg})`
+          return `${rest}`
         },
 
         getTopRightText() {
