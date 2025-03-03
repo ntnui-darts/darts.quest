@@ -44,7 +44,7 @@ import { ref } from 'vue'
 import CheckoutCombination from './CheckoutCombination.vue'
 
 type CheckoutType = '2 darts' | '3 darts'
-const CheckoutTypes = ['2 darts', '3 darts'] satisfies Array<CheckoutType>
+const CheckoutTypes = ['2 darts', '3 darts'] satisfies CheckoutType[]
 
 const currentCheckoutType = ref<CheckoutType>('2 darts')
 
