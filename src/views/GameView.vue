@@ -15,6 +15,12 @@
   >
     Quit
   </button>
+  <button
+    v-if="gameStore.game && gameStore.game.type === 'x01' && finishType === 2"
+    @click="showCheckoutCard"
+  >
+    Checkout Card
+  </button>
 
   <MainGame
     v-if="gameStore.game && gameStore.gameState"
@@ -56,6 +62,7 @@
 import MainGame from '@/components/MainGame.vue'
 import Prompt from '@/components/Prompt.vue'
 import Youtube from '@/components/Youtube.vue'
+import CheckoutCard from '@/components/CheckoutCard.vue'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { useEloStore } from '@/stores/elo'
@@ -67,6 +74,7 @@ import { useOptionsStore } from '@/stores/options'
 import { roundToNDecimals } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { getTypeAttribute } from '@/types/game'
 
 const gameStore = useGameStore()
 const loadingStore = useLoadingStore()
@@ -78,6 +86,10 @@ const eloDeltas = ref<{ userId: string; eloDelta: number }[]>([])
 const spectators = computed(() =>
   onlineStore.presences.filter((p) => p.spectating == authStore.auth?.id)
 )
+
+const finishType: number = gameStore.game
+  ? getTypeAttribute(gameStore.game, 'finish', 1)
+  : 1
 
 onMounted(async () => {
   if (!gameStore.game) {
@@ -197,5 +209,10 @@ const getEloColor = (userId: string) => {
     : eloDelta > 0
     ? 'var(--c-green)'
     : 'var(--c-red)'
+}
+
+const showCheckoutCard = () => {
+  if (!gameStore.game) return
+  useModalStore().push(CheckoutCard, {}, {})
 }
 </script>
