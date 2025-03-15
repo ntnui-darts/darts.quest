@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(label,i) in rounds" >
+          <tr v-for="(label, i) in rounds">
             <td>{{ label }}</td>
             <td>{{ tournament.setsPerMatchArray?.at(i) }}</td>
             <td>{{ tournament.legsPerSetArray?.at(i) }}</td>
@@ -67,7 +67,7 @@
                 👑
               </div>
               <div>
-                {{ stringMaxLength(usersStore.getName(player?.id),14) }}
+                {{ stringMaxLength(usersStore.getName(player?.id), 14) }}
               </div>
               <template v-if="player && x < tournamentState.grid.length - 1">
                 <div v-if="tournament.setsPerMatchArray?.at(x) == 1">
@@ -192,30 +192,30 @@ onMounted(async () => {
   refreshTournamentState()
 })
 
-const rounds = computed(()=>{
-  if (tournament.value == null){
+const rounds = computed(() => {
+  if (tournament.value == null) {
     return []
   }
 
   const n = tournamentNumberOfRounds(tournament.value.players.length)
-  const roundLabels = Array(n).map((_,i)=>i+'th')
-  if (roundLabels.length>1){
-    roundLabels[0] = "1st" 
+  const roundLabels = Array(n).map((_, i) => i + 'th')
+  if (roundLabels.length > 1) {
+    roundLabels[0] = '1st'
   }
-  if (roundLabels.length>2){
-    roundLabels[1] = "2nd"
+  if (roundLabels.length > 2) {
+    roundLabels[1] = '2nd'
   }
-  if (roundLabels.length>3){
-    roundLabels[2] = "3rd"
+  if (roundLabels.length > 3) {
+    roundLabels[2] = '3rd'
   }
-  if (roundLabels.length>1){
-    roundLabels[n-1] = "Final"
+  if (roundLabels.length > 1) {
+    roundLabels[n - 1] = 'Final'
   }
-  if (roundLabels.length>2){
-    roundLabels[n-2] = "Semi-final"
+  if (roundLabels.length > 2) {
+    roundLabels[n - 2] = 'Semi-final'
   }
-  if (roundLabels.length>3){
-    roundLabels[n-3] = "Quarter-final"
+  if (roundLabels.length > 3) {
+    roundLabels[n - 3] = 'Quarter-final'
   }
   return roundLabels
 })
@@ -254,12 +254,13 @@ const getMatchState = async (
     const [winner, loser] =
       a.id == winnerId ? [a, b] : b.id == winnerId ? [b, a] : [null, null]
     if (!winner || !loser) continue
-    winner.legWins[winner.legWins.length-1] += 1
+    winner.legWins[winner.legWins.length - 1] += 1
     if (
-      winner.legWins[winner.legWins.length-1] >= (tournament.value.legsPerSetArray?.at(matchIndex) ?? 1)
+      winner.legWins[winner.legWins.length - 1] >=
+      (tournament.value.legsPerSetArray?.at(matchIndex) ?? 1)
     ) {
       winner.setWins += 1
-      
+
       if (
         winner.setWins >=
         (tournament.value.setsPerMatchArray?.at(matchIndex) ?? 1)
@@ -267,8 +268,7 @@ const getMatchState = async (
         winner.wonMatch = true
         loser.wonMatch = false
         return winner
-      }
-      else {
+      } else {
         winner.legWins.push(0)
         loser.legWins.push(0)
       }
