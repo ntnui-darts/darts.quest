@@ -7,6 +7,7 @@
     @update-game-type="gameType = $event"
     @update-type-attributes="typeAttributes = $event"
   ></GameSelection>
+
   <div v-if="gameType == 'rtc'">
     <template v-if="!ignore?.includes('numberOfGames')">
       <h2>Number of Games</h2>
@@ -22,6 +23,7 @@
     <h2>RTC Streak</h2>
     <Chart :datasets="rtcStreakDataset"></Chart>
   </div>
+
   <div v-if="gameType == 'x01'">
     <template v-if="!ignore?.includes('numberOfGames')">
       <h2>Number of Games</h2>
@@ -32,6 +34,8 @@
     </template>
     <h2>Elo Rating</h2>
     <Chart :datasets="x01EloDataset"></Chart>
+    <h2>Number of Darts</h2>
+    <Chart :datasets="x01NumberOfDartsDataset"></Chart>
     <h2>First 9 Average</h2>
     <Chart :datasets="x01First9AvgDataset"></Chart>
     <h2>Checkout</h2>
@@ -39,6 +43,7 @@
     <h2>Max Visit Score</h2>
     <Chart :datasets="x01MaxVisitScoreDataset"></Chart>
   </div>
+
   <div v-if="gameType == 'killer'">
     <template v-if="!ignore?.includes('numberOfGames')">
       <h2>Number of Games</h2>
@@ -52,6 +57,7 @@
     <h2>Number of Darts</h2>
     <Chart :datasets="killerDartsDataset"></Chart>
   </div>
+
   <div v-if="gameType == 'skovhugger'">
     <template v-if="!ignore?.includes('numberOfGames')">
       <h2>Number of Games</h2>
@@ -65,6 +71,7 @@
     <h2>Score</h2>
     <Chart :datasets="skovhuggerScoreDataset"></Chart>
   </div>
+
   <div v-if="gameType == 'cricket'">
     <template v-if="!ignore?.includes('numberOfGames')">
       <h2>Number of Games</h2>
@@ -205,6 +212,14 @@ const x01Users = computed(() =>
 const x01NumberOfGamesDataset = computed(() => {
   return getNumberOfGamesDataset(x01Users.value, x01Stats.value, options.value)
 })
+const x01NumberOfDartsDataset = computed(() => {
+  return getDataset(
+    x01Users.value,
+    x01Stats.value.filter((stat) => (stat.checkout ?? 0) > 0),
+    (stat) => stat.darts,
+    options.value
+  )
+})
 const x01First9AvgDataset = computed(() => {
   return getDataset(
     x01Users.value,
@@ -216,7 +231,7 @@ const x01First9AvgDataset = computed(() => {
 const x01CheckoutDataset = computed(() => {
   return getDataset(
     x01Users.value,
-    x01Stats.value,
+    x01Stats.value.filter((stat) => (stat.checkout ?? 0) > 0),
     (stat) => stat.checkout,
     options.value
   )
