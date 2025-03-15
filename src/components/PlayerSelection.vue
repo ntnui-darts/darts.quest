@@ -121,10 +121,10 @@ watch(
   (user) => {
     if (!user) return
     const player = players.value.find((p) => p.id == user.id)
-    if (!player) {
-      players.value.push(user)
-    } else {
+    if (player) {
       Object.assign(player, user)
+    } else if (players.value.length == 0) {
+      players.value.push(user)
     }
   },
   { immediate: true }
