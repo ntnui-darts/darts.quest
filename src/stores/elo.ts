@@ -4,6 +4,7 @@ import type { Game, GameState } from '@/types/game'
 import { Database } from '@/types/supabase'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
+import { useUsersStore } from './users'
 
 export const initialElo = 1000
 const k = 32
@@ -71,6 +72,8 @@ export const useEloStore = defineStore('elo', {
     },
 
     async fetchElo(userId: string, gameType: GameType): Promise<number> {
+      if (!useUsersStore()._users.some((u) => u.id == userId)) return initialElo
+
       const eloResponse = await supabase
         .from('elo')
         .select(gameType)
@@ -84,6 +87,8 @@ export const useEloStore = defineStore('elo', {
     },
 
     async upsertElo(userId: string, gameType: GameType, elo: number) {
+      if (!useUsersStore()._users.some((u) => u.id == userId)) return
+
       await supabase.from('elo').upsert({
         id: userId,
         [gameType]: elo,

@@ -8,6 +8,14 @@
 
   <div class="col" style="height: 400px; overflow: auto">
     <button
+      v-if="!disableCustom"
+      style="font-style: italic"
+      @click="onCustomPlayer"
+    >
+      + Custom player / team
+    </button>
+
+    <button
       v-for="user in searchResultUsers"
       :key="user.id"
       :id="user.id"
@@ -24,12 +32,15 @@
 </template>
 
 <script lang="ts" setup>
+import { useModalStore } from '@/stores/modal'
 import { useOnlineStore } from '@/stores/online'
 import { User, useUsersStore } from '@/stores/users'
 import { computed, onMounted, ref } from 'vue'
+import CustomPlayer from './CustomPlayer.vue'
 
 const props = defineProps<{
   selectedUsers: User[]
+  disableCustom?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -63,6 +74,19 @@ onMounted(() => {
 
 const select = (user: User) => {
   emit('select', user)
+}
+
+const onCustomPlayer = () => {
+  useModalStore().push(
+    CustomPlayer,
+    {},
+    {
+      submit: (user: User) => {
+        select(user)
+        useModalStore().pop()
+      },
+    }
+  )
 }
 </script>
 

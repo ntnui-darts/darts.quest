@@ -2,6 +2,7 @@ import Prompt from '@/components/Prompt.vue'
 import { compareCreatedAt } from '@/functions/compare'
 import { supabase } from '@/supabase'
 import { Database } from '@/types/supabase'
+import { AuthUser } from '@supabase/supabase-js'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
 import { useLoadingStore } from './loading'
@@ -37,14 +38,15 @@ const validateUserParams = async () => {
 
 export const useUsersStore = defineStore('users', {
   state: () => ({
-    users: [] as User[],
+    _users: [] as User[],
+    _customUsers: [] as User[],
   }),
 
   actions: {
     async fetchUsers() {
       const fetchedUsers = (await supabase.from('users').select('*')).data
       if (fetchedUsers) {
-        this.users = fetchedUsers
+        this._users = fetchedUsers
           .filter((user) => user.visible || user.id == useAuthStore().auth?.id)
           .toSorted(compareCreatedAt)
 
@@ -72,10 +74,14 @@ export const useUsersStore = defineStore('users', {
   },
 
   getters: {
-    getCurrentUser: (state) => {
+    users(): User[] {
+      return [...this._users, ...this._customUsers]
+    },
+
+    getCurrentUser(): (User & AuthUser) | null {
       const authUser = useAuthStore().auth
       if (!authUser) return null
-      const user = state.users.find((user) => user.id == authUser?.id)
+      const user = this.users.find((user) => user.id == authUser?.id)
       if (!user) return null
       return {
         ...authUser,
@@ -83,12 +89,16 @@ export const useUsersStore = defineStore('users', {
       }
     },
 
-    getUser: (state) => (id?: string) => {
-      return state.users.find((user) => user.id == id)
+    getUser() {
+      return (id?: string) => {
+        return this.users.find((user) => user.id == id)
+      }
     },
 
-    getName: (state) => (id?: string) => {
-      return state.users.find((user) => user.id == id)?.name ?? 'Unknown'
+    getName() {
+      return (id?: string) => {
+        return this.getUser(id)?.name ?? 'Unknown'
+      }
     },
   },
 })

@@ -2,23 +2,18 @@
   <button id="back" @click="router.push({ name: 'home' })">Back</button>
   <h1>Statistics</h1>
   <div class="row options">
-    <button :class="{ selected: tab == 'personal' }" @click="tab = 'personal'">
-      Personal
-    </button>
-    <button :class="{ selected: tab == 'tables' }" @click="tab = 'tables'">
-      Global Tables
-    </button>
-    <button :class="{ selected: tab == 'graphs' }" @click="tab = 'graphs'">
-      Global Graphs
-    </button>
-    <button :class="{ selected: tab == 'beer' }" @click="tab = 'beer'">
-      Beer
+    <button
+      v-for="{ tab, text } in tabs"
+      :class="{ selected: tabSelected == tab }"
+      @click="tabSelected = tab"
+    >
+      {{ text }}
     </button>
   </div>
-  <PersonalStatistics v-if="tab == 'personal'"></PersonalStatistics>
-  <TableStatistics v-if="tab == 'tables'"></TableStatistics>
-  <GraphStatistics v-if="tab == 'graphs'"></GraphStatistics>
-  <BeerStatistics v-if="tab == 'beer'"></BeerStatistics>
+  <PersonalStatistics v-if="tabSelected == 'personal'"></PersonalStatistics>
+  <TableStatistics v-if="tabSelected == 'tables'"></TableStatistics>
+  <GraphStatistics v-if="tabSelected == 'graphs'"></GraphStatistics>
+  <BeerStatistics v-if="tabSelected == 'beer'"></BeerStatistics>
 </template>
 
 <script lang="ts" setup>
@@ -29,5 +24,12 @@ import TableStatistics from '@/components/TableStatistics.vue'
 import { router } from '@/router'
 import { ref } from 'vue'
 
-const tab = ref<'personal' | 'tables' | 'graphs' | 'beer'>('personal')
+const tabSelected = ref<'personal' | 'tables' | 'graphs' | 'beer'>('personal')
+
+const tabs = [
+  { tab: 'personal', text: 'Personal' },
+  { tab: 'tables', text: 'Global Tables' },
+  { tab: 'graphs', text: 'Global Graphs' },
+  { tab: 'beer', text: 'Beer' },
+] as const
 </script>

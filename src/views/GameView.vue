@@ -185,8 +185,10 @@ watch(
     gameStore.gameState?.result.length,
     gameStore.gameState?.resignees.length,
   ],
-  async () => {
+  async (now, prev) => {
     if (!gameStore.game) return
+    if (now[0] == prev[0] && now[1] == prev[1]) return
+
     eloDeltas.value = await useEloStore().updateEloFromGame(
       gameStore.game,
       false,

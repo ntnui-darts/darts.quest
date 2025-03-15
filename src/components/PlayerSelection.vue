@@ -1,5 +1,5 @@
 <template>
-  <h2>Select Players</h2>
+  <h2 v-if="!hideTitle">Select Players</h2>
   <div class="col" v-auto-animate>
     <button
       v-for="user in players"
@@ -52,7 +52,12 @@ export type UserCurrentInfo = User & {
 
 const players = defineModel<UserCurrentInfo[]>('players', { required: true })
 
-defineProps<{ readonly?: boolean }>()
+const props = defineProps<{
+  readonly?: boolean
+  hideTitle?: boolean
+  disableAuto?: boolean
+  disableCustom?: boolean
+}>()
 
 const usersStore = useUsersStore()
 const draggedUser = ref<UserCurrentInfo | null>(null)
@@ -63,14 +68,16 @@ const clearPlayers = () => {
     players.value.splice(0, players.value.length)
   } else {
     players.value.splice(0, players.value.length)
-    players.value.push(usersStore.getCurrentUser)
+    if (!props.disableAuto) {
+      players.value.push(usersStore.getCurrentUser)
+    }
   }
 }
 
 const searchForPlayer = () => {
   useModalStore().push(
     PlayerSearch,
-    { selectedUsers: players.value },
+    { selectedUsers: players.value, disableCustom: props.disableCustom },
     {
       select: (user) => {
         usersStore.recordUserSelection(user.id)
@@ -119,6 +126,7 @@ const dragUser = (from: UserCurrentInfo | null, to: UserCurrentInfo) => {
 watch(
   () => usersStore.getCurrentUser,
   (user) => {
+    if (props.disableAuto) return
     if (!user) return
     const player = players.value.find((p) => p.id == user.id)
     if (player) {
