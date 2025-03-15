@@ -5,10 +5,10 @@
     <button :class="{ selected: tab == 'personal' }" @click="tab = 'personal'">
       Personal
     </button>
-    <button :class="{ selected: tab == 'global' }" @click="tab = 'global'">
+    <button :class="{ selected: tab == 'tables' }" @click="tab = 'tables'">
       Global Tables
     </button>
-    <button :class="{ selected: tab == 'history' }" @click="tab = 'history'">
+    <button :class="{ selected: tab == 'graphs' }" @click="tab = 'graphs'">
       Global Graphs
     </button>
     <button :class="{ selected: tab == 'beer' }" @click="tab = 'beer'">
@@ -16,18 +16,18 @@
     </button>
   </div>
   <PersonalStatistics v-if="tab == 'personal'"></PersonalStatistics>
-  <GlobalStatistics v-if="tab == 'global'"></GlobalStatistics>
-  <HistoryStatistics v-if="tab == 'history'"></HistoryStatistics>
+  <TableStatistics v-if="tab == 'tables'"></TableStatistics>
+  <GraphStatistics v-if="tab == 'graphs'"></GraphStatistics>
   <BeerStatistics v-if="tab == 'beer'"></BeerStatistics>
 </template>
 
 <script lang="ts" setup>
 import BeerStatistics from '@/components/BeerStatistics.vue'
-import GlobalStatistics from '@/components/GlobalStatistics.vue'
-import HistoryStatistics from '@/components/HistoryStatistics.vue'
+import GraphStatistics from '@/components/GraphStatistics.vue'
 import PersonalStatistics from '@/components/PersonalStatistics.vue'
+import TableStatistics from '@/components/TableStatistics.vue'
 import { router } from '@/router'
 import { ref } from 'vue'
 
-const tab = ref<'global' | 'personal' | 'history' | 'beer'>('personal')
+const tab = ref<'personal' | 'tables' | 'graphs' | 'beer'>('personal')
 </script>
