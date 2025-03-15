@@ -1,8 +1,10 @@
 import { compareCreatedAt } from '@/functions/compare'
+import { GameType } from '@/games/games'
 import { useAuthStore } from '@/stores/auth'
 import { useEloStore } from '@/stores/elo'
 import { supabase } from '@/supabase'
 import { DbGame, Game } from '@/types/game'
+import { Database } from '@/types/supabase'
 
 const email = import.meta.env.VITE_EMAIL
 const password = import.meta.env.VITE_PASSWORD
@@ -42,7 +44,7 @@ export const setElo = async () => {
         continue
       }
       await supabase
-        .from(`statistics_${game.type}`)
+        .from(getStatisticsTable(game.type as GameType))
         .update({ eloDelta: eloDelta.eloDelta })
         .eq('id', legIdResponse.data[0].id)
     }
@@ -51,3 +53,19 @@ export const setElo = async () => {
   }
   console.log('Completed migration')
 }
+
+const getStatisticsTable = (gameType: GameType): keyof Database['public']['Tables'] => {
+  switch (gameType)
+  {
+    case 'cricket':
+      return 'statistics_cricket'
+    case 'x01':
+      return 'statistics_x01'
+    case 'skovhugger':
+      return 'statistics_skovhugger'
+    case 'rtc':
+        return 'statistics_rtc'
+    case 'killer':
+        return 'statistics_killer'
+  }
+} 
