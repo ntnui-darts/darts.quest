@@ -50,7 +50,7 @@ export const useGameStore = defineStore('game', {
     refreshGameState() {
       this.gameState = this.getController().getGameState()
       if (this.game) {
-        this.game.result = this.gameState.rank
+        this.game.result = this.gameState.result
       }
       useOnlineStore().sendGame()
       this.tryPlayWalkOn()
@@ -81,7 +81,7 @@ export const useGameStore = defineStore('game', {
       if (!this.gameState) throw Error()
       const player = this.gameState?.player
       if (!player) throw Error('No current user')
-      if (this.gameState.rank.includes(player))
+      if (this.gameState.result.includes(player))
         throw Error('User has already finished')
 
       let visit = this.getCurrentLeg.visits.at(-1)

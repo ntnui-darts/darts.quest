@@ -42,7 +42,7 @@ export const getRtcController = (game: Game): RtcController => {
         return reachedTargetScore
       }
       // Only forced mode games are sorted by score
-      const sortRank = isForced
+      const sortResult = isForced
         ? (a: string, b: string) => {
             return (
               getRtcLegScore(game, getVisitsOfUser(game, b)) -
@@ -52,7 +52,7 @@ export const getRtcController = (game: Game): RtcController => {
         : undefined
 
       return {
-        ...simulateFirstToWinGame(game, winCondition, sortRank),
+        ...simulateFirstToWinGame(game, winCondition, sortResult),
 
         getUserResultText(userId) {
           const name = useUsersStore().getName(userId)
@@ -83,7 +83,7 @@ export const getRtcController = (game: Game): RtcController => {
     },
 
     getSegmentText(segment) {
-      return (segment && segment != 'resigned') ? `${segment.sector}` : '-'
+      return segment && segment != 'resigned' ? `${segment.sector}` : '-'
     },
 
     getSequence() {
@@ -99,7 +99,9 @@ export const getRtcController = (game: Game): RtcController => {
     },
 
     speakVisit(visit) {
-      const score = visit.filter((s) => (s && s != 'resigned') && s.sector > 0).length
+      const score = visit.filter(
+        (s) => s && s != 'resigned' && s.sector > 0
+      ).length
       if (!score) speak('No score!')
       else speak(`${score}!`)
     },
@@ -125,7 +127,7 @@ const getVisitScore = (game: Game, visit: Visit) => {
   const isFast = getTypeAttribute<Boolean>(game, 'fast', false)
   return sumNumbers(
     visit.map((s) =>
-      (s && s != 'resigned') ? (isFast ? s.multiplier : Math.min(1, s.sector)) : 0
+      s && s != 'resigned' ? (isFast ? s.multiplier : Math.min(1, s.sector)) : 0
     )
   )
 }
@@ -144,7 +146,7 @@ export const sectorsHit = (visits: Visit[]) => {
   const sectors = new Set()
 
   visits.flat().forEach((s) => {
-    if ((s && s != 'resigned') && s.sector > 0) {
+    if (s && s != 'resigned' && s.sector > 0) {
       sectors.add(s.sector)
     }
   })
@@ -158,10 +160,10 @@ export const rtcStats = (visits: Visit[]) => {
   const hitCountList = Array(20).fill(0)
   for (let i = 0; i < visitsFlat.length; i++) {
     const segment = visitsFlat[i]
-    if (!segment || segment == "resigned") {
+    if (!segment || segment == 'resigned') {
       continue
     }
-    
+
     if (segment.sector == 0) {
       count++
     } else {

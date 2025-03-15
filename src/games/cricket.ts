@@ -70,7 +70,7 @@ const simulateCricket = (game: Game) => {
     player: null,
     prevPlayer: null,
     visitIndex: 0,
-    rank: [],
+    result: [],
     resignees: [],
   }
 
@@ -84,7 +84,7 @@ const simulateCricket = (game: Game) => {
   }))
   const playersLeft = () =>
     players.filter(
-      (p) => !state.rank.includes(p.id) && !state.resignees.includes(p.id)
+      (p) => !state.result.includes(p.id) && !state.resignees.includes(p.id)
     )
 
   while (true) {
@@ -94,8 +94,8 @@ const simulateCricket = (game: Game) => {
       break // all players have finished
     }
 
-    if (state.rank.length >= players.length - 1) {
-      state.rank.push(player.id)
+    if (state.result.length >= players.length - 1) {
+      state.result.push(player.id)
       break
     }
 
@@ -127,7 +127,7 @@ const simulateCricket = (game: Game) => {
     }
 
     if (sectors.every((s) => (unlocks.get(s) ?? 0) == players.length)) {
-      state.rank = players
+      state.result = players
         .toSorted((a, b) => b.score - a.score)
         .map((p) => p.id)
       break
@@ -137,7 +137,7 @@ const simulateCricket = (game: Game) => {
       sectors.every((s) => (player.hits.get(s) ?? 0) >= 3) &&
       player.score == Math.max(...playersLeft().map((p) => p.score))
     ) {
-      state.rank.push(player.id)
+      state.result.push(player.id)
       continue
     }
 
@@ -147,7 +147,7 @@ const simulateCricket = (game: Game) => {
   return {
     ...state,
     playersLeft: game.players.filter(
-      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+      (p) => !state.result.includes(p) && !state.resignees.includes(p)
     ),
     players,
     unlocks,

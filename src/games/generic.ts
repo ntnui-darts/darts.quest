@@ -40,7 +40,7 @@ export type SimulationState = {
   prevPlayer: null | string
   player: null | string
   visitIndex: number
-  rank: string[]
+  result: string[]
   resignees: string[]
 }
 
@@ -55,11 +55,11 @@ export const nextState = (
       prevPlayer: null,
       player: players[0],
       visitIndex: 0,
-      rank: [],
+      result: [],
       resignees: [],
     }
   state.prevPlayer = state.player
-  if (state.rank.length + state.resignees.length == players.length) {
+  if (state.result.length + state.resignees.length == players.length) {
     state.player = null
     return state
   }
@@ -69,7 +69,10 @@ export const nextState = (
   if (nextIndex == 0) state.visitIndex += 1
   const nextPlayer = players[nextIndex]
 
-  if (state.rank.includes(nextPlayer) || state.resignees.includes(nextPlayer)) {
+  if (
+    state.result.includes(nextPlayer) ||
+    state.resignees.includes(nextPlayer)
+  ) {
     return nextState(players, state, nextIndex)
   }
   state.player = players[nextIndex]
@@ -79,13 +82,13 @@ export const nextState = (
 export const simulateFirstToWinGame = (
   game: Game,
   winCondition: (game: Game, visits: Visit[]) => boolean,
-  sortRank?: (a: string, b: string) => number
+  sortResult?: (a: string, b: string) => number
 ) => {
   let state: SimulationState = {
     player: null,
     prevPlayer: null,
     visitIndex: 0,
-    rank: [],
+    result: [],
     resignees: [],
   }
 
@@ -98,9 +101,9 @@ export const simulateFirstToWinGame = (
     const visits = allVisits.slice(0, state.visitIndex + 1)
 
     if (winCondition(game, visits)) {
-      state.rank.push(state.player)
-      if (sortRank) {
-        state.rank.sort(sortRank)
+      state.result.push(state.player)
+      if (sortResult) {
+        state.result.sort(sortResult)
       }
 
       continue
@@ -119,7 +122,7 @@ export const simulateFirstToWinGame = (
   return {
     ...state,
     playersLeft: game.players.filter(
-      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+      (p) => !state.result.includes(p) && !state.resignees.includes(p)
     ),
   }
 }

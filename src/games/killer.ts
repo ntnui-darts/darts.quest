@@ -102,7 +102,7 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
       return {
         player: killers[i].userId,
         prevPlayer: null,
-        rank: [],
+        result: [],
         resignees: [],
         playersLeft: killers.map((p) => p.userId),
         killers,
@@ -114,7 +114,7 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
     player: null,
     prevPlayer: null,
     visitIndex: 0,
-    rank: [],
+    result: [],
     resignees: [],
   }
   const gamePoints = getGamePoints(game)
@@ -128,7 +128,7 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
       break // all players have finished
     }
     const killersLeft = () =>
-      killers.filter((k) => !state.rank.includes(k.userId))
+      killers.filter((k) => !state.result.includes(k.userId))
     const killer = killersLeft().find((k) => k.userId == state.player)
     if (!killer) {
       throw Error()
@@ -137,10 +137,10 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
     const winIfAlone = () => {
       if (
         state.player &&
-        !state.rank.includes(state.player) &&
-        state.rank.length >= players.length - 1
+        !state.result.includes(state.player) &&
+        state.result.length >= players.length - 1
       ) {
-        state.rank.unshift(state.player)
+        state.result.unshift(state.player)
         return true
       }
       return false
@@ -160,12 +160,12 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
         playerHit.points += segment.multiplier
 
         if (playerHit.points > gamePoints) {
-          state.rank.unshift(state.player)
+          state.result.unshift(state.player)
           break
         } else if (playerHit.points == gamePoints) {
           killersLeft().forEach((k) => {
             if (k.points == 0) {
-              state.rank.unshift(k.userId)
+              state.result.unshift(k.userId)
             }
           })
         }
@@ -173,13 +173,13 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
         playerHit.points -= segment.multiplier
 
         if (playerHit.points <= 0) {
-          state.rank.unshift(playerHit.userId)
+          state.result.unshift(playerHit.userId)
         }
       }
     }
 
     winIfAlone()
-    if (state.rank.includes(state.player)) continue
+    if (state.result.includes(state.player)) continue
 
     if (visit.includes(null)) break
   }
@@ -188,7 +188,7 @@ const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
     ...state,
     killers,
     playersLeft: players.filter(
-      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+      (p) => !state.result.includes(p) && !state.resignees.includes(p)
     ),
   }
 }

@@ -39,7 +39,7 @@ export type Game = Prettify<
 >
 
 export interface GameState {
-  rank: string[]
+  result: string[]
   resignees: string[]
   player: string | null
   prevPlayer: string | null

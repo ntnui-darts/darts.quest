@@ -59,10 +59,10 @@
 </template>
 
 <script lang="ts" setup>
+import CheckoutCard from '@/components/CheckoutCard.vue'
 import MainGame from '@/components/MainGame.vue'
 import Prompt from '@/components/Prompt.vue'
 import Youtube from '@/components/Youtube.vue'
-import CheckoutCard from '@/components/CheckoutCard.vue'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { useEloStore } from '@/stores/elo'
@@ -73,8 +73,8 @@ import { useOnlineStore } from '@/stores/online'
 import { useOptionsStore } from '@/stores/options'
 import { roundToNDecimals } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { getTypeAttribute } from '@/types/game'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const gameStore = useGameStore()
 const loadingStore = useLoadingStore()
@@ -182,7 +182,7 @@ const saveGame = async () => {
 
 watch(
   () => [
-    gameStore.gameState?.rank.length,
+    gameStore.gameState?.result.length,
     gameStore.gameState?.resignees.length,
   ],
   async () => {

@@ -117,7 +117,8 @@ const updatePlayers = () => {
   players.value =
     props.gameController
       .getKillerPlayers()
-      .filter((player) => !props.gameState?.rank.includes(player.userId)) ?? []
+      .filter((player) => !props.gameState?.result.includes(player.userId)) ??
+    []
 }
 
 onMounted(() => {

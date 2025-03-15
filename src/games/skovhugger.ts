@@ -72,7 +72,7 @@ const simulateSkovhugger = (game: Game) => {
     player: null,
     prevPlayer: null,
     visitIndex: 0,
-    rank: [],
+    result: [],
     resignees: [],
   }
 
@@ -83,8 +83,8 @@ const simulateSkovhugger = (game: Game) => {
     }
 
     if (state.visitIndex == 12) {
-      state.rank.push(state.player)
-      state.rank.sort(
+      state.result.push(state.player)
+      state.result.sort(
         (a, b) =>
           getSkovhuggerScore(getVisitsOfUser(game, b)) -
           getSkovhuggerScore(getVisitsOfUser(game, a))
@@ -101,7 +101,7 @@ const simulateSkovhugger = (game: Game) => {
   return {
     ...state,
     playersLeft: game.players.filter(
-      (p) => !state.rank.includes(p) && !state.resignees.includes(p)
+      (p) => !state.result.includes(p) && !state.resignees.includes(p)
     ),
   }
 }

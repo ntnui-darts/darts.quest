@@ -42,7 +42,9 @@
         >
           {{ usersStore.getName(userId) }}
           <br />
-          <span style="font-size: xx-large">{{ gameState?.getUserDisplayText(userId) }}</span>
+          <span style="font-size: xx-large">{{
+            gameState?.getUserDisplayText(userId)
+          }}</span>
         </button>
       </div>
       <div class="row" style="margin: 0 1em">
@@ -79,7 +81,7 @@
     <h2>Results</h2>
     <ol>
       <li
-        v-for="(id, i) in gameState?.rank"
+        v-for="(id, i) in gameState?.result"
         style="display: flex; justify-content: space-between"
       >
         <span> {{ i + 1 }}. {{ gameState?.getUserResultText(id) }} </span>
@@ -145,11 +147,11 @@ const emit = defineEmits<{
 const usersStore = useUsersStore()
 
 const allPlayersFinished = computed(
-  () => (props.game?.legs.length ?? 0) == (props.gameState?.rank.length ?? 0)
+  () => (props.game?.legs.length ?? 0) == (props.gameState?.result.length ?? 0)
 )
 const somePlayersFinished = computed(() =>
   props.gameState
-    ? props.gameState.rank.length + props.gameState.resignees.length > 0
+    ? props.gameState.result.length + props.gameState.resignees.length > 0
     : false
 )
 const displayVisit = computed(() => {
