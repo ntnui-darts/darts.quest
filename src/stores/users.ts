@@ -60,6 +60,8 @@ export const useUsersStore = defineStore('users', {
     },
 
     recordUserSelection(userId: string) {
+      if (!this._users.some((user) => user.id == userId)) return
+
       const userSelectionHistory = this.getUserSelectionHistory()
       const index = userSelectionHistory.indexOf(userId)
       if (index >= 0) {

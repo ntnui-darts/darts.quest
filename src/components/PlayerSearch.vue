@@ -60,7 +60,7 @@ const searchResultUsers = computed(() => {
 
   return [
     ...userHistory,
-    ...usersStore.users.filter((user) => !idHistory.includes(user.id)),
+    ...usersStore._users.filter((user) => !idHistory.includes(user.id)),
   ]
     .filter((user) =>
       user.name.toLowerCase().includes(searchText.value.toLowerCase())
