@@ -9,8 +9,22 @@
       by {{ usersStore.getName(tournament.userId) }}
     </div>
     <div>
-      First to {{ tournament.setsPerMatchArray }} sets, where each set has
-      {{ tournament.legsPerSetArray }} legs. Notation is ( wonSets : wonLegs ).
+      <table style="width: 100%; text-align: center">
+        <thead>
+          <tr>
+            <th>Round</th>
+            <th>First to (sets)</th>
+            <th>First to (legs)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(label,i) in rounds" >
+            <td>{{ label }}</td>
+            <td>{{ tournament.setsPerMatchArray?.at(i) }}</td>
+            <td>{{ tournament.legsPerSetArray?.at(i) }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="row spaced">
@@ -35,6 +49,7 @@
             flex-direction: column;
             justify-content: space-evenly;
             align-items: center;
+            white-space: nowrap;
           "
         >
           <div style="flex: 2; min-height: 48px"></div>
@@ -51,10 +66,17 @@
               <div v-if="player && x == tournamentState.grid.length - 1">
                 👑
               </div>
-              {{ usersStore.getName(player?.id) }}
-              <span v-if="player && x < tournamentState.grid.length - 1">
-                {{ `${player.setWins}:${player.legWins}` }}
-              </span>
+              <div>
+                {{ stringMaxLength(usersStore.getName(player?.id),14) }}
+              </div>
+              <template v-if="player && x < tournamentState.grid.length - 1">
+                <div v-if="tournament.setsPerMatchArray?.at(x) == 1">
+                  {{ player.legWins.at(-1) }}
+                </div>
+                <div v-else>
+                  {{ player.setWins }}
+                </div>
+              </template>
             </button>
 
             <div
@@ -130,6 +152,7 @@
 import { UserCurrentInfo } from '@/components/PlayerSelection.vue'
 import Prompt from '@/components/Prompt.vue'
 import TournamentPlayerSelection from '@/components/TournamentPlayerSelection.vue'
+import { stringMaxLength } from '@/functions/string'
 import { GameTypeNames } from '@/games/games'
 import { router } from '@/router'
 import { useGameSelectionStore } from '@/stores/gameSelection'
@@ -169,9 +192,37 @@ onMounted(async () => {
   refreshTournamentState()
 })
 
+const rounds = computed(()=>{
+  if (tournament.value == null){
+    return []
+  }
+
+  const n = tournamentNumberOfRounds(tournament.value.players.length)
+  const roundLabels = Array(n).map((_,i)=>i+'th')
+  if (roundLabels.length>1){
+    roundLabels[0] = "1st" 
+  }
+  if (roundLabels.length>2){
+    roundLabels[1] = "2nd"
+  }
+  if (roundLabels.length>3){
+    roundLabels[2] = "3rd"
+  }
+  if (roundLabels.length>1){
+    roundLabels[n-1] = "Final"
+  }
+  if (roundLabels.length>2){
+    roundLabels[n-2] = "Semi-final"
+  }
+  if (roundLabels.length>3){
+    roundLabels[n-3] = "Quarter-final"
+  }
+  return roundLabels
+})
+
 type PlayerMatchState = {
   id: string | undefined
-  legWins: number
+  legWins: number[]
   setWins: number
   wonMatch: boolean | undefined
 }
@@ -187,7 +238,7 @@ const getMatchState = async (
   if (!a || !b) return undefined
   if (a.id == b.id) return undefined
   for (const p of [a, b]) {
-    p.legWins = 0
+    p.legWins = [0]
     p.setWins = 0
     p.wonMatch = undefined
   }
@@ -203,13 +254,12 @@ const getMatchState = async (
     const [winner, loser] =
       a.id == winnerId ? [a, b] : b.id == winnerId ? [b, a] : [null, null]
     if (!winner || !loser) continue
-
-    winner.legWins += 1
+    winner.legWins[winner.legWins.length-1] += 1
     if (
-      winner.legWins >= (tournament.value.legsPerSetArray?.at(matchIndex) ?? 1)
+      winner.legWins[winner.legWins.length-1] >= (tournament.value.legsPerSetArray?.at(matchIndex) ?? 1)
     ) {
       winner.setWins += 1
-      winner.legWins = 0
+      
       if (
         winner.setWins >=
         (tournament.value.setsPerMatchArray?.at(matchIndex) ?? 1)
@@ -218,7 +268,10 @@ const getMatchState = async (
         loser.wonMatch = false
         return winner
       }
-      loser.legWins = 0
+      else {
+        winner.legWins.push(0)
+        loser.legWins.push(0)
+      }
     }
   }
   return undefined
@@ -243,7 +296,7 @@ const getTournamentState = async () => {
   let prevRound: (PlayerMatchState | undefined)[] =
     tournament.value.players.map((id) => ({
       id,
-      legWins: 0,
+      legWins: [0],
       setWins: 0,
       wonMatch: undefined,
     }))

@@ -314,11 +314,9 @@ export type Database = {
           gameType: string
           gameTypeAttributes: string[]
           id: string
-          legsPerSet: number
           legsPerSetArray: number[] | null
           name: string | null
           players: string[]
-          setsPerMatch: number
           setsPerMatchArray: number[] | null
           type: string
           userId: string
@@ -328,11 +326,9 @@ export type Database = {
           gameType: string
           gameTypeAttributes?: string[]
           id: string
-          legsPerSet?: number
           legsPerSetArray?: number[] | null
           name?: string | null
           players?: string[]
-          setsPerMatch?: number
           setsPerMatchArray?: number[] | null
           type: string
           userId: string
@@ -342,11 +338,9 @@ export type Database = {
           gameType?: string
           gameTypeAttributes?: string[]
           id?: string
-          legsPerSet?: number
           legsPerSetArray?: number[] | null
           name?: string | null
           players?: string[]
-          setsPerMatch?: number
           setsPerMatchArray?: number[] | null
           type?: string
           userId?: string
