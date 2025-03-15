@@ -136,20 +136,22 @@ export const useGameStore = defineStore('game', {
       if (!this.game || !this.gameState) return false
       this.refreshGameState()
 
-      await supabase.from('games').insert({
-        ...this.game,
-        legs: this.game.legs.map((leg) => leg.id),
-      })
-      const eloDeltas = await useEloStore().updateEloFromGame(this.game, true)
+      const { extension, ...game } = this.game
 
-      for (let leg of this.game.legs) {
-        if (this.game.result.includes(leg.userId)) {
+      await supabase.from('games').insert({
+        ...game,
+        legs: game.legs.map((leg) => leg.id),
+      })
+      const eloDeltas = await useEloStore().updateEloFromGame(game, true)
+
+      for (let leg of game.legs) {
+        if (game.result.includes(leg.userId)) {
           leg.finish = true
         }
         await supabase.from('legs').insert(leg)
         await upsertLegStatistics(
           leg,
-          this.game,
+          game,
           this.gameState,
           eloDeltas.find((e) => e.userId == leg.userId)?.eloDelta ?? 0
         )
