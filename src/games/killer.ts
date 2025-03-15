@@ -6,17 +6,15 @@ import {
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
-  Game,
   GameController,
+  GameExtended,
   GameState,
   Multiplier,
   getVisitsOfUser,
 } from '@/types/game'
 import { getGamePoints } from './games'
 
-export type KillerController = GameController<GameState> & {
-  getKillerPlayers: () => KillerPlayer[]
-}
+export type KillerController = GameController<GameState>
 
 export type KillerPlayer = {
   userId: string
@@ -24,22 +22,25 @@ export type KillerPlayer = {
   points: number
 }
 
-export const getKillerController = (game: Game): KillerController => {
+export const getKillerController = (game: GameExtended): KillerController => {
   const gameStore = useGameStore()
-  const killers: KillerPlayer[] = game.players.map((userId) => ({
-    userId,
-    sector: null,
-    points: 0,
-  }))
+
+  if (!game.extension || game.extension.kind != 'killer') {
+    game.extension = {
+      kind: 'killer',
+      killers: game.players.map((userId) => ({
+        userId,
+        sector: null,
+        points: 0,
+      })),
+    }
+  }
+
   return {
     ...getGenericController(game),
 
-    getKillerPlayers() {
-      return killers
-    },
-
     getGameState() {
-      const gameState = simulateKiller(game, killers)
+      const gameState = simulateKiller(game)
       return {
         ...gameState,
 
@@ -62,6 +63,9 @@ export const getKillerController = (game: Game): KillerController => {
     },
 
     recordHit(segment) {
+      if (!game.extension || game.extension.kind != 'killer') throw Error()
+      const killers = game.extension.killers
+
       const player = killers.find(
         (p) => p.userId == gameStore.gameState?.player
       )
@@ -79,6 +83,9 @@ export const getKillerController = (game: Game): KillerController => {
     },
 
     recordMiss() {
+      if (!game.extension || game.extension.kind != 'killer') throw Error()
+      const killers = game.extension.killers
+
       const player = killers.find(
         (p) => p.userId == gameStore.gameState?.player
       )
@@ -94,7 +101,10 @@ export const getKillerController = (game: Game): KillerController => {
   }
 }
 
-const simulateKiller = (game: Game, killers: KillerPlayer[]) => {
+const simulateKiller = (game: GameExtended) => {
+  if (!game.extension || game.extension.kind != 'killer') throw Error()
+  const killers = game.extension.killers
+
   killers.forEach((k) => (k.points = 0))
 
   for (let i = 0; i < killers.length; i++) {

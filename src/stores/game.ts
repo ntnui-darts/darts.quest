@@ -3,7 +3,7 @@ import { getGameController, getGameDisplayName } from '@/games/games'
 import { supabase } from '@/supabase'
 import {
   GameController,
-  Game as GameData,
+  GameExtended,
   GameState,
   Resigned,
   Segment,
@@ -19,7 +19,7 @@ import { useUsersStore } from './users'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
-    game: null as GameData | null,
+    game: null as GameExtended | null,
     gameState: null as GameState | null,
 
     walkOn: null as string | null,
@@ -31,7 +31,7 @@ export const useGameStore = defineStore('game', {
   }),
 
   actions: {
-    setCurrentGame(game: GameData) {
+    setCurrentGame(game: GameExtended) {
       this.game = game
       if (this.game.legs.length == 0) throw Error()
       speak(getGameDisplayName(this.game))

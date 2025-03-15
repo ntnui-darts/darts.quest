@@ -1,5 +1,5 @@
 import { supabase } from '@/supabase'
-import { Game, Segment } from '@/types/game'
+import { GameExtended, Segment } from '@/types/game'
 import { RealtimeChannel } from '@supabase/supabase-js'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
@@ -16,7 +16,7 @@ type OnlinePresence = {
 export const useOnlineStore = defineStore('online', {
   state: () => ({
     presences: [] as OnlinePresence[],
-    spectatingGame: null as Game | null,
+    spectatingGame: null as GameExtended | null,
     presence: {
       inGame: false,
       date: new Date(),
@@ -88,7 +88,7 @@ export const useOnlineStore = defineStore('online', {
       this.inChannel = supabase
         .channel(`game-${this.presence.spectating}`)
         .on('broadcast', { event: 'game' }, (args) => {
-          this.spectatingGame = args.payload as Game
+          this.spectatingGame = args.payload as GameExtended
         })
         .subscribe((status) => {
           if (status != 'SUBSCRIBED') return
