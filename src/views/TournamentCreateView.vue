@@ -51,6 +51,7 @@
 
   <PlayerSelection
     v-model:players="gameSelectionStore.players"
+    :disable-custom="true"
   ></PlayerSelection>
 
   <br />
