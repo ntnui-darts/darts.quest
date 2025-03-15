@@ -5,7 +5,13 @@ import {
   nextState,
 } from '@/games/generic'
 import { useUsersStore } from '@/stores/users'
-import { Game, GameController, GameState, getVisitsOfUser } from '@/types/game'
+import {
+  Game,
+  GameController,
+  GameExtended,
+  GameState,
+  getVisitsOfUser,
+} from '@/types/game'
 
 type CricketPlayer = {
   id: string
@@ -19,7 +25,7 @@ export interface CricketGameState extends GameState {
 }
 
 export const getCricketController = (
-  game: Game
+  game: GameExtended
 ): GameController<CricketGameState> => {
   return {
     ...getGenericController(game),

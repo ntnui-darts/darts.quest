@@ -3,8 +3,8 @@ import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
-  Game,
   GameController,
+  GameExtended,
   GameState,
   Segment,
   Visit,
@@ -13,7 +13,9 @@ import {
 } from '@/types/game'
 import { GameType, getGamePoints } from './games'
 
-export const getX01Controller = (game: Game): GameController<GameState> => {
+export const getX01Controller = (
+  game: GameExtended
+): GameController<GameState> => {
   return {
     ...getGenericController(game),
 
@@ -99,8 +101,8 @@ export const getX01LegScore = (
       const lastSegment = v.findLast((s) => s != null)
       if (
         finishType == 1 ||
-        lastSegment != 'resigned' &&
-        (lastSegment?.multiplier ?? 0) == finishType
+        (lastSegment != 'resigned' &&
+          (lastSegment?.multiplier ?? 0) == finishType)
       ) {
         score += visitScore
       }
