@@ -66,6 +66,7 @@ export const useGameSelectionStore = defineStore('game-selection', {
             } satisfies Leg)
         ),
         tournamentId: options.tournamentId,
+        extension: null,
       })
       router.push({ name: 'game' })
     },

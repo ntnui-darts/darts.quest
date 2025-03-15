@@ -8,6 +8,7 @@ import { useUsersStore } from '@/stores/users'
 import {
   Game,
   GameController,
+  GameExtended,
   GameState,
   Multiplier,
   Segment,
@@ -17,7 +18,7 @@ import {
 import { getSegmentScore } from './x01'
 
 export const getSkovhuggerController = (
-  game: Game
+  game: GameExtended
 ): GameController<GameState> => {
   return {
     ...getGenericController(game),

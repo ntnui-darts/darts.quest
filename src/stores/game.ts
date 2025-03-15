@@ -3,7 +3,7 @@ import { getGameController, getGameDisplayName } from '@/games/games'
 import { supabase } from '@/supabase'
 import {
   GameController,
-  Game as GameData,
+  GameExtended,
   GameState,
   Resigned,
   Segment,
@@ -19,7 +19,7 @@ import { useUsersStore } from './users'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
-    game: null as GameData | null,
+    game: null as GameExtended | null,
     gameState: null as GameState | null,
 
     walkOn: null as string | null,
@@ -31,7 +31,7 @@ export const useGameStore = defineStore('game', {
   }),
 
   actions: {
-    setCurrentGame(game: GameData) {
+    setCurrentGame(game: GameExtended) {
       this.game = game
       if (this.game.legs.length == 0) throw Error()
       speak(getGameDisplayName(this.game))
@@ -136,20 +136,22 @@ export const useGameStore = defineStore('game', {
       if (!this.game || !this.gameState) return false
       this.refreshGameState()
 
-      await supabase.from('games').insert({
-        ...this.game,
-        legs: this.game.legs.map((leg) => leg.id),
-      })
-      const eloDeltas = await useEloStore().updateEloFromGame(this.game, true)
+      const { extension, ...game } = this.game
 
-      for (let leg of this.game.legs) {
-        if (this.game.result.includes(leg.userId)) {
+      await supabase.from('games').insert({
+        ...game,
+        legs: game.legs.map((leg) => leg.id),
+      })
+      const eloDeltas = await useEloStore().updateEloFromGame(game, true)
+
+      for (let leg of game.legs) {
+        if (game.result.includes(leg.userId)) {
           leg.finish = true
         }
         await supabase.from('legs').insert(leg)
         await upsertLegStatistics(
           leg,
-          this.game,
+          game,
           this.gameState,
           eloDeltas.find((e) => e.userId == leg.userId)?.eloDelta ?? 0
         )

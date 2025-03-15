@@ -8,6 +8,7 @@ import X01OptionsInput from '@/components/X01OptionsInput.vue'
 import {
   Game,
   GameController,
+  GameExtended,
   GameState,
   Leg,
   getTypeAttribute,
@@ -99,7 +100,9 @@ export const getGamePoints = (game: {
   }
 }
 
-export const getGameController = (game: Game): GameController<GameState> => {
+export const getGameController = (
+  game: GameExtended
+): GameController<GameState> => {
   switch (game.type) {
     case 'x01':
       return getX01Controller(game)

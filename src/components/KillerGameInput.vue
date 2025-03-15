@@ -114,11 +114,13 @@ const selectSector = (sector: number | null) => {
 }
 
 const updatePlayers = () => {
+  const extension = props.gameController.game.extension
+  if (!extension || extension.kind != 'killer') return
+
   players.value =
-    props.gameController
-      .getKillerPlayers()
-      .filter((player) => !props.gameState?.result.includes(player.userId)) ??
-    []
+    extension.killers.filter(
+      (player) => !props.gameState?.result.includes(player.userId)
+    ) ?? []
 }
 
 onMounted(() => {

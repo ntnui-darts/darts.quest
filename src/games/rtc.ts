@@ -6,6 +6,7 @@ import { useUsersStore } from '@/stores/users'
 import {
   Game,
   GameController,
+  GameExtended,
   GameState,
   Visit,
   getTypeAttribute,
@@ -17,20 +18,25 @@ export interface RtcGameState extends GameState {
   getNextTarget(userId: string): number
 }
 
-export type RtcController = GameController<RtcGameState> & {
-  getSequence(): number[]
-}
+export type RtcController = GameController<RtcGameState>
 
-export const getRtcController = (game: Game): RtcController => {
-  const sequence = Array(20)
-    .fill(undefined)
-    .map((_, i) => i + 1)
+export const getRtcController = (game: GameExtended): RtcController => {
+  if (!game.extension || game.extension.kind != 'rtc') {
+    game.extension = {
+      kind: 'rtc',
+      sequence: Array(20)
+        .fill(undefined)
+        .map((_, i) => i + 1),
+    }
+  }
 
   return {
     ...getGenericController(game),
 
     getGameState() {
-      const sequence = this.getSequence()
+      if (!game.extension || game.extension.kind != 'rtc') throw Error()
+      const sequence = game.extension.sequence
+
       const isForced = getTypeAttribute<Boolean>(game, 'forced', false)
       const winCondition = (game: Game, visits: Visit[]) => {
         if (isForced) {
@@ -84,10 +90,6 @@ export const getRtcController = (game: Game): RtcController => {
 
     getSegmentText(segment) {
       return segment && segment != 'resigned' ? `${segment.sector}` : '-'
-    },
-
-    getSequence() {
-      return sequence
     },
 
     recordHit(segment) {

@@ -2,6 +2,7 @@ import { useGameStore } from '@/stores/game'
 import {
   Game,
   GameController,
+  GameExtended,
   GameState,
   Multiplier,
   Visit,
@@ -9,7 +10,7 @@ import {
   multiplierToString,
 } from '@/types/game'
 
-export const getGenericController = (game: Game) => {
+export const getGenericController = (game: GameExtended) => {
   return {
     game,
 

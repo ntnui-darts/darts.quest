@@ -1,4 +1,5 @@
 import { GameType } from '@/games/games'
+import { KillerPlayer } from '@/games/killer'
 import { Database } from './supabase'
 import { Prettify } from './ts'
 
@@ -38,6 +39,18 @@ export type Game = Prettify<
   }
 >
 
+export type GameExtended = Game & {
+  extension: KillerExtension | RTCExtension | null
+}
+export type KillerExtension = {
+  kind: 'killer'
+  killers: KillerPlayer[]
+}
+export type RTCExtension = {
+  kind: 'rtc'
+  sequence: number[]
+}
+
 export interface GameState {
   result: string[]
   resignees: string[]
@@ -50,7 +63,7 @@ export interface GameState {
 }
 
 export interface GameController<T extends GameState> {
-  game: Game
+  game: GameExtended
   getGameState(): T
   recordHit(segment: Segment): void
   recordMiss(): void
