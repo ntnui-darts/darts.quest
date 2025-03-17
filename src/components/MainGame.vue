@@ -5,7 +5,7 @@
         {{ tournament.name }}
         {{ new Date(tournament.createdAt).toDateString() }}
         by
-        {{ useUsersStore().getName(tournament.userId) }}
+        {{ usersStore.getName(tournament.userId) }}
       </h3>
     </template>
 
@@ -40,7 +40,7 @@
           style="min-width: 135px"
           @click="clickUser(userId)"
         >
-          {{ usersStore.getName(userId) }}
+          {{ usersStore.getName(userId)}} ({{ Math.floor(userElos.get(userId) ?? 0 ) }}) 
           <br />
           <span style="font-size: xx-large">{{
             gameState?.getUserDisplayText(userId)
@@ -124,8 +124,9 @@ import {
   Segment,
   getLegOfUser,
 } from '@/types/game'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
+import { useEloStore } from '@/stores/elo'
 
 const props = defineProps<{
   game: Game
@@ -145,6 +146,19 @@ const emit = defineEmits<{
 }>()
 
 const usersStore = useUsersStore()
+const eloStore = useEloStore()
+
+const userElos = ref(new Map<string, number>())
+watch (
+  () => props.game.players,
+  (players) => {
+    if (!players) return
+    players.forEach(async (player) => {
+      userElos.value.set(player, await eloStore.fetchElo(player, props.game.type))
+    })
+  },
+  { immediate: true },
+)
 
 const allPlayersFinished = computed(
   () => (props.game?.legs.length ?? 0) == (props.gameState?.result.length ?? 0)
