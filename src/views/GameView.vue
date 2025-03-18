@@ -33,7 +33,7 @@
     :game="gameStore.game"
     :game-state="gameStore.gameState"
     :game-controller="gameStore.getController()"
-    :get-elo-text="getEloText"
+    :get-elo-change-text="getEloChangeText"
     :get-elo-color="getEloColor"
     @hit="gameStore.getController().recordHit($event)"
     @miss="gameStore.getController().recordMiss()"
@@ -71,7 +71,6 @@ import { useLoadingStore } from '@/stores/loading'
 import { useModalStore } from '@/stores/modal'
 import { useOnlineStore } from '@/stores/online'
 import { useOptionsStore } from '@/stores/options'
-import { roundToNDecimals } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
 import { getTypeAttribute } from '@/types/game'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
@@ -80,6 +79,7 @@ const gameStore = useGameStore()
 const loadingStore = useLoadingStore()
 const onlineStore = useOnlineStore()
 const authStore = useAuthStore()
+const eloStore = useEloStore()
 
 const eloDeltas = ref<{ userId: string; eloDelta: number }[]>([])
 
@@ -189,7 +189,7 @@ watch(
     if (!gameStore.game) return
     if (now[0] == prev[0] && now[1] == prev[1]) return
 
-    eloDeltas.value = await useEloStore().updateEloFromGame(
+    eloDeltas.value = await eloStore.updateEloFromGame(
       gameStore.game,
       false,
       gameStore.gameState
@@ -197,10 +197,22 @@ watch(
   }
 )
 
-const getEloText = (userId: string) => {
+watch(
+  () => gameStore.game?.players,
+  (players) => {
+    if (!players) return
+    players.forEach(async (player) => {
+      if (!gameStore.game) return
+      await eloStore.fetchElo(player, gameStore.game.type)
+    })
+  },
+  { immediate: true }
+)
+
+const getEloChangeText = (userId: string) => {
   const eloDelta =
     eloDeltas.value.find((eloDelta) => eloDelta.userId == userId)?.eloDelta ?? 0
-  return `${eloDelta > 0 ? '+' : ''}${roundToNDecimals(eloDelta, 1)}`
+  return `${eloDelta > 0 ? '+' : ''}${Math.round(eloDelta)}`
 }
 
 const getEloColor = (userId: string) => {

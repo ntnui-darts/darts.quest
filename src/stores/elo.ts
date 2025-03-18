@@ -18,10 +18,12 @@ const getEloDelta = (expectedResult: number, actualResult: number) => {
 }
 
 type EloRow = Omit<Database['public']['Tables']['elo']['Row'], 'id'>
+type UserId = string
 
 export const useEloStore = defineStore('elo', {
   state: () => ({
     personalElo: null as EloRow | null,
+    userDisplayElos: new Map<UserId, EloRow>(),
   }),
 
   actions: {
@@ -76,10 +78,11 @@ export const useEloStore = defineStore('elo', {
 
       const eloResponse = await supabase
         .from('elo')
-        .select(gameType)
+        .select('*')
         .eq('id', userId)
       const elo = eloResponse.data?.[0]
       if (elo && gameType in elo) {
+        this.userDisplayElos.set(userId, elo)
         // @ts-ignore
         return (elo[gameType] ?? initialElo) as number
       }
@@ -109,7 +112,14 @@ export const useEloStore = defineStore('elo', {
     },
   },
 
-  getters: {},
+  getters: {
+    getDisplayElo() {
+      return (userId: string, gameType: GameType) => {
+        const userElo = this.userDisplayElos.get(userId)?.[gameType]
+        return userElo ? Math.round(userElo) : initialElo
+      }
+    },
+  },
 })
 
 if (import.meta.hot) {

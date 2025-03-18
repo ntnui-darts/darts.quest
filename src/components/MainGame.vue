@@ -40,7 +40,9 @@
           style="min-width: 135px"
           @click="clickUser(userId)"
         >
-          {{ usersStore.getName(userId)}} ({{ Math.floor(userElos.get(userId) ?? 0 ) }}) 
+          {{ usersStore.getName(userId) }} ({{
+            eloStore.getDisplayElo(userId, game.type)
+          }})
           <br />
           <span style="font-size: xx-large">{{
             gameState?.getUserDisplayText(userId)
@@ -79,32 +81,38 @@
       &#x232B;
     </button>
     <h2>Results</h2>
-    <ol>
-      <li
-        v-for="(id, i) in gameState?.result"
-        style="display: flex; justify-content: space-between"
-      >
-        <span> {{ i + 1 }}. {{ gameState?.getUserResultText(id) }} </span>
-        <span
-          v-if="getEloText && getEloColor"
-          style="margin-left: 1em"
-          :style="{ color: getEloColor(id) }"
-          >{{ getEloText(id) }}</span
+    <table
+      v-if="gameState"
+      style="
+        width: 100%;
+        max-width: 100%;
+        font-size: large;
+        padding: 1em;
+        padding-right: 0;
+      "
+    >
+      <tr v-for="(userId, i) in [...gameState.result, ...gameState.resignees]">
+        <td
+          style="
+            text-align: left;
+            word-break: break-all;
+            overflow-wrap: break-word;
+          "
         >
-      </li>
-      <li
-        v-for="id in gameState?.resignees"
-        style="display: flex; justify-content: space-between"
-      >
-        <span> ?. {{ gameState?.getUserResultText(id) }} </span>
-        <span
-          v-if="getEloText && getEloColor"
-          style="margin-left: 1em"
-          :style="{ color: getEloColor(id) }"
-          >{{ getEloText(id) }}</span
+          {{ i + 1 }}. {{ gameState?.getUserResultText(userId) }}
+        </td>
+        <td style="text-align: right">
+          {{ eloStore.getDisplayElo(userId, game.type) }}
+        </td>
+        <td
+          style="text-align: right; padding-left: 0.4em"
+          v-if="getEloChangeText && getEloColor"
+          :style="{ color: getEloColor(userId) }"
         >
-      </li>
-    </ol>
+          {{ getEloChangeText(userId) }}
+        </td>
+      </tr>
+    </table>
     <div v-if="showSave" class="col">
       <button @click="emit('save')">Save Game</button>
     </div>
@@ -124,7 +132,7 @@ import {
   Segment,
   getLegOfUser,
 } from '@/types/game'
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
 import { useEloStore } from '@/stores/elo'
 
@@ -134,7 +142,7 @@ const props = defineProps<{
   gameController: GameController<GameState>
   showInput: boolean
   showSave: boolean
-  getEloText?: (id: string) => string
+  getEloChangeText?: (id: string) => string
   getEloColor?: (id: string) => string
 }>()
 
@@ -147,18 +155,6 @@ const emit = defineEmits<{
 
 const usersStore = useUsersStore()
 const eloStore = useEloStore()
-
-const userElos = ref(new Map<string, number>())
-watch (
-  () => props.game.players,
-  (players) => {
-    if (!players) return
-    players.forEach(async (player) => {
-      userElos.value.set(player, await eloStore.fetchElo(player, props.game.type))
-    })
-  },
-  { immediate: true },
-)
 
 const allPlayersFinished = computed(
   () => (props.game?.legs.length ?? 0) == (props.gameState?.result.length ?? 0)
