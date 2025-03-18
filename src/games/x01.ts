@@ -14,7 +14,6 @@ import {
   getVisitsOfUser,
 } from '@/types/game'
 import { GameType, getGamePoints } from './games'
-import { vi } from 'vitest'
 import { checkouts } from '@/data/checkouts'
 
 export const getX01Controller = (
