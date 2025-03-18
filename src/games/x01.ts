@@ -3,15 +3,19 @@ import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import {
+  Game,
   GameController,
   GameExtended,
   GameState,
   Segment,
   Visit,
+  getLegOfUser,
   getTypeAttribute,
   getVisitsOfUser,
 } from '@/types/game'
 import { GameType, getGamePoints } from './games'
+import { vi } from 'vitest'
+import { checkouts } from '@/data/checkouts'
 
 export const getX01Controller = (
   game: GameExtended
@@ -38,7 +42,9 @@ export const getX01Controller = (
 
         getUserDisplayText(userId) {
           const visits = getVisitsOfUser(game, userId)
-          const rest = getGamePoints(game) - getX01LegScore(visits, game)
+          const scored = getX01LegScore(visits, game)
+          const rest = getGamePoints(game) - scored
+
           return `${rest}`
         },
 
@@ -83,6 +89,22 @@ export const getX01Controller = (
       else speak(`${score}!`)
     },
   }
+}
+
+export const userOnNine = (game: Game, userId: string) => {
+  const visits = getLegOfUser(game, userId)?.visits ?? []
+  const scored = getX01LegScore(visits, game)
+  const dartsThrown = visits.flat().filter((segment) => segment != null).length
+  if (dartsThrown == 0) return false
+  if (
+    checkouts['3 darts'].some(
+      (obj) =>
+        obj.checkout == (501 - scored - 60 * (6 - dartsThrown)).toString()
+    )
+  ) {
+    return true
+  }
+  return false
 }
 
 export const getX01LegScore = (

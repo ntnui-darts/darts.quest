@@ -40,13 +40,41 @@
           style="min-width: 135px"
           @click="clickUser(userId)"
         >
-          {{ usersStore.getName(userId) }} ({{
-            eloStore.getDisplayElo(userId, game.type)
-          }})
-          <br />
-          <span style="font-size: xx-large">{{
-            gameState?.getUserDisplayText(userId)
-          }}</span>
+          <span>
+            {{ usersStore.getName(userId) }} ({{
+              eloStore.getDisplayElo(userId, game.type)
+            }})
+          </span>
+          <div
+            style="
+              position: relative;
+              margin: auto;
+              margin-top: 0.45em;
+              width: min-content;
+            "
+          >
+            <span style="font-size: xx-large; line-height: 0.8">{{
+              gameState?.getUserDisplayText(userId)
+            }}</span>
+            <span
+              v-if="userOnNine(game, userId)"
+              style="
+                position: absolute;
+                left: -2.2em;
+                padding: 0.1em 0.5em;
+                top: 50%;
+                transform: translateY(-50%);
+                background: linear-gradient(45deg, #5500ff, #ff0000);
+
+                box-shadow: -0.17em 0.17em 0px 0em rgba(0, 0, 0, 1);
+                border-radius: 0.4em;
+                font-weight: bold;
+                font-size: large;
+                color: #dddddd;
+              "
+              >9</span
+            >
+          </div>
         </button>
       </div>
       <div class="row" style="margin: 0 1em">
@@ -135,6 +163,7 @@ import {
 import { computed, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
 import { useEloStore } from '@/stores/elo'
+import { userOnNine } from '@/games/x01'
 
 const props = defineProps<{
   game: Game
