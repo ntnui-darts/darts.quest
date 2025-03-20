@@ -94,7 +94,7 @@ export const userOnNine = (game: Game, userId: string) => {
   const visits = getLegOfUser(game, userId)?.visits ?? []
   const scored = getX01LegScore(visits, game)
   const dartsThrown = visits.flat().filter((segment) => segment != null).length
-  if (dartsThrown == 0) return false
+  if (dartsThrown == 0 || game.type != 'x01' || getTypeAttribute(game, 'finish', 1) != 2) return false
   if (
     checkouts['3 darts'].some(
       (obj) =>
