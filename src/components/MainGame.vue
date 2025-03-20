@@ -104,6 +104,16 @@
     ></component>
   </div>
 
+  <div style="display: flex; justify-content: center">
+    <button
+      v-if="!showInput && gameState.prevPlayer == useAuthStore().auth?.id"
+      @click="emit('undo')"
+      style="width: 40%; justify-content: center"
+    >
+      &#x232B;
+    </button>
+  </div>
+
   <div v-if="game && somePlayersFinished">
     <button v-if="allPlayersFinished && showInput" @click="emit('undo')">
       &#x232B;
@@ -164,6 +174,7 @@ import { computed, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
 import { useEloStore } from '@/stores/elo'
 import { userOnNine } from '@/games/x01'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps<{
   game: Game
