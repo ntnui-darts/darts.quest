@@ -129,7 +129,12 @@
         padding-right: 0;
       "
     >
-      <tr v-for="(userId, i) in [...gameState.result, ...gameState.resignees]">
+      <tr
+        v-for="(userId, i) in [
+          ...gameState.result,
+          ...gameState.resignees.reverse(),
+        ]"
+      >
         <td
           style="
             text-align: left;
@@ -144,10 +149,10 @@
         </td>
         <td
           style="text-align: right; padding-left: 0.4em"
-          v-if="getEloChangeText && getEloColor"
-          :style="{ color: getEloColor(userId) }"
+          v-if="getEloChange"
+          :style="{ color: getEloChange(userId).color }"
         >
-          {{ getEloChangeText(userId) }}
+          {{ getEloChange(userId).text }}
         </td>
       </tr>
     </table>
@@ -160,6 +165,9 @@
 <script lang="ts" setup>
 import { speak } from '@/functions/speak'
 import { getGameDisplayName, getInputComponent } from '@/games/games'
+import { userOnNine } from '@/games/x01'
+import { useAuthStore } from '@/stores/auth'
+import { useEloStore } from '@/stores/elo'
 import { useModalStore } from '@/stores/modal'
 import { useTournamentStore } from '@/stores/tournament'
 import { useUsersStore } from '@/stores/users'
@@ -172,9 +180,6 @@ import {
 } from '@/types/game'
 import { computed, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
-import { useEloStore } from '@/stores/elo'
-import { userOnNine } from '@/games/x01'
-import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps<{
   game: Game
@@ -182,8 +187,7 @@ const props = defineProps<{
   gameController: GameController<GameState>
   showInput: boolean
   showSave: boolean
-  getEloChangeText?: (id: string) => string
-  getEloColor?: (id: string) => string
+  getEloChange?: (id: string) => { text: string; color: string }
 }>()
 
 const emit = defineEmits<{
