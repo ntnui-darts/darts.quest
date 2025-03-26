@@ -197,18 +197,6 @@ watch(
   }
 )
 
-watch(
-  () => gameStore.game?.players,
-  (players) => {
-    if (!players) return
-    players.forEach(async (player) => {
-      if (!gameStore.game) return
-      await eloStore.fetchElo(player, gameStore.game.type)
-    })
-  },
-  { immediate: true }
-)
-
 const getEloChangeText = (userId: string) => {
   const eloDelta =
     eloDeltas.value.find((eloDelta) => eloDelta.userId == userId)?.eloDelta ?? 0
