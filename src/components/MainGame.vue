@@ -247,6 +247,17 @@ watch(
 )
 
 watch(
+  () => props.game.players,
+  (players) => {
+    if (!players) return
+    players.forEach(async (player) => {
+      await eloStore.fetchElo(player, props.game.type)
+    })
+  },
+  { immediate: true }
+)
+
+watch(
   () => props.gameState?.getTopRightText(),
   (text) => {
     if (text) setTimeout(() => speak(text), 1000)
