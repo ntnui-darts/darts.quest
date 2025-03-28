@@ -33,8 +33,7 @@
     :game="gameStore.game"
     :game-state="gameStore.gameState"
     :game-controller="gameStore.getController()"
-    :get-elo-change-text="getEloChangeText"
-    :get-elo-color="getEloColor"
+    :get-elo-change="getEloChange"
     @hit="gameStore.getController().recordHit($event)"
     @miss="gameStore.getController().recordMiss()"
     @undo="gameStore.undoScore()"
@@ -197,20 +196,25 @@ watch(
   }
 )
 
-const getEloChangeText = (userId: string) => {
-  const eloDelta =
-    eloDeltas.value.find((eloDelta) => eloDelta.userId == userId)?.eloDelta ?? 0
-  return `${eloDelta > 0 ? '+' : ''}${Math.round(eloDelta)}`
-}
+watch(
+  () => gameStore.game?.players,
+  (players) => {
+    if (!players) return
+    players.forEach(async (player) => {
+      if (!gameStore.game) return
+      await eloStore.fetchElo(player, gameStore.game.type)
+    })
+  },
+  { immediate: true }
+)
 
-const getEloColor = (userId: string) => {
+const getEloChange = (userId: string) => {
   const eloDelta =
     eloDeltas.value.find((eloDelta) => eloDelta.userId == userId)?.eloDelta ?? 0
-  return eloDelta == 0
-    ? 'gray'
-    : eloDelta > 0
-    ? 'var(--c-green)'
-    : 'var(--c-red)'
+  const text = `${eloDelta > 0 ? '+' : ''}${Math.round(eloDelta)}`
+  const color =
+    eloDelta == 0 ? 'gray' : eloDelta > 0 ? 'var(--c-green)' : 'var(--c-red)'
+  return { text, color }
 }
 
 const showCheckoutCard = () => {
