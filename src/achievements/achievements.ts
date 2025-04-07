@@ -7,21 +7,22 @@ import {
   UserAchievement,
 } from '@/types/achievement'
 import { Game } from '@/types/game'
+import { getHit180AchievementTracker } from './hit-180'
 
 export const getTrackersForMode = (
   gameType: GameType
 ): AchievementTracker[] => {
   switch (gameType) {
     case 'x01':
-      return []
+      return [getHit180AchievementTracker()]
     case 'cricket':
-      return []
+      return [getHit180AchievementTracker()]
     case 'killer':
       return []
     case 'rtc':
       return []
     case 'skovhugger':
-      return []
+      return [getHit180AchievementTracker()]
     default:
       return []
   }
