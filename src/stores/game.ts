@@ -16,6 +16,7 @@ import { useEloStore } from './elo'
 import { useOnlineStore } from './online'
 import { upsertLegStatistics, useStatsStore } from './stats'
 import { useUsersStore } from './users'
+import { trackAchievements } from '@/achievements/achievements'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -156,6 +157,8 @@ export const useGameStore = defineStore('game', {
           eloDeltas.find((e) => e.userId == leg.userId)?.eloDelta ?? 0
         )
       }
+
+      await trackAchievements(game)
 
       useStatsStore().fetchAll()
 
