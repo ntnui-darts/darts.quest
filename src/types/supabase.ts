@@ -383,7 +383,6 @@ export type Database = {
         Row: {
           achievement: string
           createdAt: string
-          id: string
           leg: string | null
           unlocked: boolean
           unlockedTime: string | null
@@ -392,7 +391,6 @@ export type Database = {
         Insert: {
           achievement: string
           createdAt?: string
-          id: string
           leg?: string | null
           unlocked?: boolean
           unlockedTime?: string | null
@@ -401,7 +399,6 @@ export type Database = {
         Update: {
           achievement?: string
           createdAt?: string
-          id?: string
           leg?: string | null
           unlocked?: boolean
           unlockedTime?: string | null

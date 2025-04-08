@@ -1,7 +1,6 @@
 import { Database } from './supabase'
 import { Game } from './game'
 import { GameType } from '@/games/games'
-import { nanoid } from 'nanoid'
 
 export type AchievementId = 'hit_180'
 
@@ -33,7 +32,6 @@ export const newUserAchievement = (
   userId: string
 ): UserAchievement => {
   return {
-    id: nanoid(),
     achievement: achievement,
     leg: null,
     unlocked: false,
