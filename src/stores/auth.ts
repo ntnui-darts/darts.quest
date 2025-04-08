@@ -4,6 +4,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useOnlineStore } from './online'
 import { useStatsStore } from './stats'
 import { User, useUsersStore } from './users'
+import { useAchievementStore } from './achievement'
 
 const initAuth = async (auth: AuthUser) => {
   const authStore = useAuthStore()
@@ -15,6 +16,7 @@ const initAuth = async (auth: AuthUser) => {
   useOnlineStore().initRoom(auth.id)
   await useUsersStore().fetchUsers()
   await useStatsStore().fetchAll()
+  await useAchievementStore().fetchAll()
   await supabase
     .from('users')
     .update({ lastActive: new Date().toISOString() })
