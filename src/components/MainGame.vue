@@ -106,7 +106,7 @@
 
   <div style="display: flex; justify-content: center">
     <button
-      v-if="!showInput && gameState.prevPlayer == useAuthStore().auth?.id"
+      v-if="!showInput && prevPlayerIsPlayingOnThisDevice"
       @click="emit('undo')"
       style="width: 40%; justify-content: center"
     >
@@ -180,6 +180,7 @@ import {
 } from '@/types/game'
 import { computed, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
+import { useOnlineStore } from '@/stores/online'
 
 const props = defineProps<{
   game: Game
@@ -223,6 +224,17 @@ const displayVisit = computed(() => {
 const tournament = computed(() =>
   useTournamentStore().tournaments.find((t) => t.id == props.game.tournamentId)
 )
+const prevPlayerIsPlayingOnThisDevice = computed(() => {
+  const prevPlayer = props.gameState.prevPlayer
+  if (!prevPlayer) return false
+  const authId = useAuthStore().auth?.id
+  const presence = useOnlineStore().presence
+
+  if (presence.spectating) {
+    return prevPlayer == authId
+  }
+  return prevPlayer == authId || !presence.remotePlayers?.includes(prevPlayer)
+})
 
 const clickUser = (userId: string) => {
   if (!props.game) return
