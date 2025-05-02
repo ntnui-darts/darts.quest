@@ -1,3 +1,4 @@
+import { updateAchievements } from '@/achievements/progression'
 import { speak } from '@/functions/speak'
 import { getGameController, getGameDisplayName } from '@/games/games'
 import { supabase } from '@/supabase'
@@ -16,7 +17,6 @@ import { useEloStore } from './elo'
 import { useOnlineStore } from './online'
 import { upsertLegStatistics, useStatsStore } from './stats'
 import { useUsersStore } from './users'
-import { trackAchievements } from '@/achievements/achievements'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -158,7 +158,7 @@ export const useGameStore = defineStore('game', {
         )
       }
 
-      await trackAchievements(game)
+      await updateAchievements(game)
 
       useStatsStore().fetchAll()
 

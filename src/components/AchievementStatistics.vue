@@ -2,7 +2,7 @@
   <h2>Achievements</h2>
   <div class="col">
     <div
-      v-for="achievement in achievementStore.achievementList"
+      v-for="achievement in achievementStore.achievements"
       class="row"
       style="
         background-color: #1a1a1a;
@@ -16,13 +16,12 @@
           achievement.name
         }}</span>
         <span>{{ achievement.description }}</span>
-        <span v-if="achievement.unlocked && achievement.unlockedTime"
-          >Achieved
-          {{ new Date(achievement.unlockedTime).toDateString() }}</span
+        <span v-if="achievement.achievedAt"
+          >Achieved {{ new Date(achievement.achievedAt).toDateString() }}</span
         >
       </div>
       <svg
-        v-if="achievement.unlocked"
+        v-if="achievement.achievedAt"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"

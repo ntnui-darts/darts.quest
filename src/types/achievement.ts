@@ -1,41 +1,47 @@
-import { Database } from './supabase'
-import { Game } from './game'
+import { achievements } from '@/achievements/achievements'
 import { GameType } from '@/games/games'
+import { Prettify } from '@/types/ts'
+import { Game } from './game'
+import { Database } from './supabase'
 
-export type AchievementId = 'hit_180'
-
-export type DbAchievement = Database['public']['Tables']['achievement']['Row']
-export type Achievement = Omit<DbAchievement, 'id' | 'includedGameTypes'> & {
-  id: AchievementId
-  includedGameTypes: GameType[]
-}
-
-export type DbUserAchievement =
-  Database['public']['Tables']['user_achievement']['Row']
-export type UserAchievement = Omit<
-  DbUserAchievement,
-  'achievement' | 'createdAt'
-> & {
-  achievement: AchievementId
-}
-
-export interface AchievementTracker {
-  achievementId: AchievementId
-  checkCondition(
+export type Achievement<T> = {
+  name: string
+  description: string
+  gameTypes: GameType[]
+  initialProgression: T
+  addProgression(
+    progression: T,
     game: Game,
     userId: string
-  ): { leg: string | null; achieved: boolean }
+  ): { legId: string | null; progression: T }
+  isAchieved(progression: T): boolean
 }
 
-export const newUserAchievement = (
-  achievement: AchievementId,
+export type AchievementId = keyof typeof achievements
+
+export type DbAchievement = Database['public']['Tables']['achievements']['Row']
+
+export type UserAchievement<T extends AchievementId> = Omit<
+  DbAchievement,
+  'achievedAt'
+> & {
+  achievementId: T
   userId: string
-): UserAchievement => {
+  achievedAt: string | null
+  progression: (typeof achievements)[T]['initialProgression']
+  legIds: string[]
+}
+
+export const newUserAchievement = <T extends AchievementId>(
+  achievementId: T,
+  userId: string
+): Prettify<UserAchievement<T>> => {
+  const achievement = achievements[achievementId]
   return {
-    achievement: achievement,
-    leg: null,
-    unlocked: false,
-    unlockedTime: new Date().toISOString(),
-    user: userId,
+    achievementId,
+    userId,
+    achievedAt: null,
+    progression: structuredClone(achievement.initialProgression),
+    legIds: [],
   }
 }

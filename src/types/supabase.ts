@@ -9,29 +9,37 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      achievement: {
+      achievements: {
         Row: {
-          createdAt: string
-          description: string
-          id: string
-          includedGameTypes: string[]
-          name: string
+          achievedAt: string | null
+          achievementId: string
+          legIds: string[]
+          progression: Json | null
+          userId: string
         }
         Insert: {
-          createdAt?: string
-          description: string
-          id: string
-          includedGameTypes?: string[]
-          name: string
+          achievedAt?: string | null
+          achievementId: string
+          legIds?: string[]
+          progression?: Json | null
+          userId: string
         }
         Update: {
-          createdAt?: string
-          description?: string
-          id?: string
-          includedGameTypes?: string[]
-          name?: string
+          achievedAt?: string | null
+          achievementId?: string
+          legIds?: string[]
+          progression?: Json | null
+          userId?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_achievement_user_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       elo: {
         Row: {
@@ -373,55 +381,6 @@ export type Database = {
           {
             foreignKeyName: "tournaments_userId_fkey"
             columns: ["userId"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_achievement: {
-        Row: {
-          achievement: string
-          createdAt: string
-          leg: string | null
-          unlocked: boolean
-          unlockedTime: string | null
-          user: string
-        }
-        Insert: {
-          achievement: string
-          createdAt?: string
-          leg?: string | null
-          unlocked?: boolean
-          unlockedTime?: string | null
-          user: string
-        }
-        Update: {
-          achievement?: string
-          createdAt?: string
-          leg?: string | null
-          unlocked?: boolean
-          unlockedTime?: string | null
-          user?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_achievement_achievement_fkey"
-            columns: ["achievement"]
-            isOneToOne: false
-            referencedRelation: "achievement"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_achievement_leg_fkey"
-            columns: ["leg"]
-            isOneToOne: false
-            referencedRelation: "legs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_achievement_user_fkey"
-            columns: ["user"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
