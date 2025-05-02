@@ -48,9 +48,14 @@ export const useOnlineStore = defineStore('online', {
         .channel(`game-${userId}`)
         .on('broadcast', { event: 'input' }, (args) => {
           const gameStore = useGameStore()
-          const player = gameStore.gameState?.player
-          if (!player || args.payload.userId != player) return
-          if (!this.presence.remotePlayers?.includes(player)) return
+          const broadcaster = args.payload.userId
+          const isPlayer = broadcaster == gameStore.gameState?.player
+          const prevUndo =
+            broadcaster == gameStore.gameState?.prevPlayer &&
+            args.payload.type == 'undo'
+
+          if (!isPlayer && !prevUndo) return
+          if (!this.presence.remotePlayers?.includes(broadcaster)) return
 
           const gameController = gameStore.getController()
           switch (args.payload.type) {
