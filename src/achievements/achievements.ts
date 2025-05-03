@@ -22,7 +22,7 @@ export const achievements = {
     isAchieved(progression: number) {
       return progression > 0
     },
-  },
+  } satisfies Achievement<number>,
 
   play_1_game: {
     name: 'Player',
@@ -37,7 +37,7 @@ export const achievements = {
     isAchieved(progression: number) {
       return progression > 1
     },
-  },
+  } satisfies Achievement<number>,
 
   checkout_170: {
     name: 'Going fishing',
@@ -64,5 +64,27 @@ export const achievements = {
     isAchieved(progression: number) {
       return progression > 1
     },
-  },
-} as const satisfies Record<string, Achievement<unknown>>
+  } satisfies Achievement<number>,
+
+  checkout_all_doubles: {
+    name: "Gotta catch 'em all",
+    description: 'Checkout on all the doubles.',
+    gameTypes: ['x01'] as GameType[],
+    initialProgression: [] as number[],
+    addProgression(progression: number[], game: Game, userId: string) {
+      const leg = getLegOfUser(game, userId)
+      if (!leg) return
+      const userFinished = leg.finish
+      const lastVisit = leg.visits.at(-1)
+      const lastDart = lastVisit?.findLast((s) => s != null)
+      if (!lastDart || lastDart == 'resigned') return
+      const newDouble = !progression.includes(lastDart.sector)
+      if (newDouble && userFinished) {
+        return { legId: userId, progression: [...progression, lastDart.sector] }
+      }
+    },
+    isAchieved(progression: number[]) {
+      return progression.length >= 20
+    },
+  } satisfies Achievement<number[]>,
+} as const

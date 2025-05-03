@@ -22,7 +22,10 @@ export const addProgression = <T extends AchievementId>(
   game: Game,
   userId: string
 ): boolean => {
-  const achievement = achievements[userAchievement.achievementId]
+  const achievement = achievements[
+    userAchievement.achievementId
+  ] as Achievement<(typeof userAchievement)['progression']>
+
   const newProgression = achievement.addProgression(
     userAchievement.progression,
     game,
