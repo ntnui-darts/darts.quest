@@ -4,32 +4,27 @@ import { Prettify } from '@/types/ts'
 import { Game } from './game'
 import { Database } from './supabase'
 
-export type Achievement<T> = {
+export type Achievement<TProgression> = {
   name: string
   description: string
   gameTypes: GameType[]
-  initialProgression: T
+  initialProgression: TProgression
   addProgression(
-    progression: T,
+    progression: TProgression,
     game: Game,
     userId: string
-  ): { legId: string | null; progression: T } | undefined
-  isAchieved(progression: T): boolean
+  ): { legId: string | null; progression: TProgression } | undefined
+  isAchieved(progression: TProgression): boolean
 }
-
 export type AchievementId = keyof typeof achievements
-
 export type DbAchievement = Database['public']['Tables']['achievements']['Row']
 
-export type UserAchievement<T extends AchievementId> = Omit<
+export type UserAchievement<TId extends AchievementId> = Omit<
   DbAchievement,
-  'achievedAt'
+  'achievementId' | 'progression'
 > & {
-  achievementId: T
-  userId: string
-  achievedAt: string | null
-  progression: (typeof achievements)[T]['initialProgression']
-  legIds: string[]
+  achievementId: TId
+  progression: (typeof achievements)[TId]['initialProgression']
 }
 
 export const newUserAchievement = <T extends AchievementId>(
