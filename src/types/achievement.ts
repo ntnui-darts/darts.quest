@@ -13,7 +13,7 @@ export type Achievement<T> = {
     progression: T,
     game: Game,
     userId: string
-  ): { legId: string | null; progression: T }
+  ): { legId: string | null; progression: T } | undefined
   isAchieved(progression: T): boolean
 }
 

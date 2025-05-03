@@ -21,13 +21,16 @@ export const addProgression = <T extends AchievementId>(
   userAchievement: UserAchievement<T>,
   game: Game,
   userId: string
-) => {
+): boolean => {
   const achievement = achievements[userAchievement.achievementId]
-  const { legId, progression } = achievement.addProgression(
+  const newProgression = achievement.addProgression(
     userAchievement.progression,
     game,
     userId
   )
+  if (!newProgression) return false
+  const { legId, progression } = newProgression
+
   userAchievement.progression = progression
   if (legId) {
     userAchievement.legIds.push(legId)
@@ -38,10 +41,11 @@ export const addProgression = <T extends AchievementId>(
   ) {
     userAchievement.achievedAt = new Date().toISOString()
   }
+  return true
 }
 
 export const updateAchievements = async (game: Game) => {
-  const achivements = getAchievementsForGame(game.type)
+  const achievements = getAchievementsForGame(game.type)
 
   for (const userId of game.players) {
     const { data, error } = await supabase
@@ -54,18 +58,19 @@ export const updateAchievements = async (game: Game) => {
       return
     }
 
-    for (const achievement of achivements) {
+    for (const achievement of achievements) {
       const userAchievement = (data.find(
         (a) => a.achievementId == achievement.id
       ) ?? newUserAchievement(achievement.id, userId)) as UserAchievement<
         typeof achievement.id
       >
 
-      addProgression(userAchievement, game, userId)
+      const changed = addProgression(userAchievement, game, userId)
+      if (!changed) continue
 
       const { error } = await supabase
         .from('achievements')
-        .insert(userAchievement)
+        .upsert(userAchievement)
 
       if (error) {
         console.error('Could not save achievement to database')

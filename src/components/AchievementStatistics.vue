@@ -41,6 +41,11 @@
 
 <script setup lang="ts">
 import { useAchievementStore } from '@/stores/achievement'
+import { onMounted } from 'vue'
 
 const achievementStore = useAchievementStore()
+
+onMounted(() => {
+  achievementStore.fetchAll()
+})
 </script>
