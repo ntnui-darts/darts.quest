@@ -1,3 +1,4 @@
+import { updateAchievements } from '@/achievements/progression'
 import { speak } from '@/functions/speak'
 import { getGameController, getGameDisplayName } from '@/games/games'
 import { supabase } from '@/supabase'
@@ -156,6 +157,8 @@ export const useGameStore = defineStore('game', {
           eloDeltas.find((e) => e.userId == leg.userId)?.eloDelta ?? 0
         )
       }
+
+      await updateAchievements(game)
 
       useStatsStore().fetchAll()
 
