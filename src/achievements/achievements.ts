@@ -3,7 +3,7 @@ import { getX01VisitScore } from '@/games/x01'
 import { Achievement } from '@/types/achievement'
 import { Game, getLegOfUser } from '@/types/game'
 
-export const achievements = {
+export const achievements: Record<string, Achievement<{}>> = {
   hit_180: {
     name: 'ONEEEEEEHUUUUNDREDANDEIGHTY!',
     description: 'Hit a 180 visit in a game mode.',
@@ -22,7 +22,7 @@ export const achievements = {
     isAchieved(progression: number) {
       return progression > 0
     },
-  } satisfies Achievement<number>,
+  },
 
   play_1_game: {
     name: 'Player',
@@ -37,7 +37,7 @@ export const achievements = {
     isAchieved(progression: number) {
       return progression > 1
     },
-  } satisfies Achievement<number>,
+  },
 
   checkout_170: {
     name: 'Going fishing',
@@ -64,11 +64,11 @@ export const achievements = {
     isAchieved(progression: number) {
       return progression > 1
     },
-  } satisfies Achievement<number>,
+  },
 
   checkout_all_doubles: {
     name: "Gotta catch 'em all",
-    description: 'Checkout on all the doubles.',
+    description: 'Checkout on all the doubles',
     gameTypes: ['x01'] as GameType[],
     initialProgression: [] as number[],
     addProgression(progression: number[], game: Game, userId: string) {
@@ -86,5 +86,5 @@ export const achievements = {
     isAchieved(progression: number[]) {
       return progression.length >= 20
     },
-  } satisfies Achievement<number[]>,
+  },
 } as const

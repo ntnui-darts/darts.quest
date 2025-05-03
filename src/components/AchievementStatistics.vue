@@ -2,7 +2,7 @@
   <h2>Achievements</h2>
   <div class="col">
     <div
-      v-for="achievement in achievementStore.achievements"
+      v-for="achievement in achievementStore.achievementsWithProgression"
       class="row"
       style="
         background-color: #1a1a1a;
