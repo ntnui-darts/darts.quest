@@ -6,7 +6,7 @@ import { Database } from './supabase'
 
 export type Achievement<TProgression> = {
   name: string
-  description: string
+  description(progression?: TProgression): string
   gameTypes: GameType[]
   initialProgression: TProgression
   addProgression(
