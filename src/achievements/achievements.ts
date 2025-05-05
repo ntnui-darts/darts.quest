@@ -6,7 +6,9 @@ import { Game, getLegOfUser } from '@/types/game'
 export const achievements: Record<string, Achievement<{}>> = {
   hit_180: {
     name: 'ONEEEEEEHUUUUNDREDANDEIGHTY!',
-    description: 'Hit a 180 visit in a game mode.',
+    description(_: number) {
+      return 'Hit a 180 visit in any game mode.'
+    },
     gameTypes: ['x01', 'cricket', 'skovhugger'] as GameType[],
     initialProgression: 0 as number,
     addProgression(progression: number, game: Game, userId: string) {
@@ -26,7 +28,9 @@ export const achievements: Record<string, Achievement<{}>> = {
 
   play_1_game: {
     name: 'Player',
-    description: 'Play 1 game.',
+    description(_: number) {
+      return 'Play 1 game.'
+    },
     gameTypes: ['x01', 'cricket', 'skovhugger', 'killer', 'rtc'] as GameType[],
     initialProgression: 0 as number,
     addProgression(progression: number, game: Game, userId: string) {
@@ -41,7 +45,9 @@ export const achievements: Record<string, Achievement<{}>> = {
 
   checkout_170: {
     name: 'Going fishing',
-    description: 'Checkout 170. No need to emote afterwards.',
+    description(_: number) {
+      return 'Checkout 170. No need to emote afterwards.'
+    },
     gameTypes: ['x01'] as GameType[],
     initialProgression: 0 as number,
     addProgression(progression: number, game: Game, userId: string) {
@@ -68,7 +74,22 @@ export const achievements: Record<string, Achievement<{}>> = {
 
   checkout_all_doubles: {
     name: "Gotta catch 'em all",
-    description: 'Checkout on all the doubles',
+    description(progression?: number[]) {
+      const missingDoubles = Array(20)
+        .fill(0)
+        .map((_, i) => i + 1)
+        .filter((segment) => !progression?.includes(segment))
+      if (missingDoubles.length == 0) {
+        return 'Checkout on all the doubles.'
+      } else if (missingDoubles.length == 1) {
+        return `Checkout on all the doubles. Missing ${missingDoubles.at(0)}`
+      } else {
+        const missingDoublesString = `${missingDoubles
+          .slice(0, -1)
+          .join(', ')} and ${missingDoubles.at(-1)}`
+        return `Checkout on all the doubles. Missing ${missingDoublesString}.`
+      }
+    },
     gameTypes: ['x01'] as GameType[],
     initialProgression: [] as number[],
     addProgression(progression: number[], game: Game, userId: string) {

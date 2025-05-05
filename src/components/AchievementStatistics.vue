@@ -15,7 +15,7 @@
         <span style="font-size: large; font-weight: bold">{{
           achievement.name
         }}</span>
-        <span>{{ achievement.description }}</span>
+        <span>{{ achievement.description(achievement.progression) }}</span>
         <span v-if="achievement.achievedAt"
           >Achieved {{ new Date(achievement.achievedAt).toDateString() }}</span
         >
