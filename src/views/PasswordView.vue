@@ -1,4 +1,5 @@
 <template>
+  <button id="back" @click="router.push({ name: 'user' })">Back</button>
   <label for="password">New Password</label>
   <input id="password" type="password" v-model="password" />
   <label for="repeat-password">Repeat New Password</label>
