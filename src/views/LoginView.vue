@@ -74,7 +74,9 @@ const checkForErrors = () => {
     if (!email.value || !password.value) {
       return 'All fields are required!'
     }
+    return ''
   }
+
   if (signUp.value) {
     if (
       !name.value ||
@@ -93,6 +95,8 @@ const checkForErrors = () => {
 
 const submit = async () => {
   error.value = checkForErrors()
+  if (error.value) return
+
   try {
     if (!authStore.auth) {
       if (signUp.value) {
@@ -103,8 +107,10 @@ const submit = async () => {
     } else {
       router.push({ name: 'home' })
     }
-  } catch {
-    error.value = 'Oh no! Something went wrong :('
+  } catch (err) {
+    if (err instanceof Error) {
+      error.value = err.message
+    }
   }
 }
 
