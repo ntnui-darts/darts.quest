@@ -159,26 +159,31 @@ const recordResign = () => {
 }
 
 const saveGame = async () => {
-  promptQuit('Save game and exit?', async () => {
-    if (loadingStore.loading) return
-    loadingStore.loading = true
-    let saved = false
-    try {
-      saved = await gameStore.saveGame()
-    } catch {
-      saved = false
-    }
-    if (saved) {
-      loadingStore.loading = false
-      quit()
-    } else {
-      alert(
-        'Something went wrong! Please submit an issue to NTNUI Darts on GitHub.'
-      )
-    }
-  })
+  promptQuit('Save game and exit?', tryToSave)
 }
 
+const tryToSave = async () => {
+  if (loadingStore.loading) return
+  loadingStore.loading = true
+  let saved = false
+  try {
+    saved = await gameStore.saveGame()
+  } catch (err) {
+    saved = false
+    if (err instanceof Error && err.message == '409') {
+      quit()
+    }
+  }
+  loadingStore.loading = false
+  if (saved) {
+    quit()
+  } else {
+    promptQuit(
+      'Something went wrong, likely an internet issue. Try again?',
+      tryToSave
+    )
+  }
+}
 watch(
   () => [
     gameStore.gameState?.result.length,
