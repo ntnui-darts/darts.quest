@@ -139,10 +139,18 @@ export const useGameStore = defineStore('game', {
 
       const { extension, ...game } = this.game
 
-      await supabase.from('games').insert({
+      const result = await supabase.from('games').insert({
         ...game,
         legs: game.legs.map((leg) => leg.id),
       })
+
+      if (result.error?.code == '409') {
+        throw new Error('409')
+      }
+      if (result.error) {
+        throw new Error('PostgrestError from gameStore.saveGame()')
+      }
+
       const eloDeltas = await useEloStore().updateEloFromGame(game, true)
 
       for (let leg of game.legs) {
