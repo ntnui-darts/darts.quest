@@ -14,10 +14,13 @@ export type Segment = {
   multiplier: Multiplier
   sector: number
 }
+
 export type Resigned = 'resigned'
 
+export type ForcedCompletion = number
+
 export type Visit = [
-  Segment | null | Resigned,
+  Segment | null | Resigned | ForcedCompletion,
   Segment | null | Resigned,
   Segment | null | Resigned
 ]
@@ -108,4 +111,15 @@ export const getTypeAttribute = <T>(
     }
   }
   return _default as T
+}
+
+export const isSegment = (
+  candidate: Segment | null | Resigned | ForcedCompletion | undefined
+): candidate is Segment => {
+  return (
+    typeof candidate === 'object' &&
+    candidate !== null &&
+    typeof candidate.multiplier === 'number' &&
+    typeof candidate.sector === 'number'
+  )
 }

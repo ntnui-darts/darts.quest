@@ -14,6 +14,7 @@ import {
   Segment,
   Visit,
   getVisitsOfUser,
+  isSegment,
 } from '@/types/game'
 import { getSegmentScore } from './x01'
 
@@ -153,7 +154,7 @@ const getSkovhuggerVisitScore = (visit: Visit, visitIndex: number) => {
       continue
     }
 
-    if (s && targets[visitIndex](s)) {
+    if (isSegment(s) && targets[visitIndex](s)) {
       score += getSegmentScore(s)
     }
   }

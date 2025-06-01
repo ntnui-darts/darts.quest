@@ -29,6 +29,10 @@
       {{ ['Single', 'Double', 'Triple'][t - 1] }}
     </button>
   </div>
+  <div class="text-input">
+    <h4>Max visits (leave blank for no max)</h4>
+    <input type="number" />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -41,13 +45,20 @@ const finish = ref<1 | 2 | 3>(getTypeAttribute<1 | 2 | 3>(props, 'finish', 2))
 const startScore = ref<301 | 501 | 701>(
   getTypeAttribute<301 | 501 | 701>(props, 'startScore', 501)
 )
+const maxVisitsInput = ref<string>('')
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]
 }>()
 
 const update = () => {
-  emit('update', [`startScore:${startScore.value}`, `finish:${finish.value}`])
+  const attrs = [`startScore:${startScore.value}`, `finish:${finish.value}`]
+
+  const parsed = parseInt(maxVisitsInput.value)
+  if (!isNaN(parsed)) {
+    attrs.push(`maxVisits:${parsed}`)
+  }
+  emit('update', attrs)
 }
 
 onMounted(() => {

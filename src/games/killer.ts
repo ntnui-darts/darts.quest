@@ -11,6 +11,7 @@ import {
   GameState,
   Multiplier,
   getVisitsOfUser,
+  isSegment,
 } from '@/types/game'
 import { getGamePoints } from './games'
 
@@ -162,7 +163,7 @@ const simulateKiller = (game: GameExtended) => {
     for (const segment of visit) {
       if (winIfAlone()) break
 
-      if (!segment || segment == 'resigned') break
+      if (!isSegment(segment)) break
       const playerHit = killersLeft().find((p) => p.sector == segment.sector)
       if (!playerHit) continue
 

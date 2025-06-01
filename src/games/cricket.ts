@@ -11,6 +11,7 @@ import {
   GameExtended,
   GameState,
   getVisitsOfUser,
+  isSegment,
 } from '@/types/game'
 
 type CricketPlayer = {
@@ -56,7 +57,8 @@ export const getCricketController = (
 
     speakVisit(visit, leg) {
       const hits = visit.filter(
-        (s) => s != null && s != 'resigned' && s.sector > 0
+        (s) =>
+          s != null && s != 'resigned' && typeof s != 'number' && s.sector > 0
       ).length
       let text = `${hits} hits`
 
@@ -111,7 +113,7 @@ const simulateCricket = (game: Game) => {
     player.scorePrev = player.score
 
     for (const segment of visit) {
-      if (segment == null || segment == 'resigned') continue
+      if (!isSegment(segment)) continue
 
       const prevHits = player.hits.get(segment.sector) ?? 0
       const totalHits = prevHits + segment.multiplier

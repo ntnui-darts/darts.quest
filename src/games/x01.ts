@@ -12,6 +12,7 @@ import {
   getLegOfUser,
   getTypeAttribute,
   getVisitsOfUser,
+  isSegment,
 } from '@/types/game'
 import { GameType, getGamePoints } from './games'
 import { checkouts } from '@/data/checkouts'
@@ -94,7 +95,13 @@ export const userOnNine = (game: Game, userId: string) => {
   const visits = getLegOfUser(game, userId)?.visits ?? []
   const scored = getX01LegScore(visits, game)
   const dartsThrown = visits.flat().filter((segment) => segment != null).length
-  if (dartsThrown == 0 || game.type != 'x01' || getTypeAttribute<number>(game, 'finish', 1) != 2 || getTypeAttribute<number>(game, 'startScore', 0) != 501) return false
+  if (
+    dartsThrown == 0 ||
+    game.type != 'x01' ||
+    getTypeAttribute<number>(game, 'finish', 1) != 2 ||
+    getTypeAttribute<number>(game, 'startScore', 0) != 501
+  )
+    return false
   if (
     checkouts['3 darts'].some(
       (obj) =>
@@ -122,8 +129,7 @@ export const getX01LegScore = (
       const lastSegment = v.findLast((s) => s != null)
       if (
         finishType == 1 ||
-        (lastSegment != 'resigned' &&
-          (lastSegment?.multiplier ?? 0) == finishType)
+        (isSegment(lastSegment) && (lastSegment?.multiplier ?? 0) == finishType)
       ) {
         score += visitScore
       }
@@ -163,10 +169,15 @@ export const getFirst9Avg = (
 }
 
 export const getX01VisitScore = (visit: Visit) => {
-  return visit.reduce((prev, current) => prev + getSegmentScore(current), 0)
+  return visit.reduce(
+    (prev: number, current) => prev + getSegmentScore(current),
+    0
+  )
 }
 
-export const getSegmentScore = (segment: Segment | null | 'resigned') => {
-  if (segment == 'resigned') return 0
+export const getSegmentScore = (
+  segment: Segment | null | 'resigned' | number
+) => {
+  if (segment == 'resigned' || typeof segment == 'number' || !segment) return 0
   return segment ? segment.multiplier * segment.sector : 0
 }

@@ -11,6 +11,7 @@ import {
   Visit,
   getTypeAttribute,
   getVisitsOfUser,
+  isSegment,
 } from '@/types/game'
 import { getGamePoints } from './games'
 
@@ -101,9 +102,7 @@ export const getRtcController = (game: GameExtended): RtcController => {
     },
 
     speakVisit(visit) {
-      const score = visit.filter(
-        (s) => s && s != 'resigned' && s.sector > 0
-      ).length
+      const score = visit.filter((s) => isSegment(s) && s.sector > 0).length
       if (!score) speak('No score!')
       else speak(`${score}!`)
     },
@@ -129,7 +128,7 @@ const getVisitScore = (game: Game, visit: Visit) => {
   const isFast = getTypeAttribute<Boolean>(game, 'fast', false)
   return sumNumbers(
     visit.map((s) =>
-      s && s != 'resigned' ? (isFast ? s.multiplier : Math.min(1, s.sector)) : 0
+      isSegment(s) ? (isFast ? s.multiplier : Math.min(1, s.sector)) : 0
     )
   )
 }
@@ -148,7 +147,7 @@ export const sectorsHit = (visits: Visit[]) => {
   const sectors = new Set()
 
   visits.flat().forEach((s) => {
-    if (s && s != 'resigned' && s.sector > 0) {
+    if (isSegment(s) && s.sector > 0) {
       sectors.add(s.sector)
     }
   })
@@ -162,7 +161,7 @@ export const rtcStats = (visits: Visit[]) => {
   const hitCountList = Array(20).fill(0)
   for (let i = 0; i < visitsFlat.length; i++) {
     const segment = visitsFlat[i]
-    if (!segment || segment == 'resigned') {
+    if (!isSegment(segment)) {
       continue
     }
 
@@ -185,7 +184,7 @@ export const getMaxStreak = (visits: Visit[]) => {
   let currentRtcStreak = 0
   let maxRtcStreak = 0
   visits.flat().forEach((s) => {
-    if (s != null && s != 'resigned' && s.sector != 0) {
+    if (isSegment(s) && s.sector != 0) {
       currentRtcStreak += 1
       maxRtcStreak = Math.max(maxRtcStreak, currentRtcStreak)
     } else {
