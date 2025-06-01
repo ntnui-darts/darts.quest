@@ -51,6 +51,8 @@ export const updateAchievements = async (game: Game) => {
   const achievements = getAchievementsForGame(game.type)
 
   for (const userId of game.players) {
+    if (userId.startsWith('guest-')) continue
+
     const { data, error } = await supabase
       .from('achievements')
       .select('*')

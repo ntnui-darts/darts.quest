@@ -153,7 +153,9 @@ export const useGameStore = defineStore('game', {
 
       const eloDeltas = await useEloStore().updateEloFromGame(game, true)
 
-      for (let leg of game.legs) {
+      for (const leg of game.legs) {
+        if (leg.userId.startsWith('guest-')) continue
+
         if (game.result.includes(leg.userId)) {
           leg.finish = true
         }
