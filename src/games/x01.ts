@@ -168,7 +168,9 @@ export const getAvgVisitScore = (
   }
 ) => {
   if (!visits || visits.length == 0) return 0
-  const segmentCount = visits.flat().filter((visit) => visit != null).length
+  const segmentCount = visits
+    .flat()
+    .filter((segment) => isSegment(segment)).length
   if (!segmentCount) return 0
   return (getX01LegScore(visits, game) * 3) / segmentCount
 }
