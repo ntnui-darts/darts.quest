@@ -30,14 +30,14 @@
     </button>
   </div>
   <div class="text-input">
-    <h4>Max visits (leave blank for no max)</h4>
-    <input type="number" />
+    <h4>Max visits</h4>
+    <input type="number" v-model="maxVisitsInput" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { getTypeAttribute } from '@/types/game'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
 
@@ -46,6 +46,10 @@ const startScore = ref<301 | 501 | 701>(
   getTypeAttribute<301 | 501 | 701>(props, 'startScore', 501)
 )
 const maxVisitsInput = ref<string>('')
+
+watch(maxVisitsInput, () => {
+  update()
+})
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]

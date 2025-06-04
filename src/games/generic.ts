@@ -17,6 +17,7 @@ export const getGenericController = (game: GameExtended) => {
     getSegmentText(segment) {
       if (!segment) return '-'
       if (segment == 'resigned') return '💀'
+      if (typeof segment == 'number') return ''
       if (!segment.multiplier || segment.multiplier == 1)
         return segment.sector.toString()
       return `${multiplierToString(segment.multiplier)} x ${segment.sector}`

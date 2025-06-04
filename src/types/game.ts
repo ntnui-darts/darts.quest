@@ -71,7 +71,7 @@ export interface GameController<T extends GameState> {
   recordHit(segment: Segment): void
   recordMiss(): void
   recordResign(): void
-  getSegmentText(segment?: Segment | null | Resigned): string
+  getSegmentText(segment?: Segment | null | Resigned | ForcedCompletion): string
   speakVisit(visit: Visit, leg: Leg): void
 }
 

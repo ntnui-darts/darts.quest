@@ -129,6 +129,9 @@ export const useGameStore = defineStore('game', {
       if (visit[0] == null) {
         leg.visits.pop()
       }
+      for (const leg of this.game.legs) {
+        leg.visits = leg.visits.filter((v) => typeof v[0] != 'number')
+      }
       this.refreshGameState()
       this.saveToLocalStorage()
     },

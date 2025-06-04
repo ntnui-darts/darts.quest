@@ -90,7 +90,9 @@ export const getRtcController = (game: GameExtended): RtcController => {
     },
 
     getSegmentText(segment) {
-      return segment && segment != 'resigned' ? `${segment.sector}` : '-'
+      return segment && segment != 'resigned' && typeof segment != 'number'
+        ? `${segment.sector}`
+        : '-'
     },
 
     recordHit(segment) {

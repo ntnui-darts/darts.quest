@@ -24,10 +24,27 @@ export const getX01Controller = (
     ...getGenericController(game),
 
     getGameState() {
+      const sortResult = (a: string, b: string) => {
+        const aVisits = getVisitsOfUser(game, a)
+        const bVisits = getVisitsOfUser(game, b)
+
+        const aFinished = typeof aVisits.at(-1)?.at(0) != 'number'
+        const bFinished = typeof bVisits.at(-1)?.at(0) != 'number'
+
+        if (aFinished && bFinished) return 0
+        if (aFinished) return -1
+        if (bFinished) return 1
+        return (
+          (aVisits.at(-1)?.at(0) as number) - (bVisits.at(-1)?.at(0) as number)
+        )
+      }
       return {
         ...simulateFirstToWinGame(
           game,
-          (game, visits) => getX01LegScore(visits, game) == getGamePoints(game)
+          (game, visits) =>
+            getX01LegScore(visits, game) == getGamePoints(game) ||
+            typeof visits.at(-1)?.at(0) == 'number',
+          sortResult
         ),
 
         getUserResultText(userId) {
