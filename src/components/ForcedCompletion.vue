@@ -28,9 +28,9 @@
       {{ usersStore.getName(userId) }}
     </button>
   </div>
-  <div>
-    <button @click="confirmRanking()">Confirm</button
-    ><button @click="emit('undo')">&#x232B;</button>
+  <div class="button-row" style="display: flex; gap: 1rem">
+    <button @click="confirmRanking()" style="flex: 1">Confirm</button>
+    <button @click="emit('undo')" style="flex: 1">&#x232B;</button>
   </div>
 </template>
 
