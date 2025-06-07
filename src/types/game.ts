@@ -17,12 +17,15 @@ export type Segment = {
 
 export type Resigned = 'resigned'
 
-export type ForcedCompletion = number
+export type ForcedCompletion = {
+  reason: string
+  value: number
+}
 
 export type Visit = [
-  Segment | null | Resigned | ForcedCompletion,
-  Segment | null | Resigned,
-  Segment | null | Resigned
+  Segment | null | ForcedCompletion,
+  Segment | null | ForcedCompletion,
+  Segment | null | ForcedCompletion
 ]
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
@@ -71,7 +74,7 @@ export interface GameController<T extends GameState> {
   recordHit(segment: Segment): void
   recordMiss(): void
   recordResign(): void
-  getSegmentText(segment?: Segment | null | Resigned | ForcedCompletion): string
+  getSegmentText(segment?: Segment | null | ForcedCompletion): string
   speakVisit(visit: Visit, leg: Leg): void
 }
 
@@ -114,12 +117,27 @@ export const getTypeAttribute = <T>(
 }
 
 export const isSegment = (
-  candidate: Segment | null | Resigned | ForcedCompletion | undefined
+  candidate: Segment | null | ForcedCompletion | undefined
 ): candidate is Segment => {
   return (
     typeof candidate === 'object' &&
     candidate !== null &&
+    'multiplier' in candidate &&
+    'sector' in candidate &&
     typeof candidate.multiplier === 'number' &&
     typeof candidate.sector === 'number'
+  )
+}
+
+export const isForcedCompletion = (
+  candidate: Segment | null | ForcedCompletion | undefined
+): candidate is ForcedCompletion => {
+  return (
+    typeof candidate === 'object' &&
+    candidate !== null &&
+    'reason' in candidate &&
+    'value' in candidate &&
+    typeof candidate.reason === 'string' &&
+    typeof candidate.value === 'number'
   )
 }

@@ -7,6 +7,8 @@ import {
   Multiplier,
   Visit,
   getVisitsOfUser,
+  isForcedCompletion,
+  isSegment,
   multiplierToString,
 } from '@/types/game'
 
@@ -15,9 +17,8 @@ export const getGenericController = (game: GameExtended) => {
     game,
 
     getSegmentText(segment) {
-      if (!segment) return '-'
-      if (segment == 'resigned') return '💀'
-      if (typeof segment == 'number') return ''
+      if (!isSegment(segment)) return '-'
+      if (isForcedCompletion(segment)) return segment.reason
       if (!segment.multiplier || segment.multiplier == 1)
         return segment.sector.toString()
       return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
@@ -33,7 +34,7 @@ export const getGenericController = (game: GameExtended) => {
     },
 
     recordResign() {
-      useGameStore().saveScore('resigned')
+      useGameStore().saveScore({ reason: 'resign', value: 0 })
     },
   } satisfies Partial<GameController<GameState>>
 }
@@ -113,7 +114,11 @@ export const simulateFirstToWinGame = (
 
     const visit = allVisits.at(state.visitIndex)
 
-    if (visit?.includes('resigned')) {
+    if (
+      visit?.some((s) => {
+        isForcedCompletion(s)
+      })
+    ) {
       state.resignees.push(state.player)
       continue // TODO: FIX FOR FORCED RTC
     }

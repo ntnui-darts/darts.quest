@@ -3,6 +3,7 @@ import { speak } from '@/functions/speak'
 import { getGameController, getGameDisplayName } from '@/games/games'
 import { supabase } from '@/supabase'
 import {
+  ForcedCompletion,
   GameController,
   GameExtended,
   GameState,
@@ -76,7 +77,7 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    saveScore(segment: Segment | Resigned) {
+    saveScore(segment: Segment | ForcedCompletion) {
       if (!this.game) throw Error()
       if (!this.getCurrentLeg) throw Error()
       if (!this.gameState) throw Error()

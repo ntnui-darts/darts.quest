@@ -78,12 +78,9 @@ const emit = defineEmits<{
   undo: []
 }>()
 
+const maxVisits = getTypeAttribute<number | null>(props.game, 'maxVisits', null)
+
 const forcedCompletion = computed(() => {
-  const maxVisits = getTypeAttribute<number | null>(
-    props.game,
-    'maxVisits',
-    null
-  )
   const lastPlayerId = props.gameState.playersLeft.at(-1)
   if (lastPlayerId == null) return false
   const lastPlayerLeg = props.game.legs.find(

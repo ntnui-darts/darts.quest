@@ -12,10 +12,12 @@ import {
   getLegOfUser,
   getTypeAttribute,
   getVisitsOfUser,
+  isForcedCompletion,
   isSegment,
 } from '@/types/game'
 import { GameType, getGamePoints } from './games'
 import { checkouts } from '@/data/checkouts'
+import ForcedCompletion from '@/components/ForcedCompletion.vue'
 
 export const getX01Controller = (
   game: GameExtended
@@ -28,14 +30,20 @@ export const getX01Controller = (
         const aVisits = getVisitsOfUser(game, a)
         const bVisits = getVisitsOfUser(game, b)
 
-        const aFinished = typeof aVisits.at(-1)?.at(0) != 'number'
-        const bFinished = typeof bVisits.at(-1)?.at(0) != 'number'
+        const aLastVisitForcedCompletion = aVisits.at(-1)?.find((s) => {
+          isForcedCompletion(s)
+        })
+        const bLastVisitForcedCompletion = bVisits.at(-1)?.find((s) => {
+          isForcedCompletion(s)
+        })
+        const aFinished = !aLastVisitForcedCompletion
+        const bFinished = !bLastVisitForcedCompletion
 
         if (aFinished && bFinished) return 0
         if (aFinished) return -1
         if (bFinished) return 1
         return (
-          (aVisits.at(-1)?.at(0) as number) - (bVisits.at(-1)?.at(0) as number)
+          aLastVisitForcedCompletion.value - bLastVisitForcedCompletion.value
         )
       }
       return {
@@ -194,9 +202,7 @@ export const getX01VisitScore = (visit: Visit) => {
   )
 }
 
-export const getSegmentScore = (
-  segment: Segment | null | 'resigned' | number
-) => {
-  if (segment == 'resigned' || typeof segment == 'number' || !segment) return 0
+export const getSegmentScore = (segment: Segment | null | 'resigned') => {
+  if (!isSegment(segment)) return 0
   return segment ? segment.multiplier * segment.sector : 0
 }

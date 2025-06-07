@@ -56,10 +56,7 @@ export const getCricketController = (
     },
 
     speakVisit(visit, leg) {
-      const hits = visit.filter(
-        (s) =>
-          s != null && s != 'resigned' && typeof s != 'number' && s.sector > 0
-      ).length
+      const hits = visit.filter((s) => isSegment(s) && s.sector > 0).length
       let text = `${hits} hits`
 
       const gameState = this.getGameState()

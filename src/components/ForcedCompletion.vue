@@ -65,7 +65,12 @@ const confirmRanking = () => {
     if (!leg) continue
 
     const placement = remainingPlayers.indexOf(player)
-    const newVisit: Visit = [placement, null, null]
+
+    const newVisit: Visit = [
+      { reason: 'MaxVisit', value: placement },
+      null,
+      null,
+    ]
 
     leg.visits.push(newVisit)
   }
