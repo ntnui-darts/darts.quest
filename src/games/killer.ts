@@ -114,7 +114,7 @@ const simulateKiller = (game: GameExtended) => {
         player: killers[i].userId,
         prevPlayer: null,
         result: [],
-        resignees: [],
+        forcedCompleted: [],
         playersLeft: killers.map((p) => p.userId),
         killers,
       }
@@ -126,7 +126,7 @@ const simulateKiller = (game: GameExtended) => {
     prevPlayer: null,
     visitIndex: 0,
     result: [],
-    resignees: [],
+    forcedCompleted: [],
   }
   const gamePoints = getGamePoints(game)
   const players = killers
@@ -199,7 +199,7 @@ const simulateKiller = (game: GameExtended) => {
     ...state,
     killers,
     playersLeft: players.filter(
-      (p) => !state.result.includes(p) && !state.resignees.includes(p)
+      (p) => !state.result.includes(p) && !state.forcedCompleted.includes(p)
     ),
   }
 }

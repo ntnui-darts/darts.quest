@@ -1,5 +1,6 @@
 import { useGameStore } from '@/stores/game'
 import {
+  ForcedCompletion,
   Game,
   GameController,
   GameExtended,
@@ -34,7 +35,7 @@ export const getGenericController = (game: GameExtended) => {
     },
 
     recordResign() {
-      useGameStore().saveScore({ reason: 'resign', value: 0 })
+      useGameStore().saveScore({ reason: 'resigned', value: 0 })
     },
   } satisfies Partial<GameController<GameState>>
 }
@@ -44,7 +45,7 @@ export type SimulationState = {
   player: null | string
   visitIndex: number
   result: string[]
-  resignees: string[]
+  forcedCompleted: string[]
 }
 
 export const nextState = (
@@ -59,10 +60,10 @@ export const nextState = (
       player: players[0],
       visitIndex: 0,
       result: [],
-      resignees: [],
+      forcedCompleted: [],
     }
   state.prevPlayer = state.player
-  if (state.result.length + state.resignees.length == players.length) {
+  if (state.result.length + state.forcedCompleted.length == players.length) {
     state.player = null
     return state
   }
@@ -74,7 +75,7 @@ export const nextState = (
 
   if (
     state.result.includes(nextPlayer) ||
-    state.resignees.includes(nextPlayer)
+    state.forcedCompleted.includes(nextPlayer)
   ) {
     return nextState(players, state, nextIndex)
   }
@@ -92,7 +93,7 @@ export const simulateFirstToWinGame = (
     prevPlayer: null,
     visitIndex: 0,
     result: [],
-    resignees: [],
+    forcedCompleted: [],
   }
 
   while (true) {
@@ -116,20 +117,45 @@ export const simulateFirstToWinGame = (
 
     if (
       visit?.some((s) => {
-        isForcedCompletion(s)
+        s == 'resigned' || isForcedCompletion(s)
       })
     ) {
-      state.resignees.push(state.player)
+      state.forcedCompleted.push(state.player)
       continue // TODO: FIX FOR FORCED RTC
     }
 
     if (!visit || visit.includes(null)) break
   }
 
+  // find and sort players with forcedCompletion: max-visits
+  const maxVisitedPlayers = (
+    state.forcedCompleted
+      .map((player) => {
+        const allVisits = getVisitsOfUser(game, state.player)
+        const forcedCompletion = allVisits
+          .flat()
+          .find((s) => isForcedCompletion(s))
+        return { player, forcedCompletion }
+      })
+      .filter(
+        ({ forcedCompletion }) =>
+          isForcedCompletion(forcedCompletion) &&
+          forcedCompletion.reason == 'max-visits'
+      ) as { player: string; forcedCompletion: ForcedCompletion }[]
+  ).toSorted((a, b) => a.forcedCompletion.value - b.forcedCompletion?.value)
+
+  // add these players to result and remove them from forcedCompleted
+  maxVisitedPlayers.forEach(({ player }) => {
+    state.result.push(player)
+  })
+  state.forcedCompleted = state.forcedCompleted.filter(
+    (p) => !maxVisitedPlayers.find(({ player }) => player == p)
+  )
+
   return {
     ...state,
     playersLeft: game.players.filter(
-      (p) => !state.result.includes(p) && !state.resignees.includes(p)
+      (p) => !state.result.includes(p) && !state.forcedCompleted.includes(p)
     ),
   }
 }

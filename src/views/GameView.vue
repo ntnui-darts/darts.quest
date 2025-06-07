@@ -187,7 +187,7 @@ const tryToSave = async () => {
 watch(
   () => [
     gameStore.gameState?.result.length,
-    gameStore.gameState?.resignees.length,
+    gameStore.gameState?.forcedCompleted.length,
   ],
   async (now, prev) => {
     if (!gameStore.game) return

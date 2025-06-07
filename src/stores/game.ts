@@ -7,7 +7,6 @@ import {
   GameController,
   GameExtended,
   GameState,
-  Resigned,
   Segment,
   Visit,
   getLegOfUser,

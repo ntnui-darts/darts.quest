@@ -76,7 +76,7 @@ const simulateCricket = (game: Game) => {
     prevPlayer: null,
     visitIndex: 0,
     result: [],
-    resignees: [],
+    forcedCompleted: [],
   }
 
   const sectors = [15, 16, 17, 18, 19, 20, 25]
@@ -89,7 +89,8 @@ const simulateCricket = (game: Game) => {
   }))
   const playersLeft = () =>
     players.filter(
-      (p) => !state.result.includes(p.id) && !state.resignees.includes(p.id)
+      (p) =>
+        !state.result.includes(p.id) && !state.forcedCompleted.includes(p.id)
     )
 
   while (true) {
@@ -152,7 +153,7 @@ const simulateCricket = (game: Game) => {
   return {
     ...state,
     playersLeft: game.players.filter(
-      (p) => !state.result.includes(p) && !state.resignees.includes(p)
+      (p) => !state.result.includes(p) && !state.forcedCompleted.includes(p)
     ),
     players,
     unlocks,

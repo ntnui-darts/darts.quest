@@ -1,3 +1,4 @@
+import { checkouts } from '@/data/checkouts'
 import { speak } from '@/functions/speak'
 import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
 import { useGameStore } from '@/stores/game'
@@ -7,17 +8,14 @@ import {
   GameController,
   GameExtended,
   GameState,
-  Segment,
+  MaybeSegment,
   Visit,
   getLegOfUser,
   getTypeAttribute,
   getVisitsOfUser,
-  isForcedCompletion,
   isSegment,
 } from '@/types/game'
 import { GameType, getGamePoints } from './games'
-import { checkouts } from '@/data/checkouts'
-import ForcedCompletion from '@/components/ForcedCompletion.vue'
 
 export const getX01Controller = (
   game: GameExtended
@@ -26,33 +24,10 @@ export const getX01Controller = (
     ...getGenericController(game),
 
     getGameState() {
-      const sortResult = (a: string, b: string) => {
-        const aVisits = getVisitsOfUser(game, a)
-        const bVisits = getVisitsOfUser(game, b)
-
-        const aLastVisitForcedCompletion = aVisits.at(-1)?.find((s) => {
-          isForcedCompletion(s)
-        })
-        const bLastVisitForcedCompletion = bVisits.at(-1)?.find((s) => {
-          isForcedCompletion(s)
-        })
-        const aFinished = !aLastVisitForcedCompletion
-        const bFinished = !bLastVisitForcedCompletion
-
-        if (aFinished && bFinished) return 0
-        if (aFinished) return -1
-        if (bFinished) return 1
-        return (
-          aLastVisitForcedCompletion.value - bLastVisitForcedCompletion.value
-        )
-      }
       return {
         ...simulateFirstToWinGame(
           game,
-          (game, visits) =>
-            getX01LegScore(visits, game) == getGamePoints(game) ||
-            typeof visits.at(-1)?.at(0) == 'number',
-          sortResult
+          (game, visits) => getX01LegScore(visits, game) == getGamePoints(game)
         ),
 
         getUserResultText(userId) {
@@ -202,7 +177,7 @@ export const getX01VisitScore = (visit: Visit) => {
   )
 }
 
-export const getSegmentScore = (segment: Segment | null | 'resigned') => {
+export const getSegmentScore = (segment: MaybeSegment | undefined) => {
   if (!isSegment(segment)) return 0
   return segment ? segment.multiplier * segment.sector : 0
 }

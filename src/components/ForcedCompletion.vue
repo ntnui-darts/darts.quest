@@ -60,20 +60,18 @@ const dragUser = (from: string | null, to: string | null) => {
 }
 
 const confirmRanking = () => {
-  for (const player of remainingPlayers) {
+  remainingPlayers.forEach((player, placement) => {
     const leg = getLegOfUser(props.game, player)
-    if (!leg) continue
-
-    const placement = remainingPlayers.indexOf(player)
+    if (!leg) return
 
     const newVisit: Visit = [
-      { reason: 'MaxVisit', value: placement },
+      { reason: 'max-visits', value: placement },
       null,
       null,
     ]
 
     leg.visits.push(newVisit)
-  }
+  })
   useGameStore().refreshGameState()
 }
 </script>
