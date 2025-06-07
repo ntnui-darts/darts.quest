@@ -132,7 +132,7 @@
       <tr
         v-for="(userId, i) in [
           ...gameState.result,
-          ...gameState.resignees.reverse(),
+          ...gameState.forcedCompleted.reverse(),
         ]"
       >
         <td
@@ -169,6 +169,7 @@ import { userOnNine } from '@/games/x01'
 import { useAuthStore } from '@/stores/auth'
 import { useEloStore } from '@/stores/elo'
 import { useModalStore } from '@/stores/modal'
+import { useOnlineStore } from '@/stores/online'
 import { useTournamentStore } from '@/stores/tournament'
 import { useUsersStore } from '@/stores/users'
 import {
@@ -180,7 +181,6 @@ import {
 } from '@/types/game'
 import { computed, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
-import { useOnlineStore } from '@/stores/online'
 
 const props = defineProps<{
   game: Game
@@ -206,7 +206,7 @@ const allPlayersFinished = computed(
 )
 const somePlayersFinished = computed(() =>
   props.gameState
-    ? props.gameState.result.length + props.gameState.resignees.length > 0
+    ? props.gameState.result.length + props.gameState.forcedCompleted.length > 0
     : false
 )
 const displayVisit = computed(() => {

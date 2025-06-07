@@ -14,13 +14,15 @@ export type Segment = {
   multiplier: Multiplier
   sector: number
 }
-export type Resigned = 'resigned'
 
-export type Visit = [
-  Segment | null | Resigned,
-  Segment | null | Resigned,
-  Segment | null | Resigned
-]
+export type Resigned = 'resigned'
+export type ForcedCompletion = {
+  reason: Resigned | 'max-visits'
+  value: number
+}
+
+export type MaybeSegment = Segment | null | Resigned | ForcedCompletion
+export type Visit = [MaybeSegment, MaybeSegment, MaybeSegment]
 
 export type DbLeg = Database['public']['Tables']['legs']['Row']
 export type Leg = Omit<DbLeg, 'visits' | 'createdAt' | 'type'> & {
@@ -53,7 +55,7 @@ export type RTCExtension = {
 
 export interface GameState {
   result: string[]
-  resignees: string[]
+  forcedCompleted: string[]
   player: string | null
   prevPlayer: string | null
   playersLeft: string[]
@@ -68,7 +70,7 @@ export interface GameController<T extends GameState> {
   recordHit(segment: Segment): void
   recordMiss(): void
   recordResign(): void
-  getSegmentText(segment?: Segment | null | Resigned): string
+  getSegmentText(segment?: MaybeSegment): string
   speakVisit(visit: Visit, leg: Leg): void
 }
 
@@ -108,4 +110,30 @@ export const getTypeAttribute = <T>(
     }
   }
   return _default as T
+}
+
+export const isSegment = (
+  candidate: MaybeSegment | undefined
+): candidate is Segment => {
+  return (
+    typeof candidate === 'object' &&
+    candidate !== null &&
+    'multiplier' in candidate &&
+    'sector' in candidate &&
+    typeof candidate.multiplier === 'number' &&
+    typeof candidate.sector === 'number'
+  )
+}
+
+export const isForcedCompletion = (
+  candidate: MaybeSegment | undefined
+): candidate is ForcedCompletion => {
+  return (
+    typeof candidate === 'object' &&
+    candidate !== null &&
+    'reason' in candidate &&
+    'value' in candidate &&
+    typeof candidate.reason === 'string' &&
+    typeof candidate.value === 'number'
+  )
 }

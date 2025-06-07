@@ -29,11 +29,15 @@
       {{ ['Single', 'Double', 'Triple'][t - 1] }}
     </button>
   </div>
+  <div class="text-input">
+    <h4>Max visits</h4>
+    <input type="number" v-model="maxVisitsInput" />
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { getTypeAttribute } from '@/types/game'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
 
@@ -41,13 +45,24 @@ const finish = ref<1 | 2 | 3>(getTypeAttribute<1 | 2 | 3>(props, 'finish', 2))
 const startScore = ref<301 | 501 | 701>(
   getTypeAttribute<301 | 501 | 701>(props, 'startScore', 501)
 )
+const maxVisitsInput = ref<string>('')
+
+watch(maxVisitsInput, () => {
+  update()
+})
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]
 }>()
 
 const update = () => {
-  emit('update', [`startScore:${startScore.value}`, `finish:${finish.value}`])
+  const attrs = [`startScore:${startScore.value}`, `finish:${finish.value}`]
+
+  const parsed = parseInt(maxVisitsInput.value)
+  if (!isNaN(parsed)) {
+    attrs.push(`maxVisits:${parsed}`)
+  }
+  emit('update', attrs)
 }
 
 onMounted(() => {

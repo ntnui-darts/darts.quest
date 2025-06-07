@@ -1,7 +1,7 @@
 import { GameType } from '@/games/games'
 import { getX01VisitScore } from '@/games/x01'
 import { Achievement } from '@/types/achievement'
-import { Game, getLegOfUser } from '@/types/game'
+import { Game, getLegOfUser, isSegment } from '@/types/game'
 
 export const achievements: Record<string, Achievement<{}>> = {
   hit_180: {
@@ -60,8 +60,7 @@ export const achievements: Record<string, Achievement<{}>> = {
 
       const lastScoreIs170 = getX01VisitScore(lastVisit) == 170
       const lastDart = lastVisit[2]
-      const lastDartIsDouble =
-        lastDart && lastDart != 'resigned' && lastDart.multiplier == 2
+      const lastDartIsDouble = isSegment(lastDart) && lastDart.multiplier == 2
 
       if (userFinished && lastScoreIs170 && lastDartIsDouble) {
         return { legId: leg.id, progression: progression + 1 }
@@ -98,7 +97,7 @@ export const achievements: Record<string, Achievement<{}>> = {
       const userFinished = leg.finish
       const lastVisit = leg.visits.at(-1)
       const lastDart = lastVisit?.findLast((s) => s != null)
-      if (!lastDart || lastDart == 'resigned') return
+      if (!isSegment(lastDart)) return
       const newDouble = !progression.includes(lastDart.sector)
       if (newDouble && userFinished) {
         return { legId: userId, progression: [...progression, lastDart.sector] }
