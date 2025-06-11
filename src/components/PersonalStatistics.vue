@@ -59,11 +59,13 @@ import { getTypeAttribute, Visit } from '@/types/game'
 import { addDays } from 'date-fns'
 import { computed, onMounted, ref } from 'vue'
 import Chart from './LineChart.vue'
+import { useTournamentStore } from '@/stores/tournament'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
 const statsStore = useStatsStore()
 const eloStore = useEloStore()
+const tournamentStore = useTournamentStore()
 
 const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
@@ -129,6 +131,7 @@ const rtcVisitsDartboard = computed(() =>
 
 onMounted(async () => {
   setLastDays(7)
+  tournamentStore.fetchTournaments()
 })
 
 const legs = computed(() => {

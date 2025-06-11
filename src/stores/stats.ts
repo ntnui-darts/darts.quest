@@ -49,7 +49,7 @@ export const useStatsStore = defineStore('stats', {
   state: () => ({
     loading: true,
     legs: [] as Leg[],
-    games: [] as Game[],
+    games: [] as DbGame[],
     x01Stats: [] as X01Stat[],
     rtcStats: [] as RtcStat[],
     killerStats: [] as KillerStat[],
@@ -81,7 +81,7 @@ export const useStatsStore = defineStore('stats', {
       if (!id) return
       const games = await supabase.from('games').select('*').contains('players',[id])
       if (games.data){
-        this.games = (games.data as Game[]).toSorted(compareCreatedAt)
+        this.games = (games.data as DbGame[]).toSorted(compareCreatedAt)
       }
     },
 
