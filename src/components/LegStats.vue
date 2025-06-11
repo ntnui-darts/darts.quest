@@ -16,9 +16,9 @@
 import { getGameDisplayName } from '@/games/games'
 import { useModalStore } from '@/stores/modal'
 import { DbGame, Leg } from '@/types/game'
-import DartboardChart from './DartboardChart.vue'
 import { useUsersStore } from '@/stores/users'
 import { useTournamentStore } from '@/stores/tournament'
+import GameSummary from './GameSummary.vue'
 
 const props = defineProps<{
   leg: Leg
@@ -27,8 +27,8 @@ const props = defineProps<{
 
 const showSummary = () => {
   useModalStore().push(
-    DartboardChart,
-    { visits: props.leg.visits, statType: props.leg.type },
+    GameSummary,
+    { leg: props.leg, game: props.game },
     {}
   )
 }
