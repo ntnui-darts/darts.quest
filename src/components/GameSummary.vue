@@ -9,7 +9,7 @@
     </div>
     <div>
       <h3>Game information</h3>
-      Participants :
+      Participants:
       {{
         props.game.players
           .map((player) => usersStore.getName(player))
