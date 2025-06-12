@@ -6,7 +6,19 @@
     <DartboardChart :visits="props.leg.visits" :statType="props.leg.type">
     </DartboardChart>
   </div>
-  <div v-if="statEntries.length">
+  <div>
+    <h3>Game information</h3>
+    Participants :
+    {{
+      props.game.players.map((player) => usersStore.getName(player)).join(', ')
+    }}
+    <div>Game mode: {{ game.type }}</div>
+    <div v-for="attribute in game.typeAttributes">
+      {{ formatAttribute(attribute) }}
+    </div>
+  </div>
+  <div>
+    <h3>Personal statistics</h3>
     <div v-for="[key, value] in statEntries">
       <span>{{ formatStat(key, value) }}</span>
     </div>
@@ -22,11 +34,14 @@ import { supabase } from '@/supabase'
 import { computed, onMounted, ref } from 'vue'
 import { GameType } from '@/games/games'
 import { Database } from '@/types/supabase'
+import { useUsersStore } from '@/stores/users'
 
 const props = defineProps<{
   leg: Leg
   game: DbGame
 }>()
+
+const usersStore = useUsersStore()
 
 const tableMap: Record<GameType, keyof Database['public']['Tables']> = {
   x01: 'statistics_x01',
@@ -35,6 +50,7 @@ const tableMap: Record<GameType, keyof Database['public']['Tables']> = {
   skovhugger: 'statistics_skovhugger',
   cricket: 'statistics_cricket',
 }
+
 const labelMap: Record<string, string> = {
   id: '',
   darts: 'Darts',
@@ -47,6 +63,15 @@ const labelMap: Record<string, string> = {
   hitRate: 'Hit rate',
   score: 'Score',
 }
+
+const keyMap: Record<string, string> = {
+  startScore: 'Start score',
+  finish: 'Finish',
+  maxVisits: 'Max visits',
+  forced: 'Forced',
+  fast: 'Fast',
+}
+
 const ordinal = (value: number) => {
   const s = ['th', 'st', 'nd', 'rd']
   const v = value % 100
@@ -76,6 +101,23 @@ const formatStat = (key: string, value: any): string => {
       break
   }
   return `${label}: ${displayValue}`
+}
+
+const formatAttribute = (attribute: string) => {
+  const [rawKey, rawValue] = attribute.split(':')
+  if (!keyMap[rawKey]) {
+    return ''
+  }
+  const key = keyMap[rawKey]
+
+  switch (rawValue) {
+    case 'false':
+      return ''
+    case 'true':
+      return key
+  }
+  const value = Number(rawValue)
+  return [key, value].join(': ')
 }
 
 const table = tableMap[props.leg.type]
