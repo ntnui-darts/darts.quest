@@ -2,30 +2,33 @@
   <div style="display: flex; justify-content: end">
     <ExitIcon @click="useModalStore().pop"></ExitIcon>
   </div>
-  <div v-if="props.game.type == 'x01' || props.game.type == 'rtc'">
-    <DartboardChart
-      :visits="props.leg.visits"
-      :statType="props.leg.type"
-      :width="500"
-      :height="500"
-    >
-    </DartboardChart>
-  </div>
-  <div>
-    <h3>Game information</h3>
-    Participants :
-    {{
-      props.game.players.map((player) => usersStore.getName(player)).join(', ')
-    }}
-    <div>Game mode: {{ game.type }}</div>
-    <div v-for="attribute in game.typeAttributes">
-      {{ formatAttribute(attribute) }}
+  <div style="overflow-x: hidden; overflow-y: auto">
+    <div v-if="props.game.type == 'x01' || props.game.type == 'rtc'">
+      <DartboardChart :visits="props.leg.visits" :statType="props.leg.type">
+      </DartboardChart>
     </div>
-  </div>
-  <div>
-    <h3>Personal statistics</h3>
-    <div v-for="[key, value] in statEntries">
-      <span>{{ formatStat(key, value) }}</span>
+    <div>
+      <h3>Game information</h3>
+      Participants :
+      {{
+        props.game.players
+          .map((player) => usersStore.getName(player))
+          .join(', ')
+      }}
+      <div v-if="game.tournamentId">
+        Tournament:
+        {{ useTournamentStore().getTournamentName(game.tournamentId) }}
+      </div>
+      <div>Game mode: {{ game.type }}</div>
+      <div v-for="attribute in game.typeAttributes">
+        {{ formatAttribute(attribute) }}
+      </div>
+    </div>
+    <div>
+      <h3>Personal statistics</h3>
+      <div v-for="[key, value] in statEntries">
+        <span>{{ formatStat(key, value) }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -36,10 +39,11 @@ import ExitIcon from './ExitIcon.vue'
 import { DbGame, Leg } from '@/types/game'
 import DartboardChart from './DartboardChart.vue'
 import { supabase } from '@/supabase'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { GameType } from '@/games/games'
 import { Database } from '@/types/supabase'
 import { useUsersStore } from '@/stores/users'
+import { useTournamentStore } from '@/stores/tournament'
 
 const props = defineProps<{
   leg: Leg
@@ -97,7 +101,7 @@ const formatStat = (key: string, value: any): string => {
     case 'winRate':
       const playerCt = props.game.players.length
       const placement = 1 + (1 - value) * (props.game.players.length - 1)
-      displayValue = `${ordinal(placement)} / ${playerCt}`
+      displayValue = `${ordinal(placement)} / ${playerCt} players`
       break
     case 'eloDelta':
       if (value == 0) {
@@ -149,6 +153,10 @@ onMounted(async () => {
   if (!error) {
     stats.value = data
   }
+  document.body.style.overflow = 'hidden'
+})
+onBeforeUnmount(() => {
+  document.body.style.overflow = ''
 })
 
 const statEntries = computed(() => {

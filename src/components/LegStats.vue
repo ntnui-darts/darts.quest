@@ -1,4 +1,4 @@
-<template style="background-color: ">
+<template>
   <div class="row spaced" style="align-items: center">
     <p>
       <small>{{ new Date(leg.createdAt).toLocaleString() }}</small>
@@ -22,7 +22,7 @@ import GameSummary from './GameSummary.vue'
 
 const props = defineProps<{
   leg: Leg
-  game: DbGame | undefined
+  game: DbGame
 }>()
 
 const showSummary = () => {
