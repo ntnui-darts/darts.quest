@@ -3,7 +3,12 @@
     <ExitIcon @click="useModalStore().pop"></ExitIcon>
   </div>
   <div v-if="props.game.type == 'x01' || props.game.type == 'rtc'">
-    <DartboardChart :visits="props.leg.visits" :statType="props.leg.type">
+    <DartboardChart
+      :visits="props.leg.visits"
+      :statType="props.leg.type"
+      :width="500"
+      :height="500"
+    >
     </DartboardChart>
   </div>
   <div>
@@ -72,6 +77,12 @@ const keyMap: Record<string, string> = {
   fast: 'Fast',
 }
 
+const finishMap: Record<number, string> = {
+  1: 'Single',
+  2: 'Double',
+  3: 'Triple',
+}
+
 const ordinal = (value: number) => {
   const s = ['th', 'st', 'nd', 'rd']
   const v = value % 100
@@ -116,7 +127,13 @@ const formatAttribute = (attribute: string) => {
     case 'true':
       return key
   }
+
   const value = Number(rawValue)
+
+  switch (key) {
+    case 'Finish':
+      return [key, finishMap[value]].join(': ')
+  }
   return [key, value].join(': ')
 }
 
