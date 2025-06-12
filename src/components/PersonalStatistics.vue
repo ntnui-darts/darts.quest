@@ -42,7 +42,7 @@
     :stat-type="selectedStatType"
   ></DartboardChart>
 
-  <h2>Last 10 Games</h2>
+  <h2>Recent Games</h2>
   <div v-for="leg in legs.slice(-10).toReversed()">
     <LegStats :leg="leg" :game="gameMap.get(leg.gameId)"></LegStats>
   </div>
