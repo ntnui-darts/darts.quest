@@ -142,7 +142,8 @@
             overflow-wrap: break-word;
           "
         >
-          {{ i + 1 }}. {{ gameState?.getUserResultText(userId) }}
+          {{ getDisplayPlacementNumber(i) }}.
+          {{ gameState?.getUserResultText(userId) }}
         </td>
         <td style="text-align: right">
           {{ eloStore.getDisplayElo(userId, game.type) }}
@@ -235,6 +236,13 @@ const prevPlayerIsPlayingOnThisDevice = computed(() => {
   }
   return prevPlayer == authId || !presence.remotePlayers?.includes(prevPlayer)
 })
+
+const getDisplayPlacementNumber = (i: number): number => {
+  if (props.game.type == 'killer') {
+    return i + props.gameState.playersLeft.length + 1
+  }
+  return i + 1
+}
 
 const clickUser = (userId: string) => {
   if (!props.game) return

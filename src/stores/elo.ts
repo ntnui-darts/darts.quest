@@ -54,9 +54,15 @@ export const useEloStore = defineStore('elo', {
               result = 1
             }
           } else {
-            if (index < otherIndex) result = 1
-            if (otherIndex == -1) result = 1
-            if (index == -1) result = 0
+            if (game.type == 'killer') {
+              if (index < otherIndex) result = 1
+              else if (otherIndex == -1) result = 0
+              else if (index == -1) result = 1
+            } else {
+              if (index < otherIndex) result = 1
+              if (otherIndex == -1) result = 1
+              if (index == -1) result = 0
+            }
           }
           const expected = getExpectedResult(player.elo, other.elo)
           eloDelta += getEloDelta(expected, result)
