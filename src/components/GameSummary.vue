@@ -79,6 +79,7 @@ const keyMap: Record<string, string> = {
   maxVisits: 'Max visits',
   forced: 'Forced',
   fast: 'Fast',
+  mode: 'Segments',
 }
 
 const finishMap: Record<number, string> = {
@@ -134,10 +135,10 @@ const formatAttribute = (attribute: string) => {
 
   const value = Number(rawValue)
 
-  switch (key) {
-    case 'Finish':
-      return [key, finishMap[value]].join(': ')
+  if (rawKey == 'finish' || rawKey == 'mode') {
+    return [key, finishMap[value]].join(': ')
   }
+
   return [key, value].join(': ')
 }
 
