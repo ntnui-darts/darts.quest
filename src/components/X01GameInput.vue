@@ -42,6 +42,7 @@
       <button @click="emit('undo')">&#x232B;</button>
     </div>
   </template>
+
   <template v-if="forcedCompletion">
     <ForcedCompletion
       :game="game"
@@ -81,14 +82,17 @@ const emit = defineEmits<{
 const maxVisits = getTypeAttribute<number | null>(props.game, 'maxVisits', null)
 
 const forcedCompletion = computed(() => {
+  if (maxVisits === null) return false
+
   const lastPlayerId = props.gameState.playersLeft.at(-1)
   if (lastPlayerId == null) return false
+
   const lastPlayerLeg = props.game.legs.find(
     (leg) => leg.userId == lastPlayerId
   )
   const lastPlayerVisits = lastPlayerLeg?.visits ?? []
+
   return (
-    maxVisits != null &&
     lastPlayerVisits.length >= maxVisits &&
     !lastPlayerVisits.at(-1)?.some((s) => s == null)
   )
