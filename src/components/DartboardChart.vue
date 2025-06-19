@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import { GameType } from '@/games/games'
 import { rtcStats } from '@/games/rtc'
-import { Visit } from '@/types/game'
+import { isSegment, Visit } from '@/types/game'
 import { Chart } from 'chart.js'
 import { onMounted, ref, watch } from 'vue'
 
@@ -27,7 +27,9 @@ onMounted(() => {
   buildChart()
 })
 const x01Stats = (visits: Visit[]) =>
-  numbers.map((n) => visits.flat().filter((s) => s && s != 'resigned' && s.sector == n).length)
+  numbers.map(
+    (n) => visits.flat().filter((s) => isSegment(s) && s.sector == n).length
+  )
 
 watch(
   () => props.visits,

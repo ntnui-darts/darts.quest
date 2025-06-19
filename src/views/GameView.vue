@@ -37,6 +37,7 @@
     @hit="gameStore.getController().recordHit($event)"
     @miss="gameStore.getController().recordMiss()"
     @undo="gameStore.undoScore()"
+    @resign="recordResign"
     @save="saveGame"
   ></MainGame>
 
@@ -48,13 +49,6 @@
       </li>
     </ul>
   </template>
-
-  <button
-    v-if="gameStore.game && ['x01', 'rtc'].includes(gameStore.game.type)"
-    @click="recordResign"
-  >
-    Resign
-  </button>
 </template>
 
 <script lang="ts" setup>
@@ -187,7 +181,7 @@ const tryToSave = async () => {
 watch(
   () => [
     gameStore.gameState?.result.length,
-    gameStore.gameState?.resignees.length,
+    gameStore.gameState?.forcedCompleted.length,
   ],
   async (now, prev) => {
     if (!gameStore.game) return

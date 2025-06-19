@@ -93,6 +93,7 @@ const emit = defineEmits<{
   hit: [segment: Segment]
   miss: []
   undo: []
+  resign: []
 }>()
 
 const selectedMultiplier = ref(1)
