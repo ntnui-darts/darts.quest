@@ -204,7 +204,10 @@ const usersStore = useUsersStore()
 const eloStore = useEloStore()
 
 const allPlayersFinished = computed(
-  () => (props.game?.legs.length ?? 0) == (props.gameState?.result.length ?? 0)
+  () =>
+    (props.game?.players.length ?? 0) <=
+    (props.gameState?.result.length ?? 0) +
+      (props.gameState?.forcedCompleted.length ?? 0)
 )
 const somePlayersFinished = computed(() =>
   props.gameState

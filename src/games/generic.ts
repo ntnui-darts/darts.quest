@@ -18,8 +18,8 @@ export const getGenericController = (game: GameExtended) => {
     game,
 
     getSegmentText(segment) {
-      if (!isSegment(segment)) return '-'
       if (isForcedCompletion(segment)) return segment.reason
+      if (!isSegment(segment)) return '-'
       if (!segment.multiplier || segment.multiplier == 1)
         return segment.sector.toString()
       return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
@@ -55,6 +55,7 @@ export const nextState = (
 ): SimulationState => {
   const state = { ...prevState }
   if (!state.player)
+    // return initial state
     return {
       prevPlayer: null,
       player: players[0],
@@ -63,14 +64,16 @@ export const nextState = (
       forcedCompleted: [],
     }
   state.prevPlayer = state.player
-  if (state.result.length + state.forcedCompleted.length == players.length) {
+  if (state.result.length + state.forcedCompleted.length >= players.length) {
     state.player = null
     return state
   }
 
   const index = prevIndex ?? players.indexOf(state.player)
   const nextIndex = (index + 1) % players.length
-  if (nextIndex == 0) state.visitIndex += 1
+  if (nextIndex == 0) {
+    state.visitIndex += 1
+  }
   const nextPlayer = players[nextIndex]
 
   if (
@@ -115,11 +118,7 @@ export const simulateFirstToWinGame = (
 
     const visit = allVisits.at(state.visitIndex)
 
-    if (
-      visit?.some((s) => {
-        s == 'resigned' || isForcedCompletion(s)
-      })
-    ) {
+    if (visit?.some((s) => s == 'resigned' || isForcedCompletion(s))) {
       state.forcedCompleted.push(state.player)
       continue // TODO: FIX FOR FORCED RTC
     }
