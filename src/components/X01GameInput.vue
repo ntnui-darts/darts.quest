@@ -41,6 +41,8 @@
       </button>
       <button @click="emit('undo')">&#x232B;</button>
     </div>
+
+    <button @click="emit('resign')">Resign</button>
   </template>
 
   <template v-if="forcedCompletion">
@@ -77,6 +79,7 @@ const emit = defineEmits<{
   hit: [segment: Segment]
   miss: []
   undo: []
+  resign: []
 }>()
 
 const maxVisits = getTypeAttribute<number | null>(props.game, 'maxVisits', null)

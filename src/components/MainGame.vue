@@ -101,6 +101,7 @@
       @hit="emit('hit', $event)"
       @miss="emit('miss')"
       @undo="emit('undo')"
+      @resign="emit('resign')"
     ></component>
   </div>
 
@@ -196,6 +197,7 @@ const emit = defineEmits<{
   miss: []
   undo: []
   save: []
+  resign: []
 }>()
 
 const usersStore = useUsersStore()
