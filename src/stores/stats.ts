@@ -5,7 +5,7 @@ import { getMaxStreak, getRtcHitRate } from '@/games/rtc'
 import { getSkovhuggerScore } from '@/games/skovhugger'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
 import { supabase } from '@/supabase'
-import { Game, GameState, Leg, getTypeAttribute } from '@/types/game'
+import { DbGame, Game, GameState, Leg, getTypeAttribute } from '@/types/game'
 import { Database } from '@/types/supabase'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
@@ -49,6 +49,7 @@ export const useStatsStore = defineStore('stats', {
   state: () => ({
     loading: true,
     legs: [] as Leg[],
+    games: [] as DbGame[],
     x01Stats: [] as X01Stat[],
     rtcStats: [] as RtcStat[],
     killerStats: [] as KillerStat[],
@@ -61,6 +62,7 @@ export const useStatsStore = defineStore('stats', {
       this.loading = true
       await useEloStore().fetchPersonalElo()
       await this.fetchLegs()
+      await this.fetchGames()
       await this.fetchStats()
       this.loading = false
     },
@@ -71,6 +73,15 @@ export const useStatsStore = defineStore('stats', {
       const legs = await supabase.from('legs').select('*').eq('userId', id)
       if (legs.data) {
         this.legs = (legs.data as Leg[]).toSorted(compareCreatedAt)
+      }
+    },
+
+    async fetchGames() {
+      const id = useAuthStore().auth?.id
+      if (!id) return
+      const games = await supabase.from('games').select('*').contains('players',[id])
+      if (games.data){
+        this.games = (games.data as DbGame[]).toSorted(compareCreatedAt)
       }
     },
 
