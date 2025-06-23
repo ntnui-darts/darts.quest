@@ -38,13 +38,13 @@
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import { Game, GameState, getLegOfUser, Visit } from '@/types/game'
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const emit = defineEmits<{
   undo: []
 }>()
 const props = defineProps<{ game: Game; gameState: GameState }>()
-const remainingPlayers = [...props.gameState.playersLeft]
+const remainingPlayers = computed(() => [...props.gameState.playersLeft])
 
 const usersStore = useUsersStore()
 let draggedUserId = ref<string | null>(null)
@@ -52,15 +52,15 @@ let hoverUserId = ref<string | null>(null)
 
 const dragUser = (from: string | null, to: string | null) => {
   if (!from || !to) return
-  const fromIndex = remainingPlayers.indexOf(from)
-  const toIndex = remainingPlayers.indexOf(to)
-  remainingPlayers[fromIndex] = to
-  remainingPlayers[toIndex] = from
+  const fromIndex = remainingPlayers.value.indexOf(from)
+  const toIndex = remainingPlayers.value.indexOf(to)
+  remainingPlayers.value[fromIndex] = to
+  remainingPlayers.value[toIndex] = from
   draggedUserId.value = null
 }
 
 const confirmRanking = () => {
-  remainingPlayers.forEach((player, placement) => {
+  remainingPlayers.value.forEach((player, placement) => {
     const leg = getLegOfUser(props.game, player)
     if (!leg) return
 
@@ -74,4 +74,14 @@ const confirmRanking = () => {
   })
   useGameStore().refreshGameState()
 }
+
+watch(
+  () => remainingPlayers.value,
+  (players) => {
+    if (players.length == 1) {
+      confirmRanking()
+    }
+  },
+  { immediate: true }
+)
 </script>
