@@ -14,6 +14,7 @@ import {
   Segment,
   Visit,
   getVisitsOfUser,
+  isSegment,
 } from '@/types/game'
 import { getSegmentScore } from './x01'
 
@@ -74,7 +75,7 @@ const simulateSkovhugger = (game: Game) => {
     prevPlayer: null,
     visitIndex: 0,
     result: [],
-    resignees: [],
+    forcedCompleted: [],
   }
 
   while (true) {
@@ -102,7 +103,7 @@ const simulateSkovhugger = (game: Game) => {
   return {
     ...state,
     playersLeft: game.players.filter(
-      (p) => !state.result.includes(p) && !state.resignees.includes(p)
+      (p) => !state.result.includes(p) && !state.forcedCompleted.includes(p)
     ),
   }
 }
@@ -149,11 +150,7 @@ const getSkovhuggerVisitScore = (visit: Visit, visitIndex: number) => {
   }
 
   for (const s of visit) {
-    if (s == 'resigned') {
-      continue
-    }
-
-    if (s && targets[visitIndex](s)) {
+    if (isSegment(s) && targets[visitIndex](s)) {
       score += getSegmentScore(s)
     }
   }

@@ -19,6 +19,8 @@
     <button @click="registerHit">&#10004;</button>
   </div>
   <button @click="emit('undo')">&#x232B;</button>
+
+  <button @click="emit('resign')">Resign</button>
 </template>
 
 <script lang="ts" setup>
@@ -43,6 +45,7 @@ const emit = defineEmits<{
   hit: [segment: Segment]
   miss: []
   undo: []
+  resign: []
 }>()
 
 const getDefaultMultiplier = () =>

@@ -48,15 +48,21 @@ export const useEloStore = defineStore('elo', {
           let result = 0
           if (index == -1 && otherIndex == -1) {
             if (!gameState) continue
-            const playerResigned = gameState.resignees.includes(player.id)
-            const otherResigned = gameState.resignees.includes(other.id)
+            const playerResigned = gameState.forcedCompleted.includes(player.id)
+            const otherResigned = gameState.forcedCompleted.includes(other.id)
             if (!playerResigned && otherResigned) {
               result = 1
             }
           } else {
-            if (index < otherIndex) result = 1
-            if (otherIndex == -1) result = 1
-            if (index == -1) result = 0
+            if (game.type == 'killer') {
+              if (index < otherIndex) result = 1
+              else if (otherIndex == -1) result = 0
+              else if (index == -1) result = 1
+            } else {
+              if (index < otherIndex) result = 1
+              if (otherIndex == -1) result = 1
+              if (index == -1) result = 0
+            }
           }
           const expected = getExpectedResult(player.elo, other.elo)
           eloDelta += getEloDelta(expected, result)

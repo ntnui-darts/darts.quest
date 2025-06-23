@@ -101,6 +101,7 @@
       @hit="emit('hit', $event)"
       @miss="emit('miss')"
       @undo="emit('undo')"
+      @resign="emit('resign')"
     ></component>
   </div>
 
@@ -132,7 +133,7 @@
       <tr
         v-for="(userId, i) in [
           ...gameState.result,
-          ...gameState.resignees.reverse(),
+          ...gameState.forcedCompleted.reverse(),
         ]"
       >
         <td
@@ -142,7 +143,8 @@
             overflow-wrap: break-word;
           "
         >
-          {{ i + 1 }}. {{ gameState?.getUserResultText(userId) }}
+          {{ getDisplayPlacementNumber(i) }}.
+          {{ gameState?.getUserResultText(userId) }}
         </td>
         <td style="text-align: right">
           {{ eloStore.getDisplayElo(userId, game.type) }}
@@ -169,6 +171,7 @@ import { userOnNine } from '@/games/x01'
 import { useAuthStore } from '@/stores/auth'
 import { useEloStore } from '@/stores/elo'
 import { useModalStore } from '@/stores/modal'
+import { useOnlineStore } from '@/stores/online'
 import { useTournamentStore } from '@/stores/tournament'
 import { useUsersStore } from '@/stores/users'
 import {
@@ -180,7 +183,6 @@ import {
 } from '@/types/game'
 import { computed, watch } from 'vue'
 import InGameSummary from './InGameSummary.vue'
-import { useOnlineStore } from '@/stores/online'
 
 const props = defineProps<{
   game: Game
@@ -196,17 +198,21 @@ const emit = defineEmits<{
   miss: []
   undo: []
   save: []
+  resign: []
 }>()
 
 const usersStore = useUsersStore()
 const eloStore = useEloStore()
 
 const allPlayersFinished = computed(
-  () => (props.game?.legs.length ?? 0) == (props.gameState?.result.length ?? 0)
+  () =>
+    (props.game?.players.length ?? 0) <=
+    (props.gameState?.result.length ?? 0) +
+      (props.gameState?.forcedCompleted.length ?? 0)
 )
 const somePlayersFinished = computed(() =>
   props.gameState
-    ? props.gameState.result.length + props.gameState.resignees.length > 0
+    ? props.gameState.result.length + props.gameState.forcedCompleted.length > 0
     : false
 )
 const displayVisit = computed(() => {
@@ -235,6 +241,13 @@ const prevPlayerIsPlayingOnThisDevice = computed(() => {
   }
   return prevPlayer == authId || !presence.remotePlayers?.includes(prevPlayer)
 })
+
+const getDisplayPlacementNumber = (i: number): number => {
+  if (props.game.type == 'killer') {
+    return i + props.gameState.playersLeft.length + 1
+  }
+  return i + 1
+}
 
 const clickUser = (userId: string) => {
   if (!props.game) return
