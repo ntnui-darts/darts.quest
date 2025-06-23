@@ -11,6 +11,7 @@ import {
   Visit,
   getLegOfUser,
   getVisitsOfUser,
+  isForcedCompletion,
 } from '@/types/game'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useEloStore } from './elo'
@@ -120,6 +121,24 @@ export const useGameStore = defineStore('game', {
       visit = leg?.visits.at(-1) ?? null
       if (!leg || !visit) return
 
+      // First, remove ForcedCompletion
+      for (let i = visit.length - 1; i >= 0; i--) {
+        const maybeSegment = visit.at(i)
+        if (
+          isForcedCompletion(maybeSegment) &&
+          maybeSegment.reason == 'max-visits'
+        ) {
+          visit[i] = null
+          break
+        }
+      }
+      if (visit[0] == null) {
+        leg.visits.pop()
+      }
+      visit = leg.visits.at(-1) ?? null
+      if (!visit) return
+      // Then,
+
       for (let i = visit.length - 1; i >= 0; i--) {
         if (visit.at(i) != null) {
           visit[i] = null
@@ -130,7 +149,7 @@ export const useGameStore = defineStore('game', {
         leg.visits.pop()
       }
       for (const leg of this.game.legs) {
-        leg.visits = leg.visits.filter((v) => typeof v[0] != 'number')
+        leg.visits = leg.visits.filter((v) => v[0] !== null)
       }
       this.refreshGameState()
       this.saveToLocalStorage()
