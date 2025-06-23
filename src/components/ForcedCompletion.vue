@@ -29,7 +29,9 @@
     </button>
   </div>
   <div class="button-row" style="display: flex; gap: 1rem">
-    <button @click="confirmRanking()" style="flex: 1">Confirm</button>
+    <button @click="confirmRanking(remainingPlayers)" style="flex: 1">
+      Confirm
+    </button>
     <button @click="emit('undo')" style="flex: 1">&#x232B;</button>
   </div>
 </template>
@@ -38,13 +40,13 @@
 import { useGameStore } from '@/stores/game'
 import { useUsersStore } from '@/stores/users'
 import { Game, GameState, getLegOfUser, Visit } from '@/types/game'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const emit = defineEmits<{
   undo: []
 }>()
 const props = defineProps<{ game: Game; gameState: GameState }>()
-const remainingPlayers = computed(() => [...props.gameState.playersLeft])
+const remainingPlayers = ref([...props.gameState.playersLeft])
 
 const usersStore = useUsersStore()
 let draggedUserId = ref<string | null>(null)
@@ -59,8 +61,8 @@ const dragUser = (from: string | null, to: string | null) => {
   draggedUserId.value = null
 }
 
-const confirmRanking = () => {
-  remainingPlayers.value.forEach((player, placement) => {
+const confirmRanking = (ranking: string[]) => {
+  ranking.forEach((player, placement) => {
     const leg = getLegOfUser(props.game, player)
     if (!leg) return
 
@@ -76,10 +78,10 @@ const confirmRanking = () => {
 }
 
 watch(
-  () => remainingPlayers.value,
+  () => props.gameState.playersLeft,
   (players) => {
     if (players.length == 1) {
-      confirmRanking()
+      confirmRanking(players)
     }
   },
   { immediate: true }

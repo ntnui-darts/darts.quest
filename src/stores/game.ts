@@ -11,6 +11,7 @@ import {
   Visit,
   getLegOfUser,
   getVisitsOfUser,
+  isForcedCompletion,
 } from '@/types/game'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useEloStore } from './elo'
@@ -116,6 +117,14 @@ export const useGameStore = defineStore('game', {
       }
       if (!userId) return
 
+      // First, remove all ForcedCompletion of max-visits
+      for (const leg of this.game.legs) {
+        leg.visits = leg.visits.filter(
+          (v) =>
+            !v.some((s) => isForcedCompletion(s) && s.reason == 'max-visits')
+        )
+      }
+
       const leg = getLegOfUser(this.game, userId)
       visit = leg?.visits.at(-1) ?? null
       if (!leg || !visit) return
@@ -130,7 +139,7 @@ export const useGameStore = defineStore('game', {
         leg.visits.pop()
       }
       for (const leg of this.game.legs) {
-        leg.visits = leg.visits.filter((v) => typeof v[0] != 'number')
+        leg.visits = leg.visits.filter((v) => v[0] !== null)
       }
       this.refreshGameState()
       this.saveToLocalStorage()

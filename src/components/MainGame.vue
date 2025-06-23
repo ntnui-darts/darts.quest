@@ -133,7 +133,7 @@
       <tr
         v-for="(userId, i) in [
           ...gameState.result,
-          ...gameState.forcedCompleted.reverse(),
+          ...gameState.forcedCompleted.toReversed(),
         ]"
       >
         <td
