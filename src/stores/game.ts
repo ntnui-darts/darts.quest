@@ -3,10 +3,10 @@ import { speak } from '@/functions/speak'
 import { getGameController, getGameDisplayName } from '@/games/games'
 import { supabase } from '@/supabase'
 import {
+  ForcedCompletion,
   GameController,
   GameExtended,
   GameState,
-  Resigned,
   Segment,
   Visit,
   getLegOfUser,
@@ -76,7 +76,7 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    saveScore(segment: Segment | Resigned) {
+    saveScore(segment: Segment | ForcedCompletion) {
       if (!this.game) throw Error()
       if (!this.getCurrentLeg) throw Error()
       if (!this.gameState) throw Error()
@@ -128,6 +128,9 @@ export const useGameStore = defineStore('game', {
       }
       if (visit[0] == null) {
         leg.visits.pop()
+      }
+      for (const leg of this.game.legs) {
+        leg.visits = leg.visits.filter((v) => typeof v[0] != 'number')
       }
       this.refreshGameState()
       this.saveToLocalStorage()
