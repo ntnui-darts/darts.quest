@@ -117,27 +117,17 @@ export const useGameStore = defineStore('game', {
       }
       if (!userId) return
 
+      // First, remove all ForcedCompletion of max-visits
+      for (const leg of this.game.legs) {
+        leg.visits = leg.visits.filter(
+          (v) =>
+            !v.some((s) => isForcedCompletion(s) && s.reason == 'max-visits')
+        )
+      }
+
       const leg = getLegOfUser(this.game, userId)
       visit = leg?.visits.at(-1) ?? null
       if (!leg || !visit) return
-
-      // First, remove ForcedCompletion
-      for (let i = visit.length - 1; i >= 0; i--) {
-        const maybeSegment = visit.at(i)
-        if (
-          isForcedCompletion(maybeSegment) &&
-          maybeSegment.reason == 'max-visits'
-        ) {
-          visit[i] = null
-          break
-        }
-      }
-      if (visit[0] == null) {
-        leg.visits.pop()
-      }
-      visit = leg.visits.at(-1) ?? null
-      if (!visit) return
-      // Then,
 
       for (let i = visit.length - 1; i >= 0; i--) {
         if (visit.at(i) != null) {

@@ -130,19 +130,16 @@ export const simulateFirstToWinGame = (
   const maxVisitedPlayers = (
     state.forcedCompleted
       .map((player) => {
-        const allVisits = getVisitsOfUser(game, state.player)
-        const forcedCompletion = allVisits
+        const forcedCompletion = getVisitsOfUser(game, player)
           .flat()
-          .find((s) => isForcedCompletion(s))
+          .find((s) => isForcedCompletion(s) && s.reason == 'max-visits')
         return { player, forcedCompletion }
       })
-      .filter(
-        ({ forcedCompletion }) =>
-          isForcedCompletion(forcedCompletion) &&
-          forcedCompletion.reason == 'max-visits'
-      ) as { player: string; forcedCompletion: ForcedCompletion }[]
-  ).toSorted((a, b) => a.forcedCompletion.value - b.forcedCompletion?.value)
-
+      .filter(({ forcedCompletion }) => !!forcedCompletion) as {
+      player: string
+      forcedCompletion: ForcedCompletion
+    }[]
+  ).toSorted((a, b) => a.forcedCompletion.value - b.forcedCompletion.value)
   // add these players to result and remove them from forcedCompleted
   maxVisitedPlayers.forEach(({ player }) => {
     state.result.push(player)
