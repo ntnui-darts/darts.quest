@@ -15,25 +15,16 @@
 
   <h2>Number of Games</h2>
   <Chart :datasets="numberOfGamesDataset" :show-smooth-button="false"></Chart>
-
-  <h2>X01</h2>
+  <h2>Dartboard Distribution</h2>
   <div class="row options">
     <button
-      v-for="option in ['All', '301', '501', '701']"
-      :class="{ selected: startScore == option }"
-      @click="startScore = option"
+      v-for="type in ['X01', 'Round the Clock']"
+      @click="selectedDartboardchart = type"
+      :class="{ selected: selectedDartboardchart == type }"
     >
-      {{ option }}
+      {{ type }}
     </button>
   </div>
-  <DartboardChart
-    :visits="x01Visits"
-    :width="300"
-    :height="300"
-    stat-type="x01"
-    title="X01"
-  ></DartboardChart>
-
   <!-- style="position: sticky; top: 1em; z-index: 10"> -->
   <div class="row options">
     <button
@@ -44,47 +35,21 @@
       Last {{ days }} days
     </button>
   </div>
-
-  <!-- <div class="row" style="align-items: center">
-    <input
-      id="startDate"
-      type="date"
-      v-model="startDate"
-      style="flex: 1"
-      @change="selected = 'other'"
-    />
-    <span>→</span>
-    <input
-      id="endDate"
-      type="date"
-      v-model="endDate"
-      style="flex: 1"
-      @change="selected = 'other'"
-    />
-  </div> -->
-
-  <h2>Round the Clock</h2>
-  <div class="row options">
-    <button
-      v-for="(option, i) in ['All', '1', '2', '3']"
-      :class="{ selected: rtcModeDartboard == option }"
-      @click="rtcModeDartboard = option"
-    >
-      {{ ['All', 'Single', 'Double', 'Triple'][i] }}
-    </button>
-  </div>
-
   <DartboardChart
-    :visits="rtcVisitsDartboard"
+    :visits="selectedVisits"
     :width="300"
     :height="300"
-    stat-type="rtc"
-    title="RTC"
+    :stat-type="selectedStatType"
   ></DartboardChart>
 
-  <h3>Last 10 Games</h3>
-  <div v-for="leg in legs.slice(-10).toReversed()">
-    <LegStats :leg="leg"></LegStats>
+  <h2>Recent Games</h2>
+  <div style="display: flex; flex-direction: column; gap: 1em">
+    <template v-for="leg in statsStore.legs.slice(-10).toReversed()">
+      <!-- v-for hack to assign game variable -->
+      <template v-for="game in [gameMap.get(leg.gameId)]">
+        <LegStats v-if="game" :leg="leg" :game="game"></LegStats>
+      </template>
+    </template>
   </div>
 </template>
 
@@ -95,7 +60,8 @@ import { GameType, GameTypeNames } from '@/games/games'
 import { useAuthStore } from '@/stores/auth'
 import { initialElo, useEloStore } from '@/stores/elo'
 import { useStatsStore } from '@/stores/stats'
-import { getTypeAttribute } from '@/types/game'
+import { useTournamentStore } from '@/stores/tournament'
+import { getTypeAttribute, Visit } from '@/types/game'
 import { addDays } from 'date-fns'
 import { computed, onMounted, ref } from 'vue'
 import Chart from './LineChart.vue'
@@ -104,10 +70,12 @@ const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 
 const statsStore = useStatsStore()
 const eloStore = useEloStore()
+const tournamentStore = useTournamentStore()
 
 const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
+const selectedDartboardchart = ref<string>('X01')
 const rtcModeDartboard = ref('1')
 const startScore = ref('All')
 
@@ -116,6 +84,18 @@ const setLastDays = (days: 7 | 30 | 365) => {
   startDate.value = toYyyyMmDd(addDays(new Date(), -days))
   selected.value = days
 }
+
+const selectedVisits = computed<Visit[]>(() => {
+  if (selectedDartboardchart.value == 'X01') {
+    return x01Visits.value ?? []
+  } else if (selectedDartboardchart.value == 'Round the Clock') {
+    return rtcVisitsDartboard.value ?? []
+  } else return []
+})
+
+const selectedStatType = computed<GameType>(() => {
+  return dartboardChartTypeMap[selectedDartboardchart.value] ?? 'x01'
+})
 
 const userId = computed(() => useAuthStore().auth?.id)
 const personalElo = computed(() => {
@@ -154,8 +134,9 @@ const rtcVisitsDartboard = computed(() =>
     .flat()
 )
 
-onMounted(async () => {
-  setLastDays(7)
+onMounted(() => {
+  setLastDays(30)
+  tournamentStore.fetchTournaments()
 })
 
 const legs = computed(() => {
@@ -166,6 +147,10 @@ const legs = computed(() => {
       (!endDate.value || time <= new Date(endDate.value).getTime())
     )
   })
+})
+
+const gameMap = computed(() => {
+  return new Map(statsStore.games.map((game) => [game.id, game]))
 })
 
 const numberOfGamesDataset = computed(() => {
@@ -181,4 +166,9 @@ const numberOfGamesDataset = computed(() => {
     }
   })
 })
+
+const dartboardChartTypeMap: Record<string, GameType> = {
+  X01: 'x01',
+  'Round the Clock': 'rtc',
+}
 </script>
