@@ -43,10 +43,12 @@
   ></DartboardChart>
 
   <h2>Recent Games</h2>
-  <div v-for="leg in legs.slice(-10).toReversed()">
-    <!-- v-for hack to assign game variable -->
-    <template v-for="game in [gameMap.get(leg.gameId)]">
-      <LegStats v-if="game" :leg="leg" :game="game"></LegStats>
+  <div style="display: flex; flex-direction: column; gap: 1em">
+    <template v-for="leg in statsStore.legs.slice(-10).toReversed()">
+      <!-- v-for hack to assign game variable -->
+      <template v-for="game in [gameMap.get(leg.gameId)]">
+        <LegStats v-if="game" :leg="leg" :game="game"></LegStats>
+      </template>
     </template>
   </div>
 </template>
@@ -132,8 +134,8 @@ const rtcVisitsDartboard = computed(() =>
     .flat()
 )
 
-onMounted(async () => {
-  setLastDays(7)
+onMounted(() => {
+  setLastDays(30)
   tournamentStore.fetchTournaments()
 })
 
@@ -147,18 +149,8 @@ const legs = computed(() => {
   })
 })
 
-const games = computed(() => {
-  return statsStore.games.filter((game) => {
-    const time = new Date(game.createdAt).getTime()
-    return (
-      (!startDate.value || new Date(startDate.value).getTime() <= time) &&
-      (!endDate.value || time <= new Date(endDate.value).getTime())
-    )
-  })
-})
-
 const gameMap = computed(() => {
-  return new Map(games.value.map((game) => [game.id, game]))
+  return new Map(statsStore.games.map((game) => [game.id, game]))
 })
 
 const numberOfGamesDataset = computed(() => {

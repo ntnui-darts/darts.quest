@@ -1,17 +1,14 @@
 <template>
-  <div class="row spaced" style="align-items: center">
-    <small>
+  <div class="row spaced" style="align-items: center; gap: 2em">
+    <small style="max-width: 10%">
       {{ new Date(leg.createdAt).toLocaleString() }}
     </small>
-    <br />
-    <span style="display: inline-block; min-width: 10em"
-      >{{ getGameDisplayName(leg) }} &emsp;</span
-    >
-    <span>{{ leg.visits.length }} visits</span>
-    <br />
-    <span>{{ otherPlayersText }}</span>
-    <div v-if="game?.tournamentId">{{ tournamentText }}</div>
-    <button @click="showSummary" style="flex: 0">Summary</button>
+    <p style="flex: 1">
+      {{ getGameDisplayName(leg) }} {{ otherPlayersText }}
+      <template v-if="game?.tournamentId">{{ tournamentText }}</template>
+      <span> ({{ leg.visits.length }} visits)</span>
+    </p>
+    <button @click="showDetails" style="flex: 0">Details</button>
   </div>
 </template>
 
@@ -29,7 +26,7 @@ const props = defineProps<{
   game: DbGame
 }>()
 
-const showSummary = () => {
+const showDetails = () => {
   useModalStore().push(GameSummary, { leg: props.leg, game: props.game }, {})
 }
 
