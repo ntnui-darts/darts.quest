@@ -44,7 +44,10 @@
 
   <h2>Recent Games</h2>
   <div v-for="leg in legs.slice(-10).toReversed()">
-    <LegStats :leg="leg" :game="gameMap.get(leg.gameId)"></LegStats>
+    <!-- v-for hack to assign game variable -->
+    <template v-for="game in [gameMap.get(leg.gameId)]">
+      <LegStats v-if="game" :leg="leg" :game="game"></LegStats>
+    </template>
   </div>
 </template>
 
@@ -55,11 +58,11 @@ import { GameType, GameTypeNames } from '@/games/games'
 import { useAuthStore } from '@/stores/auth'
 import { initialElo, useEloStore } from '@/stores/elo'
 import { useStatsStore } from '@/stores/stats'
+import { useTournamentStore } from '@/stores/tournament'
 import { getTypeAttribute, Visit } from '@/types/game'
 import { addDays } from 'date-fns'
 import { computed, onMounted, ref } from 'vue'
 import Chart from './LineChart.vue'
-import { useTournamentStore } from '@/stores/tournament'
 
 const toYyyyMmDd = (date: Date) => date.toISOString().split('T')[0]
 

@@ -1,13 +1,16 @@
 <template>
   <div class="row spaced" style="align-items: center">
-    <p>
-      <small>{{ new Date(leg.createdAt).toLocaleString() }}</small>
-      <br />
-      <span style="display: inline-block; min-width: 10em">{{ getGameDisplayName(leg) }} &emsp;</span>
-      <span>{{ leg.visits.length }} visits</span>
-      <br /><span>{{ getOtherPlayerText() }}</span>
-      <div v-if="game?.tournamentId"> {{ getTournamentText() }}</div>
-    </p>
+    <small>
+      {{ new Date(leg.createdAt).toLocaleString() }}
+    </small>
+    <br />
+    <span style="display: inline-block; min-width: 10em"
+      >{{ getGameDisplayName(leg) }} &emsp;</span
+    >
+    <span>{{ leg.visits.length }} visits</span>
+    <br />
+    <span>{{ otherPlayersText }}</span>
+    <div v-if="game?.tournamentId">{{ tournamentText }}</div>
     <button @click="showSummary" style="flex: 0">Summary</button>
   </div>
 </template>
@@ -15,9 +18,10 @@
 <script lang="ts" setup>
 import { getGameDisplayName } from '@/games/games'
 import { useModalStore } from '@/stores/modal'
-import { DbGame, Leg } from '@/types/game'
-import { useUsersStore } from '@/stores/users'
 import { useTournamentStore } from '@/stores/tournament'
+import { useUsersStore } from '@/stores/users'
+import { DbGame, Leg } from '@/types/game'
+import { computed } from 'vue'
 import GameSummary from './GameSummary.vue'
 
 const props = defineProps<{
@@ -26,17 +30,13 @@ const props = defineProps<{
 }>()
 
 const showSummary = () => {
-  useModalStore().push(
-    GameSummary,
-    { leg: props.leg, game: props.game },
-    {}
-  )
+  useModalStore().push(GameSummary, { leg: props.leg, game: props.game }, {})
 }
 
 const usersStore = useUsersStore()
 const tournamentStore = useTournamentStore()
 
-const getOtherPlayerText = () => {
+const otherPlayersText = computed(() => {
   if (!props.game) {
     return false
   }
@@ -54,12 +54,14 @@ const getOtherPlayerText = () => {
   } else {
     return `with ${otherPlayers.length} other players`
   }
-}
+})
 
-const getTournamentText = () => {
-  if (!props.game) {return ''}
-  return `in ${tournamentStore.getTournamentName(props.game.tournamentId ?? undefined)}`
-}
-
-
+const tournamentText = computed(() => {
+  if (!props.game) {
+    return ''
+  }
+  return `in ${tournamentStore.getTournamentName(
+    props.game.tournamentId ?? undefined
+  )}`
+})
 </script>
