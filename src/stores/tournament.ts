@@ -37,6 +37,17 @@ export const useTournamentStore = defineStore('tournament', {
       }
     },
   },
+  getters: {
+    getTournament() {
+      return (tournamentId?: string) => {
+        return this.tournaments.find((tournament) => tournament.id == tournamentId)
+      }
+    },
+    getTournamentName() {
+      return (id?: string) => {
+        return this.getTournament(id)?.name 
+      }
+    },  }
 })
 
 if (import.meta.hot) {
