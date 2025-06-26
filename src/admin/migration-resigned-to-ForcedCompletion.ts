@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/supabase'
-import { ForcedCompletion, Visit } from '@/types/game'
+import { Visit } from '@/types/game'
 
 const email = import.meta.env.VITE_EMAIL
 const password = import.meta.env.VITE_PASSWORD
