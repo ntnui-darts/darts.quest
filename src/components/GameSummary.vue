@@ -89,6 +89,7 @@ const finishMap: Record<number, string> = {
 }
 
 const ordinal = (value: number) => {
+  value = Math.round(value)
   const s = ['th', 'st', 'nd', 'rd']
   const v = value % 100
   return value + (s[(v - 20) % 10] || s[v] || s[0])
