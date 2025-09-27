@@ -25,8 +25,8 @@ export const useOnlineStore = defineStore('online', {
       remotePlayers: [],
     } as Partial<OnlinePresence>,
     room: null as RealtimeChannel | null,
-    inChannel: null as RealtimeChannel | null,
-    outChannel: null as RealtimeChannel | null,
+    inChannel: null as RealtimeChannel | null, // from spectators to host
+    outChannel: null as RealtimeChannel | null, // from host to spectators
   }),
 
   actions: {
@@ -139,7 +139,7 @@ export const useOnlineStore = defineStore('online', {
     },
 
     sendCustomUsers(users: User[]) {
-      this.inChannel?.send({
+      this.outChannel?.send({
         type: 'broadcast',
         event: 'custom-users',
         payload: users,
