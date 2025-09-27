@@ -4,6 +4,7 @@ import { RealtimeChannel } from '@supabase/supabase-js'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
 import { useGameStore } from './game'
+import { User, useUsersStore } from './users'
 
 type OnlinePresence = {
   userId: string
@@ -71,6 +72,7 @@ export const useOnlineStore = defineStore('online', {
           }
         })
         .on('broadcast', { event: 'refresh' }, () => {
+          this.sendCustomUsers(useUsersStore()._customUsers)
           this.sendGame()
         })
         .subscribe()
@@ -94,6 +96,9 @@ export const useOnlineStore = defineStore('online', {
         .channel(`game-${this.presence.spectating}`)
         .on('broadcast', { event: 'game' }, (args) => {
           this.spectatingGame = args.payload as GameExtended
+        })
+        .on('broadcast', { event: 'custom-users' }, (args) => {
+          useUsersStore().addCustomUsers(args.payload as User[])
         })
         .subscribe((status) => {
           if (status != 'SUBSCRIBED') return
@@ -130,6 +135,14 @@ export const useOnlineStore = defineStore('online', {
           type,
           segment,
         },
+      })
+    },
+
+    sendCustomUsers(users: User[]) {
+      this.inChannel?.send({
+        type: 'broadcast',
+        event: 'custom-users',
+        payload: users,
       })
     },
   },
