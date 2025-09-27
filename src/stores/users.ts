@@ -73,6 +73,14 @@ export const useUsersStore = defineStore('users', {
         JSON.stringify(userSelectionHistory)
       )
     },
+
+    addCustomUsers(users: User[]) {
+      users.forEach((user) => {
+        if (!this._customUsers.some((u) => u.id == user.id)) {
+          this._customUsers.push(user)
+        }
+      })
+    },
   },
 
   getters: {
