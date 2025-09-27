@@ -74,18 +74,23 @@ export const achievements: Record<string, Achievement<{}>> = {
   checkout_all_doubles: {
     name: "Gotta catch 'em all",
     description(progression?: number[]) {
-      const missingDoubles = Array(20)
-        .fill(0)
-        .map((_, i) => i + 1)
-        .filter((segment) => !progression?.includes(segment))
+      const allDoubles = [
+        ...Array(20)
+          .fill(0)
+          .map((_, i) => i + 1),
+        25,
+      ]
+      const missingDoubles = allDoubles.filter(
+        (segment) => !progression?.includes(segment)
+      )
       if (missingDoubles.length == 0) {
         return 'Checkout on all the doubles.'
       } else if (missingDoubles.length == 1) {
-        return `Checkout on all the doubles. Missing ${missingDoubles.at(0)}`
+        return `Checkout on all the doubles. Missing D${missingDoubles.at(0)}`
       } else {
-        const missingDoublesString = `${missingDoubles
+        const missingDoublesString = `D${missingDoubles
           .slice(0, -1)
-          .join(', ')} and ${missingDoubles.at(-1)}`
+          .join(', D')} and D${missingDoubles.at(-1)}`
         return `Checkout on all the doubles. Missing ${missingDoublesString}.`
       }
     },
@@ -104,7 +109,7 @@ export const achievements: Record<string, Achievement<{}>> = {
       }
     },
     isAchieved(progression: number[]) {
-      return progression.length >= 20
+      return progression.length >= 21
     },
   },
 } as const
