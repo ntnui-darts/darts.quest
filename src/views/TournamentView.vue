@@ -318,7 +318,15 @@ const getTournamentState = async () => {
       const a = readonlyPrevRound[i]
       const b = readonlyPrevRound[i + 1]
       const winner = await getMatchState(a, b, round)
-      thisRound.push(winner)
+      if (winner) {
+        const winnerClone = structuredClone(winner)
+        winnerClone.legWins = [0]
+        winnerClone.setWins = 0
+        winnerClone.wonMatch = undefined
+        thisRound.push(winnerClone)
+      } else {
+        thisRound.push(undefined)
+      }
       if (a && b && !winner) {
         matches.push([a, b])
       }
