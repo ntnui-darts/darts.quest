@@ -28,9 +28,9 @@ export const migrateResignedToForcedCompletion = async () => {
           : segment
       }) as Visit
       visits[visits.length - 1] = updatedLastVisit
+      await supabase.from('legs').update({ visits }).eq('id', leg.id)
+      console.log(`Updated leg ${leg.id}`)
     }
-    await supabase.from('legs').update({ visits }).eq('id', leg.id)
-    console.log(`Updated leg ${leg.id}`)
   })
   console.log('Completed migration of legs')
 }
