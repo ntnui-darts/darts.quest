@@ -7,7 +7,6 @@
       @click="
         () => {
           mode = t
-          update()
         }
       "
     >
@@ -20,7 +19,6 @@
       @click="
         () => {
           random = !random
-          update()
         }
       "
     >
@@ -34,7 +32,6 @@
       @click="
         () => {
           fast = !fast
-          update()
         }
       "
     >
@@ -47,7 +44,6 @@
         () => {
           forced = !forced
           fast = false
-          update()
         }
       "
     >
@@ -86,7 +82,7 @@
 
 <script lang="ts" setup>
 import { getTypeAttribute } from '@/types/game'
-import { onMounted, ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
 
@@ -103,20 +99,38 @@ const emit = defineEmits<{
   update: [typeAttributes: string[]]
 }>()
 
-const update = () => {
-  if (mode.value != 1) {
-    fast.value = false
-  }
-  emit('update', [
-    `mode:${mode.value}`,
-    `random:${random.value}`,
-    `fast:${fast.value}`,
-    `forced:${forced.value}`,
-    `maxVisits:${maxVisits.value}`,
-  ])
-}
+watch(
+  () => [
+    mode.value,
+    random.value,
+    fast.value,
+    forced.value,
+    maxVisitsEnabled.value,
+    maxVisits.value,
+  ],
+  () => {
+    if (mode.value != 1) {
+      fast.value = false
+    }
 
-onMounted(() => {
-  update()
-})
+    const attrs = [
+      `mode:${mode.value}`,
+      `random:${random.value}`,
+      `fast:${fast.value}`,
+      `forced:${forced.value}`,
+    ]
+
+    const validatedMaxVisits =
+      !!maxVisits.value && isFinite(maxVisits.value)
+        ? Math.round(Math.min(Math.max(3, maxVisits.value), 1000))
+        : 0
+
+    if (maxVisitsEnabled.value && validatedMaxVisits > 0) {
+      attrs.push(`maxVisits:${maxVisits.value}`)
+    }
+
+    emit('update', attrs)
+  },
+  { immediate: true }
+)
 </script>

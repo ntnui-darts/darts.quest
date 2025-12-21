@@ -44,6 +44,7 @@ import {
   multiplierToString,
 } from '@/types/game'
 import { computed, ref } from 'vue'
+import ForcedCompletion from './ForcedCompletion.vue'
 
 const props = defineProps<{
   game: Game
