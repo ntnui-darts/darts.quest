@@ -45,6 +45,7 @@ const handlers: {
   startScore: parseNumber,
 }
 
+const DELIMITER = ':'
 export function getTypeAttribute<T extends TypeAttribute>(
   data: { typeAttributes: string[] } | null,
   name: T
@@ -52,9 +53,9 @@ export function getTypeAttribute<T extends TypeAttribute>(
   if (!data || !data.typeAttributes?.length) return undefined
 
   const attribute = data.typeAttributes
-    .filter((t) => t.includes('='))
+    .filter((t) => t.includes(DELIMITER))
     .map((t) => {
-      const i = t.indexOf('=')
+      const i = t.indexOf(DELIMITER)
       return { key: t.substring(0, i), value: t.substring(i + 1).trim() }
     })
     .filter(({ key, value }) => key == name && value.length > 0)
