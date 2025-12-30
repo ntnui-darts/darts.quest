@@ -60,9 +60,9 @@ import {
   GameController,
   GameState,
   Segment,
-  getTypeAttribute,
   multiplierToString,
 } from '@/types/game'
+import { getTypeAttribute } from '@/types/typeAttributes'
 import { computed, ref } from 'vue'
 import ForcedCompletion from './ForcedCompletion.vue'
 
@@ -82,10 +82,9 @@ const emit = defineEmits<{
   resign: []
 }>()
 
-const maxVisits = getTypeAttribute<number | null>(props.game, 'maxVisits', null)
-
 const forcedCompletion = computed(() => {
-  if (maxVisits === null) return false
+  const maxVisits = getTypeAttribute(props.game, 'maxVisits')
+  if (!maxVisits) return false
 
   const lastPlayerId = props.gameState.playersLeft.at(-1)
   if (lastPlayerId == null) return false

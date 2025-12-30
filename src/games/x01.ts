@@ -11,10 +11,13 @@ import {
   MaybeSegment,
   Visit,
   getLegOfUser,
-  getTypeAttribute,
   getVisitsOfUser,
   isSegment,
 } from '@/types/game'
+import {
+  getTypeAttribute,
+  getTypeAttributeOrDefault,
+} from '@/types/typeAttributes'
 import { GameType, getGamePoints } from './games'
 
 export const getX01Controller = (
@@ -98,8 +101,8 @@ export const userOnNine = (game: Game, userId: string) => {
   if (
     dartsThrown == 0 ||
     game.type != 'x01' ||
-    getTypeAttribute<number>(game, 'finish', 1) != 2 ||
-    getTypeAttribute<number>(game, 'startScore', 0) != 501
+    getTypeAttribute(game, 'finish') != 2 ||
+    getTypeAttribute(game, 'startScore') != 501
   )
     return false
   if (
@@ -122,7 +125,7 @@ export const getX01LegScore = (
 ) => {
   let score = 0
   const points = getGamePoints(game)
-  const finishType = getTypeAttribute(game, 'finish', 1)
+  const finishType = getTypeAttributeOrDefault(game, 'finish')
   visits?.forEach((v) => {
     const visitScore = getX01VisitScore(v)
     if (score + visitScore == points) {

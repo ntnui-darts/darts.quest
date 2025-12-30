@@ -5,8 +5,9 @@ import { getMaxStreak, getRtcHitRate } from '@/games/rtc'
 import { getSkovhuggerScore } from '@/games/skovhugger'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
 import { supabase } from '@/supabase'
-import { DbGame, Game, GameState, Leg, getTypeAttribute } from '@/types/game'
+import { DbGame, Game, GameState, Leg } from '@/types/game'
 import { Database } from '@/types/supabase'
+import { getTypeAttribute } from '@/types/typeAttributes'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
 import { useEloStore } from './elo'
@@ -79,8 +80,11 @@ export const useStatsStore = defineStore('stats', {
     async fetchGames() {
       const id = useAuthStore().auth?.id
       if (!id) return
-      const games = await supabase.from('games').select('*').contains('players',[id])
-      if (games.data){
+      const games = await supabase
+        .from('games')
+        .select('*')
+        .contains('players', [id])
+      if (games.data) {
         this.games = (games.data as DbGame[]).toSorted(compareCreatedAt)
       }
     },
@@ -253,14 +257,13 @@ export const useStatsStore = defineStore('stats', {
 
         if (
           options.startScore !== undefined &&
-          getTypeAttribute<number>(stat.legs, 'startScore', 0) !=
-            options.startScore
+          getTypeAttribute(stat.legs, 'startScore') != options.startScore
         )
           return false
 
         if (
           options.finish !== undefined &&
-          getTypeAttribute<number>(stat.legs, 'finish', 0) != options.finish
+          getTypeAttribute(stat.legs, 'finish') != options.finish
         )
           return false
 
@@ -286,20 +289,19 @@ export const useStatsStore = defineStore('stats', {
 
         if (
           options.mode !== undefined &&
-          getTypeAttribute<number>(stat.legs, 'mode', 0) != options.mode
+          getTypeAttribute(stat.legs, 'mode') != options.mode
         )
           return false
 
         if (
           options.fast !== undefined &&
-          getTypeAttribute<boolean>(stat.legs, 'fast', false) != options.fast
+          getTypeAttribute(stat.legs, 'fast') != options.fast
         )
           return false
 
         if (
           options.forced !== undefined &&
-          getTypeAttribute<boolean>(stat.legs, 'forced', false) !=
-            options.forced
+          getTypeAttribute(stat.legs, 'forced') != options.forced
         )
           return false
 

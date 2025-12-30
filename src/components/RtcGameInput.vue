@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="game ? getTypeAttribute < Boolean > (game, 'fast', false) : false"
+    v-if="game ? getTypeAttribute(game, 'fast') : false"
     class="row"
     style="justify-content: space-between"
   >
@@ -28,11 +28,13 @@ import {
   Game,
   GameController,
   GameState,
-  Multiplier,
   Segment,
-  getTypeAttribute,
   multiplierToString,
 } from '@/types/game'
+import {
+  getTypeAttribute,
+  getTypeAttributeOrDefault,
+} from '@/types/typeAttributes'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -48,8 +50,7 @@ const emit = defineEmits<{
   resign: []
 }>()
 
-const getDefaultMultiplier = () =>
-  props.game ? getTypeAttribute<Multiplier>(props.game, 'mode', 1) : 1
+const getDefaultMultiplier = () => getTypeAttributeOrDefault(props.game, 'mode')
 
 const selectedMultiplier = ref(getDefaultMultiplier())
 
