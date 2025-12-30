@@ -65,7 +65,7 @@ import { useModalStore } from '@/stores/modal'
 import { useOnlineStore } from '@/stores/online'
 import { useOptionsStore } from '@/stores/options'
 import { useUsersStore } from '@/stores/users'
-import { getTypeAttribute } from '@/types/typeAttributes'
+import { getTypeAttribute as getTypeAttributeOrDefault } from '@/types/typeAttributes'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const gameStore = useGameStore()
@@ -80,7 +80,7 @@ const spectators = computed(() =>
   onlineStore.presences.filter((p) => p.spectating == authStore.auth?.id)
 )
 
-const finishType = getTypeAttribute(gameStore.game, 'finish')
+const finishType = getTypeAttributeOrDefault(gameStore.game, 'finish')
 
 onMounted(async () => {
   if (!gameStore.game) {

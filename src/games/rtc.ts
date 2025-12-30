@@ -12,7 +12,7 @@ import {
   getVisitsOfUser,
   isSegment,
 } from '@/types/game'
-import { getTypeAttribute } from '@/types/typeAttributes'
+import { getTypeAttribute as getTypeAttributeOrDefault } from '@/types/typeAttributes'
 import { getGamePoints } from './games'
 
 export interface RtcGameState extends GameState {
@@ -38,7 +38,7 @@ export const getRtcController = (game: GameExtended): RtcController => {
       if (!game.extension || game.extension.kind != 'rtc') throw Error()
       const sequence = game.extension.sequence
 
-      const isForced = getTypeAttribute(game, 'forced')
+      const isForced = getTypeAttributeOrDefault(game, 'forced')
       const winCondition = (game: Game, visits: Visit[]) => {
         if (isForced) {
           const segmentCount = visits.flat().filter((s) => s != null).length
@@ -69,7 +69,7 @@ export const getRtcController = (game: GameExtended): RtcController => {
         },
 
         getNextTarget(userId) {
-          const isForced = getTypeAttribute(game, 'forced')
+          const isForced = getTypeAttributeOrDefault(game, 'forced')
           const visits = getVisitsOfUser(game, userId)
           if (isForced) {
             const segmentCount = visits.flat().filter((s) => s != null).length
@@ -125,7 +125,7 @@ export const getRtcLegScore = (game: Game, visits: Visit[]) => {
 }
 
 const getVisitScore = (game: Game, visit: Visit) => {
-  const isFast = getTypeAttribute(game, 'fast')
+  const isFast = getTypeAttributeOrDefault(game, 'fast')
   return sumNumbers(
     visit.map((s) =>
       isSegment(s) ? (isFast ? s.multiplier : Math.min(1, s.sector)) : 0

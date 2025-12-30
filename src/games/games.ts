@@ -12,10 +12,7 @@ import {
   GameState,
   Leg,
 } from '@/types/game'
-import {
-  getTypeAttribute,
-  getTypeAttributeOrDefault,
-} from '@/types/typeAttributes'
+import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
 import { getCricketController } from './cricket'
 import { getKillerController } from './killer'
 import { getRtcController } from './rtc'
@@ -107,7 +104,7 @@ export const getGameController = (
       return getX01Controller(game)
 
     case 'rtc':
-      if (getTypeAttribute(game, 'random')) {
+      if (getTypeAttributeOrDefault(game, 'random')) {
         return getRtcRandomController(game)
       } else {
         return getRtcController(game)

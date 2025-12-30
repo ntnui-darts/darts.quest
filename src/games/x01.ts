@@ -14,10 +14,7 @@ import {
   getVisitsOfUser,
   isSegment,
 } from '@/types/game'
-import {
-  getTypeAttribute,
-  getTypeAttributeOrDefault,
-} from '@/types/typeAttributes'
+import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
 import { GameType, getGamePoints } from './games'
 
 export const getX01Controller = (
@@ -101,8 +98,8 @@ export const userOnNine = (game: Game, userId: string) => {
   if (
     dartsThrown == 0 ||
     game.type != 'x01' ||
-    getTypeAttribute(game, 'finish') != 2 ||
-    getTypeAttribute(game, 'startScore') != 501
+    getTypeAttributeOrDefault(game, 'finish') != 2 ||
+    getTypeAttributeOrDefault(game, 'startScore') != 501
   )
     return false
   if (
