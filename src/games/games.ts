@@ -11,8 +11,8 @@ import {
   GameExtended,
   GameState,
   Leg,
-  getTypeAttribute,
 } from '@/types/game'
+import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
 import { getCricketController } from './cricket'
 import { getKillerController } from './killer'
 import { getRtcController } from './rtc'
@@ -50,20 +50,16 @@ export const getGameDisplayName = (game?: Game | Leg | null): string => {
   switch (game.type) {
     case 'rtc':
       const mode = ['', ' Double', ' Triple'][
-        getTypeAttribute<number>(game, 'mode', 1) - 1
+        getTypeAttributeOrDefault(game, 'mode') - 1
       ]
-      const random = ['', ' Random'][
-        +getTypeAttribute<boolean>(game, 'random', false)
-      ]
-      const fast = ['', ' Fast'][
-        +getTypeAttribute<boolean>(game, 'fast', false)
-      ]
+      const random = ['', ' Random'][+getTypeAttributeOrDefault(game, 'random')]
+      const fast = ['', ' Fast'][+getTypeAttributeOrDefault(game, 'fast')]
       return `Round the Clock${mode}${random}${fast}`
 
     case 'x01':
-      const startScore = getTypeAttribute<number>(game, 'startScore', 0)
+      const startScore = getTypeAttributeOrDefault(game, 'startScore')
       const finish = [' Single Finish', ' Double Finish', ' Triple Finish'][
-        getTypeAttribute<number>(game, 'finish', 1) - 1
+        getTypeAttributeOrDefault(game, 'finish') - 1
       ]
       return `${startScore}${finish}`
 
@@ -87,7 +83,7 @@ export const getGamePoints = (game: {
       return 20
 
     case 'x01':
-      return getTypeAttribute<number>(game, 'startScore', NaN)
+      return getTypeAttributeOrDefault(game, 'startScore')
 
     case 'killer':
       return 5
@@ -108,7 +104,7 @@ export const getGameController = (
       return getX01Controller(game)
 
     case 'rtc':
-      if (getTypeAttribute(game, 'random', false)) {
+      if (getTypeAttributeOrDefault(game, 'random')) {
         return getRtcRandomController(game)
       } else {
         return getRtcController(game)

@@ -11,25 +11,25 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@formkit/auto-animate": "^0.8.0",
-    "@supabase/supabase-js": "^2.49.1",
-    "@types/node": "^20.7.1",
-    "chart.js": "^4.4.0",
+    "@formkit/auto-animate": "^0.9.0",
+    "@supabase/supabase-js": "^2.89.0",
+    "@types/node": "^25.0.3",
+    "chart.js": "^4.5.1",
     "chartjs-adapter-date-fns": "^3.0.0",
-    "date-fns": "^3.3.1",
+    "date-fns": "^4.1.0",
     "html-to-image": "^1.11.11",
     "mobile-drag-drop": "^3.0.0-rc.0",
-    "nanoid": "^5.0.1",
-    "pinia": "^2.1.6",
-    "vue": "^3.4.15",
-    "vue-router": "^4.2.5"
+    "nanoid": "^5.1.6",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.26",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.3",
-    "supabase": "^2.19.7",
-    "typescript": "^5.6.3",
-    "vite": "^6.3.5",
-    "vitest": "^3.2.4",
-    "vue-tsc": "^2.1.6"
+    "@vitejs/plugin-vue": "^6.0.3",
+    "supabase": "^2.70.5",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
+    "vitest": "^4.0.16",
+    "vue-tsc": "^3.2.1"
   }
 }

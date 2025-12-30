@@ -19,8 +19,8 @@
   <div class="row options">
     <button
       v-for="type in ['X01', 'Round the Clock']"
-      @click="selectedDartboardchart = type"
-      :class="{ selected: selectedDartboardchart == type }"
+      @click="selectedDartboardChart = type"
+      :class="{ selected: selectedDartboardChart == type }"
     >
       {{ type }}
     </button>
@@ -61,7 +61,7 @@ import { useAuthStore } from '@/stores/auth'
 import { initialElo, useEloStore } from '@/stores/elo'
 import { useStatsStore } from '@/stores/stats'
 import { useTournamentStore } from '@/stores/tournament'
-import { getTypeAttribute, Visit } from '@/types/game'
+import { Visit } from '@/types/game'
 import { addDays } from 'date-fns'
 import { computed, onMounted, ref } from 'vue'
 import Chart from './LineChart.vue'
@@ -75,9 +75,7 @@ const tournamentStore = useTournamentStore()
 const startDate = ref('2023-10-01')
 const endDate = ref(toYyyyMmDd(new Date()))
 const selected = ref<7 | 30 | 365 | 'other'>(365)
-const selectedDartboardchart = ref<string>('X01')
-const rtcModeDartboard = ref('1')
-const startScore = ref('All')
+const selectedDartboardChart = ref<string>('X01')
 
 const setLastDays = (days: 7 | 30 | 365) => {
   endDate.value = toYyyyMmDd(addDays(new Date(), 1))
@@ -86,15 +84,15 @@ const setLastDays = (days: 7 | 30 | 365) => {
 }
 
 const selectedVisits = computed<Visit[]>(() => {
-  if (selectedDartboardchart.value == 'X01') {
+  if (selectedDartboardChart.value == 'X01') {
     return x01Visits.value ?? []
-  } else if (selectedDartboardchart.value == 'Round the Clock') {
+  } else if (selectedDartboardChart.value == 'Round the Clock') {
     return rtcVisitsDartboard.value ?? []
   } else return []
 })
 
 const selectedStatType = computed<GameType>(() => {
-  return dartboardChartTypeMap[selectedDartboardchart.value] ?? 'x01'
+  return dartboardChartTypeMap[selectedDartboardChart.value] ?? 'x01'
 })
 
 const userId = computed(() => useAuthStore().auth?.id)
@@ -111,27 +109,11 @@ const personalElo = computed(() => {
 })
 
 const x01Legs = computed(() => legs.value.filter((leg) => leg.type == 'x01'))
-const x01Visits = computed(() =>
-  x01Legs.value
-    .filter(
-      (leg) =>
-        startScore.value == 'All' ||
-        getTypeAttribute(leg, 'startScore', '') == startScore.value
-    )
-    .map((leg) => leg.visits)
-    .flat()
-)
+const x01Visits = computed(() => x01Legs.value.map((leg) => leg.visits).flat())
 
 const rtcLegs = computed(() => legs.value.filter((leg) => leg.type == 'rtc'))
 const rtcVisitsDartboard = computed(() =>
-  rtcLegs.value
-    .filter(
-      (leg) =>
-        rtcModeDartboard.value == 'All' ||
-        getTypeAttribute(leg, 'mode', '') == rtcModeDartboard.value
-    )
-    .map((leg) => leg.visits)
-    .flat()
+  rtcLegs.value.map((leg) => leg.visits).flat()
 )
 
 onMounted(() => {

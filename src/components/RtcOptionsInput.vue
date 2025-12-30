@@ -94,6 +94,15 @@ const maxVisits = ref<number>(getTypeAttribute<number>(props, 'maxVisits', 20))
 const maxVisitsEnabled = ref(
   getTypeAttribute<number>(props, 'maxVisits', 0) > 0
 )
+import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
+import { onMounted, ref } from 'vue'
+
+const props = defineProps<{ typeAttributes: string[] }>()
+
+const random = ref(getTypeAttributeOrDefault(props, 'random'))
+const forced = ref(getTypeAttributeOrDefault(props, 'forced'))
+const fast = ref(getTypeAttributeOrDefault(props, 'fast'))
+const mode = ref(getTypeAttributeOrDefault(props, 'mode'))
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]

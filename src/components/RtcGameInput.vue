@@ -1,9 +1,15 @@
 <template>
-  <template v-if="!forcedCompletion">
-    <div
-      v-if="game ? getTypeAttribute < Boolean > (game, 'fast', false) : false"
-      class="row"
-      style="justify-content: space-between"
+  <div
+    v-if="getTypeAttributeOrDefault(game, 'fast')"
+    class="row"
+    style="justify-content: space-between"
+  >
+    <button
+      v-for="i in [1, 2, 3]"
+      @click="selectedMultiplier = i"
+      :class="{
+        selected: selectedMultiplier == i,
+      }"
     >
       <button
         v-for="i in [1, 2, 3]"
@@ -38,13 +44,11 @@ import {
   Game,
   GameController,
   GameState,
-  Multiplier,
   Segment,
-  getTypeAttribute,
   multiplierToString,
 } from '@/types/game'
-import { computed, ref } from 'vue'
-import ForcedCompletion from './ForcedCompletion.vue'
+import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
+import { ref } from 'vue'
 
 const props = defineProps<{
   game: Game
@@ -80,6 +84,7 @@ const forcedCompletion = computed(() => {
 
 const getDefaultMultiplier = () =>
   props.game ? getTypeAttribute<Multiplier>(props.game, 'mode', 1) : 1
+const getDefaultMultiplier = () => getTypeAttributeOrDefault(props.game, 'mode')
 
 const selectedMultiplier = ref(getDefaultMultiplier())
 
