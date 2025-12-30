@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="game ? getTypeAttribute(game, 'fast') : false"
+    v-if="getTypeAttributeOrDefault(game, 'fast')"
     class="row"
     style="justify-content: space-between"
   >
@@ -31,10 +31,7 @@ import {
   Segment,
   multiplierToString,
 } from '@/types/game'
-import {
-  getTypeAttribute,
-  getTypeAttributeOrDefault,
-} from '@/types/typeAttributes'
+import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
 import { ref } from 'vue'
 
 const props = defineProps<{
