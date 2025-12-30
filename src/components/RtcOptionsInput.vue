@@ -57,15 +57,15 @@
 </template>
 
 <script lang="ts" setup>
-import { getTypeAttribute } from '@/types/game'
+import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
 import { onMounted, ref } from 'vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
 
-const random = ref(getTypeAttribute<boolean>(props, 'random', false))
-const forced = ref(getTypeAttribute<boolean>(props, 'forced', false))
-const fast = ref(getTypeAttribute<boolean>(props, 'fast', false))
-const mode = ref<1 | 2 | 3>(getTypeAttribute<1 | 2 | 3>(props, 'mode', 1))
+const random = ref(getTypeAttributeOrDefault(props, 'random'))
+const forced = ref(getTypeAttributeOrDefault(props, 'forced'))
+const fast = ref(getTypeAttributeOrDefault(props, 'fast'))
+const mode = ref(getTypeAttributeOrDefault(props, 'mode'))
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]

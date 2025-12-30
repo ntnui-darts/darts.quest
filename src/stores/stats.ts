@@ -5,8 +5,9 @@ import { getMaxStreak, getRtcHitRate } from '@/games/rtc'
 import { getSkovhuggerScore } from '@/games/skovhugger'
 import { getFirst9Avg, getX01VisitScore } from '@/games/x01'
 import { supabase } from '@/supabase'
-import { DbGame, Game, GameState, Leg, getTypeAttribute } from '@/types/game'
+import { DbGame, Game, GameState, Leg } from '@/types/game'
 import { Database } from '@/types/supabase'
+import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAuthStore } from './auth'
 import { useEloStore } from './elo'
@@ -79,8 +80,11 @@ export const useStatsStore = defineStore('stats', {
     async fetchGames() {
       const id = useAuthStore().auth?.id
       if (!id) return
-      const games = await supabase.from('games').select('*').contains('players',[id])
-      if (games.data){
+      const games = await supabase
+        .from('games')
+        .select('*')
+        .contains('players', [id])
+      if (games.data) {
         this.games = (games.data as DbGame[]).toSorted(compareCreatedAt)
       }
     },
@@ -96,7 +100,7 @@ export const useStatsStore = defineStore('stats', {
       if (x01Stats.data) {
         this.x01Stats = (
           x01Stats.data.filter(
-            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+            (s) => s.legs !== null && users.find((u) => u.id == s.legs?.userId)
           ) as X01Stat[]
         ).toSorted(compareLegsCreatedAt)
       }
@@ -108,7 +112,7 @@ export const useStatsStore = defineStore('stats', {
       if (rtcStats.data) {
         this.rtcStats = (
           rtcStats.data.filter(
-            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+            (s) => s.legs !== null && users.find((u) => u.id == s.legs?.userId)
           ) as RtcStat[]
         ).toSorted(compareLegsCreatedAt)
       }
@@ -120,7 +124,7 @@ export const useStatsStore = defineStore('stats', {
       if (killerStats.data) {
         this.killerStats = (
           killerStats.data.filter(
-            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+            (s) => s.legs !== null && users.find((u) => u.id == s.legs?.userId)
           ) as KillerStat[]
         ).toSorted(compareLegsCreatedAt)
       }
@@ -132,7 +136,7 @@ export const useStatsStore = defineStore('stats', {
       if (skovhuggerStats.data) {
         this.skovhuggerStats = (
           skovhuggerStats.data.filter(
-            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+            (s) => s.legs !== null && users.find((u) => u.id == s.legs?.userId)
           ) as SkovhuggerStat[]
         ).toSorted(compareLegsCreatedAt)
       }
@@ -144,7 +148,7 @@ export const useStatsStore = defineStore('stats', {
       if (cricketStats.data) {
         this.cricketStats = (
           cricketStats.data.filter(
-            (s) => s.legs != null && users.find((u) => u.id == s.legs?.userId)
+            (s) => s.legs !== null && users.find((u) => u.id == s.legs?.userId)
           ) as CricketStat[]
         ).toSorted(compareLegsCreatedAt)
       }
@@ -173,7 +177,7 @@ export const useStatsStore = defineStore('stats', {
       compress: (old: number, next: number, userId: string) => number
     ) {
       const filtered = key
-        ? stats.filter((userStat) => userStat[key] != null)
+        ? stats.filter((userStat) => userStat[key] !== null)
         : stats
 
       const result: Record<string, number> = {}
@@ -181,7 +185,7 @@ export const useStatsStore = defineStore('stats', {
         const userId = stat.legs.userId
         const attr = key ? stat[key] : 0
         if (attr == null || !userId) return
-        if (typeof attr != 'number') return
+        if (typeof attr !== 'number') return
         if (!(userId in result)) {
           result[userId] = _default
         }
@@ -253,14 +257,14 @@ export const useStatsStore = defineStore('stats', {
 
         if (
           options.startScore !== undefined &&
-          getTypeAttribute<number>(stat.legs, 'startScore', 0) !=
+          getTypeAttributeOrDefault(stat.legs, 'startScore') !==
             options.startScore
         )
           return false
 
         if (
           options.finish !== undefined &&
-          getTypeAttribute<number>(stat.legs, 'finish', 0) != options.finish
+          getTypeAttributeOrDefault(stat.legs, 'finish') !== options.finish
         )
           return false
 
@@ -286,20 +290,19 @@ export const useStatsStore = defineStore('stats', {
 
         if (
           options.mode !== undefined &&
-          getTypeAttribute<number>(stat.legs, 'mode', 0) != options.mode
+          getTypeAttributeOrDefault(stat.legs, 'mode') !== options.mode
         )
           return false
 
         if (
           options.fast !== undefined &&
-          getTypeAttribute<boolean>(stat.legs, 'fast', false) != options.fast
+          getTypeAttributeOrDefault(stat.legs, 'fast') !== options.fast
         )
           return false
 
         if (
           options.forced !== undefined &&
-          getTypeAttribute<boolean>(stat.legs, 'forced', false) !=
-            options.forced
+          getTypeAttributeOrDefault(stat.legs, 'forced') !== options.forced
         )
           return false
 
@@ -380,7 +383,7 @@ export const getAccumulatedDataset = <T extends AnyStat>(
       ...options,
       label: useUsersStore().getName(user),
       data: stats
-        .filter((s) => s.legs.userId == user && getY(s) != null)
+        .filter((s) => s.legs.userId == user && getY(s) !== null)
         .map((stat) => {
           sum += getY(stat) ?? 0
           return {
@@ -402,7 +405,7 @@ export const getDataset = <T extends AnyStat>(
     ...options,
     label: useUsersStore().getName(user),
     data: stats
-      .filter((s) => s.legs.userId == user && getY(s) != null)
+      .filter((s) => s.legs.userId == user && getY(s) !== null)
       .map((stat) => ({
         x: new Date(stat.legs.createdAt),
         y: getY(stat),
@@ -448,7 +451,7 @@ export const upsertLegStatistics = async (
   gameState: GameState,
   eloDelta: number
 ): Promise<boolean> => {
-  const segments = leg.visits.flat().filter((s) => s != null)
+  const segments = leg.visits.flat().filter((s) => s !== null)
   const darts = segments.length
   const winRate = getWinRate(game, leg.userId)
 

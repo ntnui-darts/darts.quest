@@ -58,19 +58,18 @@
 </template>
 
 <script lang="ts" setup>
-import { getTypeAttribute } from '@/types/game'
+import {
+  getTypeAttribute,
+  getTypeAttributeOrDefault,
+} from '@/types/typeAttributes'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
 
-const finish = ref<1 | 2 | 3>(getTypeAttribute<1 | 2 | 3>(props, 'finish', 2))
-const startScore = ref<301 | 501 | 701>(
-  getTypeAttribute<301 | 501 | 701>(props, 'startScore', 501)
-)
-const maxVisits = ref<number>(getTypeAttribute<number>(props, 'maxVisits', 20))
-const maxVisitsEnabled = ref(
-  getTypeAttribute<number>(props, 'maxVisits', 0) > 0
-)
+const finish = ref(getTypeAttributeOrDefault(props, 'finish'))
+const startScore = ref(getTypeAttributeOrDefault(props, 'startScore'))
+const maxVisits = ref(getTypeAttributeOrDefault(props, 'maxVisits'))
+const maxVisitsEnabled = ref(!!getTypeAttribute(props, 'maxVisits'))
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]
