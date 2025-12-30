@@ -58,7 +58,10 @@
 </template>
 
 <script lang="ts" setup>
-import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
+import {
+  getTypeAttribute,
+  getTypeAttributeOrDefault,
+} from '@/types/typeAttributes'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
@@ -66,7 +69,7 @@ const props = defineProps<{ typeAttributes: string[] }>()
 const finish = ref(getTypeAttributeOrDefault(props, 'finish'))
 const startScore = ref(getTypeAttributeOrDefault(props, 'startScore'))
 const maxVisits = ref(getTypeAttributeOrDefault(props, 'maxVisits'))
-const maxVisitsEnabled = ref(maxVisits.value > 0)
+const maxVisitsEnabled = ref(!!getTypeAttribute(props, 'maxVisits'))
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]
