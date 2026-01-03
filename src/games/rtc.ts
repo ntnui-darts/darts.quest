@@ -88,10 +88,11 @@ export const getRtcController = (game: GameExtended): RtcController => {
         },
       }
     },
-
-    getSegmentText(segment) {
-      return isSegment(segment) ? `${segment.sector}` : '-'
-    },
+    ...(!getTypeAttributeOrDefault(game, 'fast') && {
+      getSegmentText(segment) {
+        return isSegment(segment) ? `${segment.sector}` : '-'
+      },
+    }),
 
     recordHit(segment) {
       const gameState = this.getGameState()
