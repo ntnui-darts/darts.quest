@@ -5,6 +5,7 @@ import {
   GameController,
   GameExtended,
   GameState,
+  MaybeSegment,
   Multiplier,
   Visit,
   getVisitsOfUser,
@@ -13,17 +14,22 @@ import {
   multiplierToString,
 } from '@/types/game'
 
+export const getSegmentText = (
+  segment?: MaybeSegment,
+  hideMultiplier: boolean = false
+) => {
+  if (isForcedCompletion(segment)) return segment.reason
+  if (!isSegment(segment)) return '-'
+  if (!segment.multiplier || segment.multiplier == 1 || hideMultiplier)
+    return segment.sector.toString()
+  return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
+}
+
 export const getGenericController = (game: GameExtended) => {
   return {
     game,
 
-    getSegmentText(segment) {
-      if (isForcedCompletion(segment)) return segment.reason
-      if (!isSegment(segment)) return '-'
-      if (!segment.multiplier || segment.multiplier == 1)
-        return segment.sector.toString()
-      return `${multiplierToString(segment.multiplier)} x ${segment.sector}`
-    },
+    getSegmentText: getSegmentText,
 
     recordHit(segment) {
       if (!segment) return
