@@ -1,3 +1,4 @@
+import { speak } from '@/functions/speak'
 import {
   SimulationState,
   getGenericController,
@@ -14,8 +15,6 @@ import {
   isSegment,
 } from '@/types/game'
 import { getGamePoints } from './games'
-import { speak } from '@/functions/speak'
-import { getVisitScore } from './rtc'
 
 export type KillerController = GameController<GameState>
 
@@ -101,9 +100,27 @@ export const getKillerController = (game: GameExtended): KillerController => {
     },
 
     speakVisit(visit) {
-      const score = getVisitScore(game, visit)
-      if (!score) speak('No score!')
-      else speak(`${score} marks!`)
+      if (game.extension?.kind != 'killer') throw new Error()
+      const userStore = useUsersStore()
+
+      let text = ''
+      for (const segment of visit) {
+        if (!isSegment(segment)) continue
+
+        const player = game.extension.killers.find(
+          (k) => k.sector == segment.sector
+        )
+        if (player) {
+          const name = userStore.getName(player.userId)
+          text += ` ${segment.multiplier} on ${name}`
+        }
+      }
+
+      if (text.length == 0) {
+        speak('No score!')
+      } else {
+        speak(text)
+      }
     },
   }
 }
