@@ -50,44 +50,27 @@
       Forced
     </button>
   </div>
-  <div
-    style="
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 2em;
-    "
-  >
-    <div style="display: flex; gap: 1em">
-      <input
-        id="checkbox-max-visits"
-        type="checkbox"
-        v-model="maxVisitsEnabled"
-      />
-      <label style="margin: 0; font-weight: bold" for="checkbox-max-visits"
-        >Max Visits</label
-      >
-    </div>
-    <input
-      style="flex: 1"
-      :style="{ visibility: maxVisitsEnabled ? 'visible' : 'hidden' }"
-      type="number"
-      :min="3"
-      :max="1000"
-      :step="1"
-      v-model="maxVisits"
-    />
-  </div>
+  <MaxVisitsInput
+    v-model:maxVisits="maxVisits"
+    v-model:maxVisitsEnabled="maxVisitsEnabled"
+  ></MaxVisitsInput>
 </template>
 
 <script lang="ts" setup>
+import { Multiplier } from '@/types/game'
 import {
   getTypeAttribute,
   getTypeAttributeOrDefault,
+  pushTypeAttribute,
 } from '@/types/typeAttributes'
-import { ref, watch } from 'vue'
+import { ref, watchEffect } from 'vue'
+import MaxVisitsInput from './MaxVisitsInput.vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
+
+const emit = defineEmits<{
+  update: [typeAttributes: string[]]
+}>()
 
 const random = ref(getTypeAttributeOrDefault(props, 'random'))
 const forced = ref(getTypeAttributeOrDefault(props, 'forced'))
@@ -96,42 +79,21 @@ const mode = ref(getTypeAttributeOrDefault(props, 'mode'))
 const maxVisits = ref(getTypeAttributeOrDefault(props, 'maxVisits'))
 const maxVisitsEnabled = ref(!!getTypeAttribute(props, 'maxVisits'))
 
-const emit = defineEmits<{
-  update: [typeAttributes: string[]]
-}>()
+watchEffect(() => {
+  if (mode.value != Multiplier.Single) {
+    fast.value = false
+  }
 
-watch(
-  () => [
-    mode.value,
-    random.value,
-    fast.value,
-    forced.value,
-    maxVisitsEnabled.value,
-    maxVisits.value,
-  ],
-  () => {
-    if (mode.value != 1) {
-      fast.value = false
-    }
+  const attributes: string[] = []
+  pushTypeAttribute(attributes, 'mode', mode.value)
+  pushTypeAttribute(attributes, 'random', random.value)
+  pushTypeAttribute(attributes, 'fast', fast.value)
+  pushTypeAttribute(attributes, 'forced', forced.value)
 
-    const attrs = [
-      `mode:${mode.value}`,
-      `random:${random.value}`,
-      `fast:${fast.value}`,
-      `forced:${forced.value}`,
-    ]
+  if (maxVisitsEnabled.value) {
+    pushTypeAttribute(attributes, 'maxVisits', maxVisits.value)
+  }
 
-    const validatedMaxVisits =
-      !!maxVisits.value && isFinite(maxVisits.value)
-        ? Math.round(Math.min(Math.max(3, maxVisits.value), 1000))
-        : 0
-
-    if (maxVisitsEnabled.value && validatedMaxVisits > 0) {
-      attrs.push(`maxVisits:${maxVisits.value}`)
-    }
-
-    emit('update', attrs)
-  },
-  { immediate: true }
-)
+  emit('update', attributes)
+})
 </script>
