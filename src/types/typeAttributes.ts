@@ -1,4 +1,4 @@
-import { Multiplier } from './game'
+import { Game, GameState, Multiplier } from './game'
 
 type TypeAttributeMap = {
   fast: boolean // rtc
@@ -80,4 +80,20 @@ export const pushTypeAttribute = <T extends TypeAttribute>(
   value: TypeAttributeMap[T]
 ) => {
   attributes.push(`${key}${DELIMITER}${value}`)
+}
+
+export const hasReachedMaxVisits = (game: Game, gameState: GameState) => {
+  const maxVisits = getTypeAttribute(game, 'maxVisits')
+  if (!maxVisits) return false
+
+  const lastPlayerId = gameState.playersLeft.at(-1)
+  if (lastPlayerId == null) return false
+
+  const lastPlayerLeg = game.legs.find((leg) => leg.userId == lastPlayerId)
+  const lastPlayerVisits = lastPlayerLeg?.visits ?? []
+
+  return (
+    lastPlayerVisits.length >= maxVisits &&
+    !lastPlayerVisits.at(-1)?.some((s) => s == null)
+  )
 }

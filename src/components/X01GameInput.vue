@@ -1,5 +1,5 @@
 <template>
-  <template v-if="!forcedCompletion">
+  <template v-if="!showForcedCompletion">
     <div class="row" style="justify-content: space-between">
       <button
         v-for="i in [1, 2, 3]"
@@ -45,7 +45,7 @@
     <button @click="emit('resign')">Resign</button>
   </template>
 
-  <template v-if="forcedCompletion">
+  <template v-if="showForcedCompletion">
     <ForcedCompletion
       :game="game"
       :game-state="gameState"
@@ -62,7 +62,7 @@ import {
   Segment,
   multiplierToString,
 } from '@/types/game'
-import { getTypeAttribute } from '@/types/typeAttributes'
+import { hasReachedMaxVisits } from '@/types/typeAttributes'
 import { computed, ref } from 'vue'
 import ForcedCompletion from './ForcedCompletion.vue'
 
@@ -82,23 +82,9 @@ const emit = defineEmits<{
   resign: []
 }>()
 
-const forcedCompletion = computed(() => {
-  const maxVisits = getTypeAttribute(props.game, 'maxVisits')
-  if (!maxVisits) return false
-
-  const lastPlayerId = props.gameState.playersLeft.at(-1)
-  if (lastPlayerId == null) return false
-
-  const lastPlayerLeg = props.game.legs.find(
-    (leg) => leg.userId == lastPlayerId
-  )
-  const lastPlayerVisits = lastPlayerLeg?.visits ?? []
-
-  return (
-    lastPlayerVisits.length >= maxVisits &&
-    !lastPlayerVisits.at(-1)?.some((s) => s == null)
-  )
-})
+const showForcedCompletion = computed(() =>
+  hasReachedMaxVisits(props.game, props.gameState)
+)
 
 const selectSector = (sector: number) => {
   if (sector == 0) {
