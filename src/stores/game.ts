@@ -168,7 +168,9 @@ export const useGameStore = defineStore('game', {
       for (const leg of game.legs) {
         if (leg.userId.startsWith('guest-')) continue
 
-        if (game.result.includes(leg.userId)) {
+        const hasForcedCompletion =
+          leg.visits.at(-1)?.some(isForcedCompletion) ?? false
+        if (game.result.includes(leg.userId) && !hasForcedCompletion) {
           leg.finish = true
         }
         await supabase.from('legs').insert(leg)

@@ -1,7 +1,7 @@
 <template>
   <template v-if="!forcedCompletion">
     <div
-      v-if="game ? getTypeAttribute < Boolean > (game, 'fast', false) : false"
+      v-if="getTypeAttributeOrDefault(game, 'fast')"
       class="row"
       style="justify-content: space-between"
     >
@@ -38,11 +38,13 @@ import {
   Game,
   GameController,
   GameState,
-  Multiplier,
   Segment,
-  getTypeAttribute,
   multiplierToString,
 } from '@/types/game'
+import {
+  getTypeAttribute,
+  getTypeAttributeOrDefault,
+} from '@/types/typeAttributes'
 import { computed, ref } from 'vue'
 import ForcedCompletion from './ForcedCompletion.vue'
 
@@ -59,10 +61,9 @@ const emit = defineEmits<{
   resign: []
 }>()
 
-const maxVisits = getTypeAttribute<number | null>(props.game, 'maxVisits', null)
-
 const forcedCompletion = computed(() => {
-  if (maxVisits === null) return false
+  const maxVisits = getTypeAttribute(props.game, 'maxVisits')
+  if (!maxVisits) return false
 
   const lastPlayerId = props.gameState.playersLeft.at(-1)
   if (lastPlayerId == null) return false
@@ -78,8 +79,7 @@ const forcedCompletion = computed(() => {
   )
 })
 
-const getDefaultMultiplier = () =>
-  props.game ? getTypeAttribute<Multiplier>(props.game, 'mode', 1) : 1
+const getDefaultMultiplier = () => getTypeAttributeOrDefault(props.game, 'mode')
 
 const selectedMultiplier = ref(getDefaultMultiplier())
 

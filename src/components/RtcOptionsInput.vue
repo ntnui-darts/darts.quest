@@ -81,19 +81,20 @@
 </template>
 
 <script lang="ts" setup>
-import { getTypeAttribute } from '@/types/game'
+import {
+  getTypeAttribute,
+  getTypeAttributeOrDefault,
+} from '@/types/typeAttributes'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
 
-const random = ref(getTypeAttribute<boolean>(props, 'random', false))
-const forced = ref(getTypeAttribute<boolean>(props, 'forced', false))
-const fast = ref(getTypeAttribute<boolean>(props, 'fast', false))
-const mode = ref<1 | 2 | 3>(getTypeAttribute<1 | 2 | 3>(props, 'mode', 1))
-const maxVisits = ref<number>(getTypeAttribute<number>(props, 'maxVisits', 20))
-const maxVisitsEnabled = ref(
-  getTypeAttribute<number>(props, 'maxVisits', 0) > 0
-)
+const random = ref(getTypeAttributeOrDefault(props, 'random'))
+const forced = ref(getTypeAttributeOrDefault(props, 'forced'))
+const fast = ref(getTypeAttributeOrDefault(props, 'fast'))
+const mode = ref(getTypeAttributeOrDefault(props, 'mode'))
+const maxVisits = ref(getTypeAttributeOrDefault(props, 'maxVisits'))
+const maxVisitsEnabled = ref(!!getTypeAttribute(props, 'maxVisits'))
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]

@@ -89,29 +89,6 @@ export const getVisitsOfUser = (game: Game, userId?: string | null) => {
   return leg.visits
 }
 
-export const getTypeAttribute = <T>(
-  data: { typeAttributes: string[] } | null,
-  name: string,
-  _default: T
-) => {
-  if (!data) return _default
-
-  for (const attr of data.typeAttributes) {
-    if (!attr.includes(':')) continue
-    const [key, value] = attr.split(':')
-    if (key == name) {
-      if (typeof _default == 'number') {
-        return parseFloat(value) as T
-      }
-      if (typeof _default == 'boolean') {
-        return (value == 'true') as T
-      }
-      return value as T
-    }
-  }
-  return _default as T
-}
-
 export const isSegment = (
   candidate: MaybeSegment | undefined
 ): candidate is Segment => {
