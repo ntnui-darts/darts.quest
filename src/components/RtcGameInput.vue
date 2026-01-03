@@ -1,26 +1,36 @@
 <template>
-  <div
-    v-if="getTypeAttributeOrDefault(game, 'fast')"
-    class="row"
-    style="justify-content: space-between"
-  >
-    <button
-      v-for="i in [1, 2, 3]"
-      @click="selectedMultiplier = i"
-      :class="{
-        selected: selectedMultiplier == i,
-      }"
+  <template v-if="!showForcedCompletion">
+    <div
+      v-if="getTypeAttributeOrDefault(game, 'fast')"
+      class="row"
+      style="justify-content: space-between"
     >
-      {{ multiplierToString(i) }}
-    </button>
-  </div>
-  <div class="row" style="height: 12em">
-    <button @click="registerMiss">&#10008;</button>
-    <button @click="registerHit">&#10004;</button>
-  </div>
-  <button @click="emit('undo')">&#x232B;</button>
+      <button
+        v-for="i in [1, 2, 3]"
+        @click="selectedMultiplier = i"
+        :class="{
+          selected: selectedMultiplier == i,
+        }"
+      >
+        {{ multiplierToString(i) }}
+      </button>
+    </div>
+    <div class="row" style="height: 12em">
+      <button @click="registerMiss">&#10008;</button>
+      <button @click="registerHit">&#10004;</button>
+    </div>
+    <button @click="emit('undo')">&#x232B;</button>
 
-  <button @click="emit('resign')">Resign</button>
+    <button @click="emit('resign')">Resign</button>
+  </template>
+
+  <template v-if="showForcedCompletion">
+    <ForcedCompletion
+      :game="game"
+      :game-state="gameState"
+      @undo="emit('undo')"
+    ></ForcedCompletion>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -31,8 +41,12 @@ import {
   Segment,
   multiplierToString,
 } from '@/types/game'
-import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
-import { ref } from 'vue'
+import {
+  getTypeAttributeOrDefault,
+  hasReachedMaxVisits,
+} from '@/types/typeAttributes'
+import { computed, ref } from 'vue'
+import ForcedCompletion from './ForcedCompletion.vue'
 
 const props = defineProps<{
   game: Game
@@ -46,6 +60,10 @@ const emit = defineEmits<{
   undo: []
   resign: []
 }>()
+
+const showForcedCompletion = computed(() =>
+  hasReachedMaxVisits(props.game, props.gameState)
+)
 
 const getDefaultMultiplier = () => getTypeAttributeOrDefault(props.game, 'mode')
 

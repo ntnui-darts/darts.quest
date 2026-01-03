@@ -1,4 +1,4 @@
-import { Multiplier } from './game'
+import { Game, GameState, Multiplier } from './game'
 
 type TypeAttributeMap = {
   fast: boolean // rtc
@@ -46,10 +46,10 @@ const handlers: {
 }
 
 const DELIMITER = ':'
-export function getTypeAttribute<T extends TypeAttribute>(
+export const getTypeAttribute = <T extends TypeAttribute>(
   data: { typeAttributes: string[] } | null,
   name: T
-): TypeAttributeMap[T] | undefined {
+): TypeAttributeMap[T] | undefined => {
   if (!data || !data.typeAttributes?.length) return undefined
 
   const attribute = data.typeAttributes
@@ -65,11 +65,35 @@ export function getTypeAttribute<T extends TypeAttribute>(
   return handlers[name](attribute.value)
 }
 
-export function getTypeAttributeOrDefault<T extends TypeAttribute>(
+export const getTypeAttributeOrDefault = <T extends TypeAttribute>(
   data: { typeAttributes: string[] } | null,
   name: T
-): TypeAttributeMap[T] {
+): TypeAttributeMap[T] => {
   const _default = TypeAttributeDefaults[name]
   if (!data || !data.typeAttributes?.length) return _default
   return getTypeAttribute(data, name) ?? _default
+}
+
+export const pushTypeAttribute = <T extends TypeAttribute>(
+  attributes: string[],
+  key: T,
+  value: TypeAttributeMap[T]
+) => {
+  attributes.push(`${key}${DELIMITER}${value}`)
+}
+
+export const hasReachedMaxVisits = (game: Game, gameState: GameState) => {
+  const maxVisits = getTypeAttribute(game, 'maxVisits')
+  if (!maxVisits) return false
+
+  const lastPlayerId = gameState.playersLeft.at(-1)
+  if (lastPlayerId == null) return false
+
+  const lastPlayerLeg = game.legs.find((leg) => leg.userId == lastPlayerId)
+  const lastPlayerVisits = lastPlayerLeg?.visits ?? []
+
+  return (
+    lastPlayerVisits.length >= maxVisits &&
+    !lastPlayerVisits.at(-1)?.some((s) => s == null)
+  )
 }

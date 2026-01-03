@@ -7,7 +7,6 @@
       @click="
         () => {
           mode = t
-          update()
         }
       "
     >
@@ -20,7 +19,6 @@
       @click="
         () => {
           random = !random
-          update()
         }
       "
     >
@@ -34,7 +32,6 @@
       @click="
         () => {
           fast = !fast
-          update()
         }
       "
     >
@@ -47,43 +44,56 @@
         () => {
           forced = !forced
           fast = false
-          update()
         }
       "
     >
       Forced
     </button>
   </div>
+  <MaxVisitsInput
+    v-model:maxVisits="maxVisits"
+    v-model:maxVisitsEnabled="maxVisitsEnabled"
+  ></MaxVisitsInput>
 </template>
 
 <script lang="ts" setup>
-import { getTypeAttributeOrDefault } from '@/types/typeAttributes'
-import { onMounted, ref } from 'vue'
+import { Multiplier } from '@/types/game'
+import {
+  getTypeAttribute,
+  getTypeAttributeOrDefault,
+  pushTypeAttribute,
+} from '@/types/typeAttributes'
+import { ref, watchEffect } from 'vue'
+import MaxVisitsInput from './MaxVisitsInput.vue'
 
 const props = defineProps<{ typeAttributes: string[] }>()
-
-const random = ref(getTypeAttributeOrDefault(props, 'random'))
-const forced = ref(getTypeAttributeOrDefault(props, 'forced'))
-const fast = ref(getTypeAttributeOrDefault(props, 'fast'))
-const mode = ref(getTypeAttributeOrDefault(props, 'mode'))
 
 const emit = defineEmits<{
   update: [typeAttributes: string[]]
 }>()
 
-const update = () => {
-  if (mode.value != 1) {
+const random = ref(getTypeAttributeOrDefault(props, 'random'))
+const forced = ref(getTypeAttributeOrDefault(props, 'forced'))
+const fast = ref(getTypeAttributeOrDefault(props, 'fast'))
+const mode = ref(getTypeAttributeOrDefault(props, 'mode'))
+const maxVisits = ref(getTypeAttributeOrDefault(props, 'maxVisits'))
+const maxVisitsEnabled = ref(!!getTypeAttribute(props, 'maxVisits'))
+
+watchEffect(() => {
+  if (mode.value != Multiplier.Single) {
     fast.value = false
   }
-  emit('update', [
-    `mode:${mode.value}`,
-    `random:${random.value}`,
-    `fast:${fast.value}`,
-    `forced:${forced.value}`,
-  ])
-}
 
-onMounted(() => {
-  update()
+  const attributes: string[] = []
+  pushTypeAttribute(attributes, 'mode', mode.value)
+  pushTypeAttribute(attributes, 'random', random.value)
+  pushTypeAttribute(attributes, 'fast', fast.value)
+  pushTypeAttribute(attributes, 'forced', forced.value)
+
+  if (maxVisitsEnabled.value) {
+    pushTypeAttribute(attributes, 'maxVisits', maxVisits.value)
+  }
+
+  emit('update', attributes)
 })
 </script>
