@@ -14,6 +14,8 @@ import {
   isSegment,
 } from '@/types/game'
 import { getGamePoints } from './games'
+import { speak } from '@/functions/speak'
+import { getVisitScore } from './rtc'
 
 export type KillerController = GameController<GameState>
 
@@ -98,7 +100,11 @@ export const getKillerController = (game: GameExtended): KillerController => {
       gameStore.saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
 
-    speakVisit() {},
+    speakVisit(visit) {
+      const score = getVisitScore(game, visit)
+      if (!score) speak('No score!')
+      else speak(`${score} marks!`)
+    },
   }
 }
 
