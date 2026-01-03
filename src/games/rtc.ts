@@ -1,5 +1,9 @@
 import { speak } from '@/functions/speak'
-import { getGenericController, simulateFirstToWinGame } from '@/games/generic'
+import {
+  getGenericController,
+  getSegmentText,
+  simulateFirstToWinGame,
+} from '@/games/generic'
 import { useGameStore } from '@/stores/game'
 import { toPercentage } from '@/stores/stats'
 import { useUsersStore } from '@/stores/users'
@@ -90,7 +94,9 @@ export const getRtcController = (game: GameExtended): RtcController => {
     },
 
     getSegmentText(segment) {
-      return isSegment(segment) ? `${segment.sector}` : '-'
+      const isFast = getTypeAttributeOrDefault(game, 'fast')
+      const hideMultiplier = !isFast
+      return getSegmentText(segment, hideMultiplier)
     },
 
     recordHit(segment) {
