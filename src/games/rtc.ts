@@ -108,15 +108,11 @@ export const getRtcController = (game: GameExtended): RtcController => {
     },
 
     speakVisit(visit) {
-      const score = visit.filter((s) => isSegment(s) && s.sector > 0).length
+      const score = getRtcVisitScore(game, visit)
       if (!score) speak('No score!')
       else speak(`${score}!`)
     },
   }
-}
-
-export const getCurrentSector = (game: Game, visits: Visit[]) => {
-  return getRtcLegScore(game, visits) + 1
 }
 
 export const sumNumbers = (numbers: number[]) => {
@@ -126,11 +122,11 @@ export const sumNumbers = (numbers: number[]) => {
 export const getRtcLegScore = (game: Game, visits: Visit[]) => {
   return Math.min(
     getGamePoints(game),
-    sumNumbers(visits.map((v) => getVisitScore(game, v)))
+    sumNumbers(visits.map((v) => getRtcVisitScore(game, v)))
   )
 }
 
-const getVisitScore = (game: Game, visit: Visit) => {
+export const getRtcVisitScore = (game: Game, visit: Visit) => {
   const isFast = getTypeAttributeOrDefault(game, 'fast')
   return sumNumbers(
     visit.map((s) =>

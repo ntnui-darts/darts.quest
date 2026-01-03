@@ -1,3 +1,4 @@
+import { speak } from '@/functions/speak'
 import {
   SimulationState,
   getGenericController,
@@ -98,7 +99,29 @@ export const getKillerController = (game: GameExtended): KillerController => {
       gameStore.saveScore({ multiplier: Multiplier.None, sector: 0 })
     },
 
-    speakVisit() {},
+    speakVisit(visit) {
+      if (game.extension?.kind != 'killer') throw new Error()
+      const userStore = useUsersStore()
+
+      let text = ''
+      for (const segment of visit) {
+        if (!isSegment(segment)) continue
+
+        const player = game.extension.killers.find(
+          (k) => k.sector == segment.sector
+        )
+        if (player) {
+          const name = userStore.getName(player.userId)
+          text += ` ${segment.multiplier} on ${name}`
+        }
+      }
+
+      if (text.length == 0) {
+        speak('No score!')
+      } else {
+        speak(text)
+      }
+    },
   }
 }
 
