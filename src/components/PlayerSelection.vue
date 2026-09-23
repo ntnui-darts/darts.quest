@@ -6,7 +6,7 @@
       :style="{
         opacity: user == draggedUser ? 0.3 : user == hoverUser ? 0.6 : 1,
       }"
-      :draggable="true"
+      :draggable="!disableDrag"
       :key="user.id"
       :id="user.id"
       @click="editUser(user)"
@@ -57,6 +57,7 @@ const props = defineProps<{
   hideTitle?: boolean
   disableAuto?: boolean
   disableCustom?: boolean
+  disableDrag?: boolean
 }>()
 
 const usersStore = useUsersStore()

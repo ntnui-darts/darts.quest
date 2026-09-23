@@ -26,9 +26,12 @@
         :min="1"
         :max="1000"
         :value="value"
-        @input="(e) => {
-          gameSelectionStore.setsPerMatchArray[i] = (e.target as HTMLInputElement)?.valueAsNumber ?? 1
-        }"
+        @input="
+          (e) => {
+            gameSelectionStore.setsPerMatchArray[i] =
+              (e.target as HTMLInputElement)?.valueAsNumber ?? 1
+          }
+        "
       />
     </template>
   </div>
@@ -42,9 +45,12 @@
         :min="1"
         :max="1000"
         :value="value"
-        @input="(e) => {
-          gameSelectionStore.legsPerSetArray[i] = (e.target as HTMLInputElement)?.valueAsNumber ?? 1
-        }"
+        @input="
+          (e) => {
+            gameSelectionStore.legsPerSetArray[i] =
+              (e.target as HTMLInputElement)?.valueAsNumber ?? 1
+          }
+        "
       />
     </template>
   </div>
@@ -52,6 +58,7 @@
   <PlayerSelection
     v-model:players="gameSelectionStore.players"
     :disable-custom="true"
+    :disable-drag="true"
   ></PlayerSelection>
 
   <br />
