@@ -6,9 +6,9 @@
     <h2>{{ tournament.name }}, {{ GameTypeNames[tournament.gameType] }}</h2>
     <div>
       {{ new Date(tournament.createdAt).toDateString() }}
-      by {{ usersStore.getName(tournament.userId) }}
+      by {{ usersStore.getName(tournament.userId) }} · {{ typeLabel }}
     </div>
-    <div>
+    <div v-if="!isRoundRobin">
       <table style="width: 100%; text-align: center">
         <thead>
           <tr>
@@ -26,12 +26,18 @@
         </tbody>
       </table>
     </div>
+    <div v-else>
+      Everyone plays everyone once{{ isGrouped ? ' in their group' : '' }}. Each
+      match is first to {{ tournament.setsPerMatchArray?.at(0) ?? 1 }} set(s),
+      first to {{ tournament.legsPerSetArray?.at(0) ?? 1 }} leg(s) per set.
+    </div>
 
     <div class="row spaced">
       <h3>Overview</h3>
       <button style="flex: 0" @click="refreshTournamentState">Refresh</button>
     </div>
     <div
+      v-if="!isRoundRobin"
       id="tournament-bracket"
       ref="tournamentBracketDiv"
       style="
@@ -97,6 +103,92 @@
         </div>
       </template>
     </div>
+    <div v-else id="round-robin" ref="roundRobinDiv" style="padding: 2px">
+      <template v-for="(group, g) in roundRobinState.groups" :key="g">
+        <h2 v-if="isGrouped">{{ groupLabel(g) }}</h2>
+        <h3>Standings</h3>
+        <table style="width: 100%; text-align: center">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th style="text-align: left">Player</th>
+              <th>P</th>
+              <th>W</th>
+              <th>L</th>
+              <th>+/-</th>
+              <th>Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(row, i) in group.standings"
+              :key="row.id"
+              :style="{
+                fontWeight:
+                  row.id == usersStore.getCurrentUser?.id ? 'bold' : 'normal',
+              }"
+            >
+              <td>{{ i + 1 }}</td>
+              <td style="text-align: left">
+                {{ stringMaxLength(usersStore.getName(row.id), 14) }}
+              </td>
+              <td>{{ row.played }}</td>
+              <td>{{ row.won }}</td>
+              <td>{{ row.lost }}</td>
+              <td>{{ row.legsFor - row.legsAgainst }}</td>
+              <td>{{ row.points }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Fixtures</h3>
+        <template v-for="(fixtures, r) in group.rounds" :key="r">
+          <h4>Round {{ r + 1 }}</h4>
+          <div
+            v-for="fixture in fixtures"
+            :key="fixture.aId + fixture.bId"
+            style="
+              display: flex;
+              gap: 1em;
+              align-items: center;
+              margin-bottom: 4px;
+            "
+          >
+            <button
+              style="flex: 1"
+              :class="{
+                'outlined-white': fixture.aId == usersStore.getCurrentUser?.id,
+                'outlined-green': fixture.result.winnerId == fixture.aId,
+                'outlined-red': fixture.result.winnerId == fixture.bId,
+              }"
+            >
+              {{ stringMaxLength(usersStore.getName(fixture.aId), 14) }}
+              {{ fixtureScore(fixture.result.a) }}
+            </button>
+            <span>VS</span>
+            <button
+              style="flex: 1"
+              :class="{
+                'outlined-white': fixture.bId == usersStore.getCurrentUser?.id,
+                'outlined-green': fixture.result.winnerId == fixture.bId,
+                'outlined-red': fixture.result.winnerId == fixture.aId,
+              }"
+            >
+              {{ stringMaxLength(usersStore.getName(fixture.bId), 14) }}
+              {{ fixtureScore(fixture.result.b) }}
+            </button>
+            <button
+              v-if="canPlayFixture(fixture)"
+              class="primary"
+              style="flex: 0"
+              @click="startMatch([fixture.aId, fixture.bId])"
+            >
+              Play
+            </button>
+          </div>
+        </template>
+      </template>
+    </div>
 
     <template v-if="tournamentState.matches.length">
       <h3>Current Matches</h3>
@@ -125,8 +217,17 @@
       </template>
     </template>
 
-    <template v-if="finalWinner">
-      <h2>👑 {{ usersStore.getName(finalWinner.id) }} won the tournament!</h2>
+    <template v-if="finalWinner || groupWinners.length">
+      <h2 v-if="finalWinner">
+        👑 {{ usersStore.getName(finalWinner.id) }} won the tournament!
+      </h2>
+      <template v-else>
+        <h2>Group winners</h2>
+        <div v-for="(id, g) in groupWinners" :key="g">
+          👑 {{ groupLabel(g) }}: {{ usersStore.getName(id) }}
+        </div>
+        <br />
+      </template>
       <button @click="onDownloadBracket">Export as image</button>
     </template>
     <br />
@@ -153,6 +254,17 @@ import { UserCurrentInfo } from '@/components/PlayerSelection.vue'
 import Prompt from '@/components/Prompt.vue'
 import TournamentPlayerSelection from '@/components/TournamentPlayerSelection.vue'
 import { stringMaxLength } from '@/functions/string'
+import {
+  EliminationState,
+  Fixture,
+  getEliminationState,
+  getGroupedRoundRobinState,
+  GroupedRoundRobinState,
+  groupLabel,
+  parseGroupCount,
+  parseTournamentType,
+  SideState,
+} from '@/functions/tournament'
 import { GameTypeNames } from '@/games/games'
 import { router } from '@/router'
 import { useGameSelectionStore } from '@/stores/gameSelection'
@@ -167,13 +279,31 @@ import { supabase } from '@/supabase'
 import { toPng as htmlToPng } from 'html-to-image'
 import { computed, onMounted, ref } from 'vue'
 
-type TournamentState = Awaited<ReturnType<typeof getTournamentState>>
-
 const tournamentStore = useTournamentStore()
 const usersStore = useUsersStore()
 
 const tournament = computed(() => tournamentStore.currentTournament)
-const tournamentState = ref<TournamentState>({ grid: [], matches: [] })
+const tournamentType = computed(() =>
+  parseTournamentType(tournament.value?.type)
+)
+const isRoundRobin = computed(() => tournamentType.value == 'round-robin')
+const groupCount = computed(() => parseGroupCount(tournament.value?.type))
+const isGrouped = computed(() => isRoundRobin.value && groupCount.value > 1)
+const typeLabel = computed(() => {
+  if (isGrouped.value) return `Round robin, ${groupCount.value} groups`
+  return {
+    elimination: 'Elimination',
+    'elimination-seeded': 'Elimination (seeded)',
+    'round-robin': 'Round robin',
+  }[tournamentType.value]
+})
+
+// Only one of these is used, depending on the type of the tournament.
+const tournamentState = ref<EliminationState>({ grid: [], matches: [] })
+const roundRobinState = ref<GroupedRoundRobinState>({
+  groups: [],
+  finished: false,
+})
 const tournamentGames = ref<
   {
     tournamentId: string | null
@@ -184,6 +314,7 @@ const tournamentGames = ref<
 >([])
 
 const tournamentBracketDiv = ref<HTMLDivElement | null>(null)
+const roundRobinDiv = ref<HTMLDivElement | null>(null)
 
 onMounted(async () => {
   if (!tournament.value) {
@@ -220,138 +351,54 @@ const rounds = computed(() => {
   return roundLabels
 })
 
-type PlayerMatchState = {
-  id: string | undefined
-  legWins: number[]
-  setWins: number
-  wonMatch: boolean | undefined
-}
-const getMatchState = async (
-  _a: PlayerMatchState | undefined,
-  _b: PlayerMatchState | undefined,
-  matchIndex: number
-) => {
-  // Will set values in a and b.
-  if (!tournament.value) return undefined
-  const a = _a
-  const b = _b
-  if (!a || !b) return undefined
-  if (a.id == b.id) return undefined
-  for (const p of [a, b]) {
-    p.legWins = [0]
-    p.setWins = 0
-    p.wonMatch = undefined
-  }
-
-  if (tournamentGames.value.length == 0) return undefined
-
-  const games = tournamentGames.value.filter(
-    (g) => a.id && b.id && g.players.includes(a.id) && g.players.includes(b.id)
-  )
-
-  for (const game of games) {
-    const winnerId = game.result[0]
-    const [winner, loser] =
-      a.id == winnerId ? [a, b] : b.id == winnerId ? [b, a] : [null, null]
-    if (!winner || !loser) continue
-    winner.legWins[winner.legWins.length - 1] += 1
-    if (
-      winner.legWins[winner.legWins.length - 1] >=
-      (tournament.value.legsPerSetArray?.at(matchIndex) ?? 1)
-    ) {
-      winner.setWins += 1
-
-      if (
-        winner.setWins >=
-        (tournament.value.setsPerMatchArray?.at(matchIndex) ?? 1)
-      ) {
-        winner.wonMatch = true
-        loser.wonMatch = false
-        return winner
-      } else {
-        winner.legWins.push(0)
-        loser.legWins.push(0)
-      }
-    }
-  }
-  return undefined
-}
-
-const getTournamentState = async () => {
-  if (!tournament.value) return { grid: [], matches: [] }
+const refreshTournamentState = async () => {
+  const t = tournament.value
+  if (!t) return
 
   useLoadingStore().loading = true
 
   const gamesResponse = await supabase
     .from('games')
     .select('tournamentId, result, createdAt, players')
-    .eq('tournamentId', tournament.value.id)
+    .eq('tournamentId', t.id)
+  tournamentGames.value = gamesResponse.data ?? []
 
-  if (gamesResponse.data) {
-    tournamentGames.value = gamesResponse.data
+  if (isRoundRobin.value) {
+    roundRobinState.value = getGroupedRoundRobinState(
+      t.players,
+      groupCount.value,
+      tournamentGames.value,
+      t.legsPerSetArray,
+      t.setsPerMatchArray
+    )
   } else {
-    tournamentGames.value = []
-  }
-
-  let prevRound: (PlayerMatchState | undefined)[] =
-    tournament.value.players.map((id) => ({
-      id,
-      legWins: [0],
-      setWins: 0,
-      wonMatch: undefined,
-    }))
-  const grid = []
-  const matches: [PlayerMatchState, PlayerMatchState][] = []
-  const n_columns =
-    tournamentNumberOfRounds(tournament.value.players.length) + 1
-
-  for (let round = 0; round < n_columns; round++) {
-    const readonlyPrevRound = [...prevRound]
-
-    const thisRound = []
-
-    const n_matches =
-      2 * readonlyPrevRound.length -
-      Math.pow(2, Math.ceil(Math.log2(readonlyPrevRound.length)))
-
-    for (let i = 0; i < n_matches; i += 2) {
-      const a = readonlyPrevRound[i]
-      const b = readonlyPrevRound[i + 1]
-      const winner = await getMatchState(a, b, round)
-      if (winner) {
-        const winnerClone = structuredClone(winner)
-        winnerClone.legWins = [0]
-        winnerClone.setWins = 0
-        winnerClone.wonMatch = undefined
-        thisRound.push(winnerClone)
-      } else {
-        thisRound.push(undefined)
-      }
-      if (a && b && !winner) {
-        matches.push([a, b])
-      }
-    }
-    for (let i = n_matches; i < readonlyPrevRound.length; i++) {
-      thisRound.push(readonlyPrevRound[i])
-      const index = prevRound.indexOf(readonlyPrevRound[i])
-      if (index >= 0) {
-        prevRound.splice(index + 1, 0, undefined)
-      }
-    }
-
-    grid.push(prevRound)
-    prevRound = structuredClone(thisRound)
+    tournamentState.value = getEliminationState(
+      t.players,
+      tournamentType.value,
+      tournamentGames.value,
+      t.legsPerSetArray,
+      t.setsPerMatchArray
+    )
   }
 
   useLoadingStore().loading = false
-
-  return { grid, matches }
 }
 
-const refreshTournamentState = async () => {
-  tournamentState.value = await getTournamentState()
+// Score shown next to a name, same rule as in the bracket: legs when a match
+// is a single set, otherwise sets.
+const fixtureScore = (side: SideState) =>
+  (tournament.value?.setsPerMatchArray?.at(0) ?? 1) == 1
+    ? (side.legWins.at(-1) ?? 0)
+    : side.setWins
+
+const canPlayFixture = (fixture: Fixture) => {
+  const me = usersStore.getCurrentUser?.id
+  if (!me || fixture.result.winnerId) return false
+  return fixture.aId == me || fixture.bId == me
 }
 
+// Elimination only. In a round robin there is no single "my match", so the
+// fixture list has a Play button on each open fixture instead.
 const myMatch = computed(() =>
   tournamentState.value.matches.find((match) =>
     match.some(
@@ -368,15 +415,36 @@ const myOpponent = computed(() => {
     return myMatch.value[0]
 })
 
-const finalWinner = computed(() => tournamentState.value.grid.at(-1)?.at(0))
+// With one group the top of the table wins. With several groups there is one
+// winner per group instead, see groupWinners.
+const finalWinner = computed(() => {
+  if (isRoundRobin.value) {
+    if (isGrouped.value || !roundRobinState.value.finished) return undefined
+    return roundRobinState.value.groups.at(0)?.standings.at(0)
+  }
+  return tournamentState.value.grid.at(-1)?.at(0)
+})
+
+const groupWinners = computed(() =>
+  isGrouped.value && roundRobinState.value.finished
+    ? roundRobinState.value.groups.flatMap((group) => {
+        const winner = group.standings.at(0)
+        return winner ? [winner.id] : []
+      })
+    : []
+)
 
 const onPlay = () => {
-  if (!tournament.value) return
   if (!myMatch.value) return
+  startMatch(myMatch.value.map((p) => p.id))
+}
+
+const startMatch = (playerIds: string[]) => {
+  if (!tournament.value) return
   const t = tournament.value
   useModalStore().push(
     TournamentPlayerSelection,
-    { playerIds: myMatch.value.map((p) => p.id) },
+    { playerIds },
     {
       submit: (players: UserCurrentInfo[]) => {
         if (!tournament.value) return
@@ -434,7 +502,27 @@ const onDeleteTournament = async () => {
   )
 }
 
+const downloadImage = (dataUrl: string) => {
+  // download on click
+  const link = document.createElement('a')
+  link.hidden = true
+  link.download = `${tournament.value?.name}.png`
+  link.href = dataUrl
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
 const onDownloadBracket = () => {
+  if (isRoundRobin.value) {
+    // Standings and fixtures are plain blocks, no column math needed.
+    if (!roundRobinDiv.value) return
+    htmlToPng(roundRobinDiv.value, {
+      backgroundColor: '#242424', // var(--c-background)
+    }).then(downloadImage)
+    return
+  }
+
   const divElement = tournamentBracketDiv.value
   if (!divElement) return
 
@@ -454,15 +542,6 @@ const onDownloadBracket = () => {
     style: {
       justifyContent: 'space-evenly',
     },
-  }).then((dataUrl) => {
-    // download on click
-    const link = document.createElement('a')
-    link.hidden = true
-    link.download = `${tournament.value?.name}.png`
-    link.href = dataUrl
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  })
+  }).then(downloadImage)
 }
 </script>

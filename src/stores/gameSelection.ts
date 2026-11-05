@@ -1,4 +1,5 @@
 import { UserCurrentInfo } from '@/components/PlayerSelection.vue'
+import { BracketOrder, TournamentFormat } from '@/functions/tournament'
 import { GameType, getMinPlayerCount } from '@/games/games'
 import { router } from '@/router'
 import { Leg } from '@/types/game'
@@ -18,6 +19,9 @@ export const useGameSelectionStore = defineStore('game-selection', {
     setsPerMatchArray: [1],
     legsPerSetArray: [1],
     tournamentName: 'Casual Tournament',
+    tournamentFormat: 'elimination' as TournamentFormat,
+    bracketOrder: 'random' as BracketOrder,
+    roundRobinGroups: 1,
   }),
 
   actions: {
